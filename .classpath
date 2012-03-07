@@ -32,5 +32,10 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/guava-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons-lang3.jar" sourcepath="lib/commons-lang3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/commons-lang3-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target"/>
 </classpath>
