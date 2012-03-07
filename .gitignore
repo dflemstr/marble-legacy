@@ -22,6 +22,7 @@ tmp/**
 tmp/**/*
 !.project
 !.classpath
+!.settings
 *.tmp
 *.bak
 *.swp
