@@ -1,88 +1,192 @@
 package org.marble;
 
-import com.ardor3d.bounding.BoundingBox;
+import java.util.Set;
+
+import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector3f;
+
+import org.marble.engine.Engine;
+import org.marble.engine.GraphicsEngine;
+import org.marble.engine.InputEngine;
+import org.marble.engine.PhysicsEngine;
+import org.marble.entity.Entity;
+import org.marble.graphics.SmoothOrbitCamControl;
+
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.input.MouseManager;
+import com.ardor3d.input.control.OrbitCamControl;
 import com.ardor3d.input.logical.LogicalLayer;
 import com.ardor3d.light.PointLight;
 import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.MathUtils;
-import com.ardor3d.math.Matrix3;
-import com.ardor3d.math.Vector3;
-import com.ardor3d.renderer.state.LightState;
-import com.ardor3d.renderer.state.ZBufferState;
-import com.ardor3d.scenegraph.Mesh;
-import com.ardor3d.scenegraph.Node;
-import com.ardor3d.scenegraph.shape.Box;
+import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.util.ReadOnlyTimer;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
+/**
+ * An abstracted game instance that handles a game session.
+ */
 public class Game {
-    private final Node rootNode = new Node();
-    private final NativeCanvas canvas;
-    @SuppressWarnings("unused")
-    private final LogicalLayer logicalLayer;
-    @SuppressWarnings("unused")
-    private final MouseManager mouseManager;
+    // Handles rendering.
+    private final GraphicsEngine graphicsEngine;
+    // Handles keyboard input.
+    private final InputEngine inputEngine;
+    // Handles physics simulations.
+    private final PhysicsEngine physicsEngine;
 
-    private ZBufferState zbuffer;
-    private LightState light;
+    // Entities that are present in our world.
+    private final Set<Entity> entities = Sets.newIdentityHashSet();
 
-    /** Keep a reference to the box to be able to rotate it each frame. */
-    private Mesh box;
+    // Engines to handle.
+    private final ImmutableSet<Engine<?>> engines;
 
-    /** Rotation matrix for the spinning box. */
-    private final Matrix3 rotate = new Matrix3();
+    // XXX Debug light; create light entities instead.
+    private PointLight light;
 
-    /** Angle of rotation for the box. */
-    private double angle = 0;
+    // Simple tracking camera system.
+    private OrbitCamControl cameraControl;
 
-    /** Axis to rotate the box around. */
-    private final Vector3 axis = new Vector3(1, 1, 0.5f).normalizeLocal();
-
+    /**
+     * Creates a new game instance.
+     * 
+     * @param canvas
+     *            The canvas to draw on.
+     * @param logicalLayer
+     *            The source of input events to use.
+     * @param mouseManager
+     *            The way to control the mouse.
+     */
     public Game(final NativeCanvas canvas, final LogicalLayer logicalLayer,
             final MouseManager mouseManager) {
-        this.canvas = canvas;
-        this.logicalLayer = logicalLayer;
-        this.mouseManager = mouseManager;
+        this.graphicsEngine = new GraphicsEngine(canvas);
+        this.inputEngine = new InputEngine(logicalLayer, mouseManager);
+        this.physicsEngine = new PhysicsEngine();
+
+        this.engines =
+                ImmutableSet.of((Engine<?>) this.graphicsEngine,
+                        (Engine<?>) this.inputEngine,
+                        (Engine<?>) this.physicsEngine);
     }
 
-    public Node getRootNode() {
-        return this.rootNode;
+    /**
+     * Starts managing an entity.
+     * 
+     * @param entity
+     *            The entity to manage.
+     */
+    public void addEntity(final Entity entity) {
+        for (final Engine<?> engine : this.engines) {
+            if (engine.shouldHandle(entity)) {
+                engine.addEntity(entity);
+            }
+        }
+
+        this.entities.add(entity);
     }
 
+    /**
+     * Performs deferred destruction of all subsystems.
+     */
+    public void destroy() {
+        for (final Entity entity : this.entities) {
+            removeEntity(entity);
+        }
+
+        // XXX Debug light
+        this.graphicsEngine.getLighting().detach(this.light);
+
+        for (final Engine<?> engine : this.engines) {
+            engine.destroy();
+        }
+    }
+
+    /**
+     * The graphics engine that is in use.
+     */
+    public GraphicsEngine getGraphicsEngine() {
+        return this.graphicsEngine;
+    }
+
+    /**
+     * The input engine that is in use.
+     */
+    public InputEngine getInputEngine() {
+        return this.inputEngine;
+    }
+
+    /**
+     * The physics engine that is in use.
+     */
+    public PhysicsEngine getPhysicsEngine() {
+        return this.physicsEngine;
+    }
+
+    /**
+     * Performs deferred initialization of all subsystems.
+     */
     public void initialize() {
-        this.canvas.setTitle("Marble");
+        for (final Engine<?> engine : this.engines) {
+            engine.initialize();
+        }
 
-        this.zbuffer = new ZBufferState();
-        this.zbuffer.setEnabled(true);
-        this.zbuffer.setFunction(ZBufferState.TestFunction.LessThanOrEqualTo);
-        this.rootNode.setRenderState(this.zbuffer);
-
-        final PointLight plight = new PointLight();
-        plight.setDiffuse(new ColorRGBA(0.75f, 0.75f, 0.75f, 0.75f));
-        plight.setAmbient(new ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f));
-        plight.setLocation(new Vector3(100, 100, 100));
-        plight.setEnabled(true);
-
-        this.light = new LightState();
+        // XXX Debug light
+        this.light = new PointLight();
+        this.light.setDiffuse(new ColorRGBA(0.75f, 0.75f, 0.75f, 0.75f));
+        this.light.setAmbient(new ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f));
+        this.light.setLocation(100, 100, 100);
         this.light.setEnabled(true);
-        this.light.attach(plight);
-        this.rootNode.setRenderState(this.light);
+        this.graphicsEngine.getLighting().attach(this.light);
 
-        this.box = new Box("Box", new Vector3(0, 0, 0), 5, 5, 5);
-        this.box.setModelBound(new BoundingBox());
-        this.box.setTranslation(0, 0, -15);
-        this.box.setRandomColors();
-        this.rootNode.attachChild(this.box);
+        this.cameraControl =
+                new SmoothOrbitCamControl(this.graphicsEngine.getCanvas()
+                        .getCanvasRenderer().getCamera(),
+                        this.graphicsEngine.getRootNode(), 0.99f);
+        this.cameraControl.setSphereCoords(15, -90 * MathUtils.DEG_TO_RAD,
+                30 * MathUtils.DEG_TO_RAD);
+
     }
 
-    public boolean update(final ReadOnlyTimer timer) {
-        this.angle += timer.getTimePerFrame() * 50;
-        this.angle %= 360;
+    /**
+     * Stops managing an entity.
+     * 
+     * @param entity
+     *            The entity to stop managing.
+     */
+    public void removeEntity(final Entity entity) {
+        for (final Engine<?> engine : this.engines) {
+            if (engine.shouldHandle(entity)) {
+                engine.removeEntity(entity);
+            }
+        }
 
-        this.rotate.fromAngleNormalAxis(this.angle * MathUtils.DEG_TO_RAD,
-                this.axis);
-        this.box.setRotation(this.rotate);
-        return true;
+        this.entities.remove(entity);
+    }
+
+    /**
+     * Makes the camera follow a graphical spatial.
+     * 
+     * @param spatial
+     *            The spatial to follow.
+     */
+    public void track(final Spatial spatial) {
+        this.cameraControl.setLookAtSpatial(spatial);
+    }
+
+    /**
+     * Advances the simulation one step.
+     * 
+     * @param timer
+     *            The timer specifying how much time that has elapsed.
+     * @return Whether the simulation should continue.
+     */
+    public boolean update(final ReadOnlyTimer timer) {
+        boolean shouldContinue = true;
+        this.cameraControl.update(timer.getTimePerFrame());
+        for (final Engine<?> engine : this.engines) {
+            shouldContinue &= engine.update(timer);
+        }
+
+        return shouldContinue;
     }
 }

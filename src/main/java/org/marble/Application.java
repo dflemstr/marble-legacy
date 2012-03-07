@@ -15,7 +15,6 @@ import com.ardor3d.intersection.PickingUtil;
 import com.ardor3d.intersection.PrimitivePickResults;
 import com.ardor3d.math.Ray3;
 import com.ardor3d.renderer.TextureRendererFactory;
-import com.ardor3d.renderer.queue.RenderBucketType;
 import com.ardor3d.util.ContextGarbageCollector;
 import com.ardor3d.util.GameTaskQueue;
 import com.ardor3d.util.GameTaskQueueManager;
@@ -109,34 +108,25 @@ public class Application implements Runnable, Scene, Updater {
     }
 
     @Override
-    public void run() {
-        try {
-            // Opens our window and creates associated resources.
-            this.frameHandler.init();
+    public PickResults doPick(final Ray3 pickRay) {
+        final PrimitivePickResults pickResults = new PrimitivePickResults();
+        pickResults.setCheckDistance(true);
 
-            // If we've successfully gotten ourself a renderer, we're good to
-            // go.
-            this.running = true;
+        // Find the objects in the scene that are hit by the ray.
+        PickingUtil.findPick(this.game.getGraphicsEngine().getRootNode(),
+                pickRay, pickResults);
+        return pickResults;
+    }
 
-            // Main game loop.
-            while (this.running) {
-                this.frameHandler.updateFrame();
-                Thread.yield();
-            }
-        } finally {
-            // Safely destroy the rendering system.
-            final CanvasRenderer renderer = this.canvas.getCanvasRenderer();
-            if (renderer != null) {
-                renderer.makeCurrentContext();
-                try {
-                    ContextGarbageCollector.doFinalCleanup(renderer
-                            .getRenderer());
-                    this.canvas.close();
-                } finally {
-                    renderer.releaseCurrentContext();
-                }
-            }
-        }
+    @Override
+    public void init() {
+        // Use AWT to load images.
+        // TODO use alternative image loader, and drop the dependency on AWT
+        // completely.
+        AWTImageLoader.registerLoader();
+
+        // Perform game-specific initialization.
+        this.game.initialize();
     }
 
     @Override
@@ -152,51 +142,45 @@ public class Application implements Runnable, Scene, Updater {
         if (this.canvas.isClosing())
             return false;
         else {
-            this.game.getRootNode().onDraw(renderer);
+            this.game.getGraphicsEngine().getRootNode().onDraw(renderer);
             return true;
         }
     }
 
     @Override
-    public PickResults doPick(final Ray3 pickRay) {
-        final PrimitivePickResults pickResults = new PrimitivePickResults();
-        pickResults.setCheckDistance(true);
+    public void run() {
+        // XXX Debug; this try statement messes up the Java debugger stack
+        // traces; disable it for now.
+        // try {
+        // Opens our window and creates associated resources.
+        this.frameHandler.init();
 
-        // Find the objects in the scene that are hit by the ray.
-        PickingUtil.findPick(this.game.getRootNode(), pickRay, pickResults);
-        return pickResults;
-    }
+        // If we've successfully gotten ourself a renderer, we're good to
+        // go.
+        this.running = true;
 
-    @Override
-    public void init() {
-        // Use AWT to load images.
-        // TODO use alternative image loader, and drop the dependency on AWT
-        // completely.
-        AWTImageLoader.registerLoader();
-
-        // Assume that the scene graph is opaque by default.
-        this.game.getRootNode().getSceneHints()
-                .setRenderBucketType(RenderBucketType.Opaque);
-
-        // Perform game-specific initialization.
-        this.game.initialize();
-
-        // Update the bounding volumes and culling flags for our scene data
-        // preemptively, so that we don't have to do it while drawing a frame.
-        this.game.getRootNode().updateGeometricState(0);
+        // Main game loop.
+        while (this.running) {
+            this.frameHandler.updateFrame();
+            Thread.yield();
+        }
+        // } finally {
+        // Safely destroy the rendering system.
+        final CanvasRenderer renderer = this.canvas.getCanvasRenderer();
+        if (renderer != null) {
+            renderer.makeCurrentContext();
+            try {
+                ContextGarbageCollector.doFinalCleanup(renderer.getRenderer());
+                this.canvas.close();
+            } finally {
+                renderer.releaseCurrentContext();
+            }
+        }
+        // }
     }
 
     @Override
     public void update(final ReadOnlyTimer timer) {
-        // Someone pressed the close button.
-        // TODO Inform the game and let it perform cleanup.
-        if (this.canvas.isClosing()) {
-            this.running = false;
-        }
-
-        // Update input triggers.
-        this.logicalLayer.checkTriggers(timer.getTimePerFrame());
-
         // Traverse the "update" update queue.
         GameTaskQueueManager
                 .getManager(this.canvas.getCanvasRenderer().getRenderContext())
@@ -205,9 +189,5 @@ public class Application implements Runnable, Scene, Updater {
         // If the game wants us to quit, we quit. Once {@code running == false},
         // it can't become {@code true} again
         this.running &= this.game.update(timer);
-
-        // Update animations and time-dependent geometric state.
-        this.game.getRootNode().updateGeometricState(timer.getTimePerFrame(),
-                true);
     }
 }
