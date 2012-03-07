@@ -6,8 +6,23 @@ import java.util.prefs.Preferences;
  * Controls the settings for the desktop version of the application.
  */
 public class Settings {
-    protected final Preferences prefs = Preferences
-            .userNodeForPackage(Settings.class);
+    protected class BooleanEntry extends Entry<Boolean> {
+
+        protected BooleanEntry(final String node, final Boolean defaultValue) {
+            super(node, defaultValue);
+        }
+
+        @Override
+        public Boolean getValue() {
+            return Settings.this.prefs.getBoolean(this.node, this.defaultValue);
+        }
+
+        @Override
+        public void setValue(final Boolean value) {
+            Settings.this.prefs.putBoolean(this.node, value);
+        }
+
+    }
 
     /**
      * An entry in the settings registry.
@@ -35,36 +50,20 @@ public class Settings {
         }
 
         /**
-         * Changes the value of this entry.
-         * 
-         * @param value
-         *            The value to change to.
-         */
-        public abstract void setValue(A value);
-
-        /**
          * Returns the value of this settings entry.
          * 
          * @return The value of this settings entry, or the default value if no
          *         value is present.
          */
         public abstract A getValue();
-    }
 
-    protected class StringEntry extends Entry<String> {
-        public StringEntry(final String node, final String defaultValue) {
-            super(node, defaultValue);
-        }
-
-        @Override
-        public void setValue(final String value) {
-            Settings.this.prefs.put(this.node, value);
-        }
-
-        @Override
-        public String getValue() {
-            return Settings.this.prefs.get(this.node, this.defaultValue);
-        }
+        /**
+         * Changes the value of this entry.
+         * 
+         * @param value
+         *            The value to change to.
+         */
+        public abstract void setValue(A value);
     }
 
     protected class IntegerEntry extends Entry<Integer> {
@@ -73,32 +72,14 @@ public class Settings {
         }
 
         @Override
-        public void setValue(final Integer value) {
-            Settings.this.prefs.putInt(this.node, value);
-        }
-
-        @Override
         public Integer getValue() {
             return Settings.this.prefs.getInt(this.node, this.defaultValue);
         }
-    }
-
-    protected class BooleanEntry extends Entry<Boolean> {
-
-        protected BooleanEntry(final String node, final Boolean defaultValue) {
-            super(node, defaultValue);
-        }
 
         @Override
-        public void setValue(final Boolean value) {
-            Settings.this.prefs.putBoolean(this.node, value);
+        public void setValue(final Integer value) {
+            Settings.this.prefs.putInt(this.node, value);
         }
-
-        @Override
-        public Boolean getValue() {
-            return Settings.this.prefs.getBoolean(this.node, this.defaultValue);
-        }
-
     }
 
     protected class RendererEntry extends Entry<RendererImpl> {
@@ -109,17 +90,36 @@ public class Settings {
         }
 
         @Override
-        public void setValue(final RendererImpl value) {
-            Settings.this.prefs.put(this.node, value.name());
-        }
-
-        @Override
         public RendererImpl getValue() {
             return RendererImpl.valueOf(Settings.this.prefs.get(this.node,
                     this.defaultValue.name()));
         }
 
+        @Override
+        public void setValue(final RendererImpl value) {
+            Settings.this.prefs.put(this.node, value.name());
+        }
+
     }
+
+    protected class StringEntry extends Entry<String> {
+        public StringEntry(final String node, final String defaultValue) {
+            super(node, defaultValue);
+        }
+
+        @Override
+        public String getValue() {
+            return Settings.this.prefs.get(this.node, this.defaultValue);
+        }
+
+        @Override
+        public void setValue(final String value) {
+            Settings.this.prefs.put(this.node, value);
+        }
+    }
+
+    protected final Preferences prefs = Preferences
+            .userNodeForPackage(Settings.class);
 
     public final Entry<Integer> viewportWidth = new IntegerEntry(
             "graphics/viewport/width", 800);

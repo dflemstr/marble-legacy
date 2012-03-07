@@ -25,23 +25,6 @@ public enum RendererImpl {
     /** The LWJGL (Lightweight Java Game Library) renderer implementation */
     LWJGL(new LwjglFactory());
 
-    private Factory factory;
-
-    /**
-     * Returns a factory for all of the renderer-specific code for this
-     * implementation.
-     * 
-     * @return A factory for all of the renderer-specific code for this
-     *         implementation.
-     */
-    public Factory getFactory() {
-        return this.factory;
-    }
-
-    private RendererImpl(final Factory factory) {
-        this.factory = factory;
-    }
-
     /**
      * A factory for objects related to a renderer implementation.
      */
@@ -60,20 +43,6 @@ public enum RendererImpl {
                 Scene scene);
 
         /**
-         * Creates a keyboard wrapper for a renderer implementation.
-         * 
-         * @return A keyboard wrapper for a renderer implementation.
-         */
-        public KeyboardWrapper createKeyboardWrapper();
-
-        /**
-         * Creates a mouse wrapper for a renderer implementation.
-         * 
-         * @return A mouse wrapper for a renderer implementation.
-         */
-        public MouseWrapper createMouseWrapper();
-
-        /**
          * Creates a controller wrapper for a renderer implementation.
          * 
          * @return A controller wrapper for a renderer implementation.
@@ -90,11 +59,25 @@ public enum RendererImpl {
         public FocusWrapper createFocusWrapper(NativeCanvas canvas);
 
         /**
+         * Creates a keyboard wrapper for a renderer implementation.
+         * 
+         * @return A keyboard wrapper for a renderer implementation.
+         */
+        public KeyboardWrapper createKeyboardWrapper();
+
+        /**
          * Creates a mouse manager for a renderer implementation.
          * 
          * @return A mouse manager for a renderer implementation.
          */
         public MouseManager createMouseManager();
+
+        /**
+         * Creates a mouse wrapper for a renderer implementation.
+         * 
+         * @return A mouse wrapper for a renderer implementation.
+         */
+        public MouseWrapper createMouseWrapper();
 
         /**
          * Creates a texture renderer provider for a renderer implementation.
@@ -114,16 +97,6 @@ public enum RendererImpl {
         }
 
         @Override
-        public KeyboardWrapper createKeyboardWrapper() {
-            return new LwjglKeyboardWrapper();
-        }
-
-        @Override
-        public MouseWrapper createMouseWrapper() {
-            return new LwjglMouseWrapper();
-        }
-
-        @Override
         public ControllerWrapper createControllerWrapper() {
             return new LwjglControllerWrapper();
         }
@@ -134,13 +107,40 @@ public enum RendererImpl {
         }
 
         @Override
+        public KeyboardWrapper createKeyboardWrapper() {
+            return new LwjglKeyboardWrapper();
+        }
+
+        @Override
         public MouseManager createMouseManager() {
             return new LwjglMouseManager();
+        }
+
+        @Override
+        public MouseWrapper createMouseWrapper() {
+            return new LwjglMouseWrapper();
         }
 
         @Override
         public TextureRendererProvider createTextureRendererProvider() {
             return new LwjglTextureRendererProvider();
         }
+    }
+
+    private Factory factory;
+
+    private RendererImpl(final Factory factory) {
+        this.factory = factory;
+    }
+
+    /**
+     * Returns a factory for all of the renderer-specific code for this
+     * implementation.
+     * 
+     * @return A factory for all of the renderer-specific code for this
+     *         implementation.
+     */
+    public Factory getFactory() {
+        return this.factory;
     }
 }
