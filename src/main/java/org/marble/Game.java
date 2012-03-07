@@ -5,6 +5,8 @@ import java.util.Set;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 
+import org.marble.ball.PlayerBall;
+import org.marble.block.Slab;
 import org.marble.engine.Engine;
 import org.marble.engine.GraphicsEngine;
 import org.marble.engine.InputEngine;
@@ -145,6 +147,22 @@ public class Game {
         this.cameraControl.setSphereCoords(15, -90 * MathUtils.DEG_TO_RAD,
                 30 * MathUtils.DEG_TO_RAD);
 
+        // XXX Test entities
+        final Vector3f pos = new Vector3f();
+
+        pos.set(0, -2, 0);
+        final Matrix4f slabTransform = new Matrix4f();
+        slabTransform.set(pos);
+        // 0 mass = immovable
+        final Slab slab = new Slab("Slab", slabTransform, 32, 1, 32, 0);
+        addEntity(slab);
+
+        pos.set(0, 8, 0);
+        final Matrix4f ballTransform = new Matrix4f();
+        ballTransform.set(pos);
+        final PlayerBall ball = new PlayerBall("Ball", ballTransform, 0.5f, 5);
+        addEntity(ball);
+        track(ball.getSpatial());
     }
 
     /**
