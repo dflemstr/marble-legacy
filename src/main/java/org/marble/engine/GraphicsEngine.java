@@ -36,26 +36,26 @@ public class GraphicsEngine extends Engine<Graphical> {
 
     @Override
     protected void entityAdded(final Graphical entity) {
-        this.rootNode.attachChild(entity.getSpatial());
+        rootNode.attachChild(entity.getSpatial());
     }
 
     @Override
     protected void entityRemoved(final Graphical entity) {
-        this.rootNode.detachChild(entity.getSpatial());
+        rootNode.detachChild(entity.getSpatial());
     }
 
     /**
      * The canvas that is being rendered to.
      */
     public NativeCanvas getCanvas() {
-        return this.canvas;
+        return canvas;
     }
 
     /**
      * The lighting system in use.
      */
     public LightState getLighting() {
-        return this.lighting;
+        return lighting;
     }
 
     /**
@@ -63,38 +63,37 @@ public class GraphicsEngine extends Engine<Graphical> {
      * node.
      */
     public Node getRootNode() {
-        return this.rootNode;
+        return rootNode;
     }
 
     /**
      * The Z-buffer in use.
      */
     public ZBufferState getZBuffer() {
-        return this.zbuffer;
+        return zbuffer;
     }
 
     @Override
     public void initialize() {
-        this.canvas.setTitle("Marble");
+        canvas.setTitle("Marble");
 
-        this.rootNode.getSceneHints().setRenderBucketType(
-                RenderBucketType.Opaque);
+        rootNode.getSceneHints().setRenderBucketType(RenderBucketType.Opaque);
 
-        this.zbuffer = new ZBufferState();
-        this.zbuffer.setEnabled(true);
-        this.zbuffer.setFunction(ZBufferState.TestFunction.LessThanOrEqualTo);
-        this.rootNode.setRenderState(this.zbuffer);
+        zbuffer = new ZBufferState();
+        zbuffer.setEnabled(true);
+        zbuffer.setFunction(ZBufferState.TestFunction.LessThanOrEqualTo);
+        rootNode.setRenderState(zbuffer);
 
-        this.lighting = new LightState();
-        this.lighting.setEnabled(true);
-        this.rootNode.setRenderState(this.lighting);
+        lighting = new LightState();
+        lighting.setEnabled(true);
+        rootNode.setRenderState(lighting);
 
-        this.rootNode.updateGeometricState(0);
+        rootNode.updateGeometricState(0);
     }
 
     @Override
     public boolean update(final ReadOnlyTimer timer) {
-        this.rootNode.updateGeometricState(timer.getTimePerFrame(), true);
-        return !this.canvas.isClosing();
+        rootNode.updateGeometricState(timer.getTimePerFrame(), true);
+        return !canvas.isClosing();
     }
 }

@@ -24,7 +24,7 @@ public class InputEngine extends Engine<Interactive> {
         @Override
         public void perform(final Canvas source,
                 final TwoInputStates inputStates, final double tpf) {
-            InputEngine.this.shouldContinue = false;
+            shouldContinue = false;
         }
 
     }
@@ -57,35 +57,35 @@ public class InputEngine extends Engine<Interactive> {
     @Override
     protected void entityAdded(final Interactive entity) {
         for (final InputTrigger trigger : entity.getTriggers()) {
-            this.logicalLayer.registerTrigger(trigger);
+            logicalLayer.registerTrigger(trigger);
         }
     }
 
     @Override
     protected void entityRemoved(final Interactive entity) {
         for (final InputTrigger trigger : entity.getTriggers()) {
-            this.logicalLayer.deregisterTrigger(trigger);
+            logicalLayer.deregisterTrigger(trigger);
         }
     }
 
     public LogicalLayer getLogicalLayer() {
-        return this.logicalLayer;
+        return logicalLayer;
     }
 
     public MouseManager getMouseManager() {
-        return this.mouseManager;
+        return mouseManager;
     }
 
     @Override
     public void initialize() {
-        this.logicalLayer.registerTrigger(new InputTrigger(
-                new KeyPressedCondition(Key.ESCAPE), new QuitAction()));
+        logicalLayer.registerTrigger(new InputTrigger(new KeyPressedCondition(
+                Key.ESCAPE), new QuitAction()));
     }
 
     @Override
     public boolean update(final ReadOnlyTimer timer) {
-        this.logicalLayer.checkTriggers(timer.getTimePerFrame());
-        return this.shouldContinue;
+        logicalLayer.checkTriggers(timer.getTimePerFrame());
+        return shouldContinue;
     }
 
 }

@@ -29,15 +29,12 @@ public class SmoothOrbitCamControl extends OrbitCamControl {
     public void update(final double time) {
         updateTargetPos();
 
-        if (!_dirty) {
+        if (!_dirty)
             return;
-        }
         if (_worldUpVec.getY() == 1) {
-            MathUtils.sphericalToCartesian(_sphereCoords,
-                    _camPosition);
+            MathUtils.sphericalToCartesian(_sphereCoords, _camPosition);
         } else if (_worldUpVec.getZ() == 1) {
-            MathUtils.sphericalToCartesianZ(_sphereCoords,
-                    _camPosition);
+            MathUtils.sphericalToCartesianZ(_sphereCoords, _camPosition);
         }
         _camPosition.addLocal(_lookAtPoint);
 

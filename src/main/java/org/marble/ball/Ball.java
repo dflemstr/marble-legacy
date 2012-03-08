@@ -11,15 +11,17 @@ import org.marble.entity.Physical;
 import org.marble.graphics.EntityController;
 import org.marble.physics.EntityMotionState;
 
+import com.google.common.collect.ImmutableSet;
+
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.shape.Sphere;
+
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.MotionState;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * A physical ball that can have different materials and physical properties.
@@ -45,9 +47,9 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
     public Ball(final String name, final Matrix4f transform,
             final float radius, final float mass) {
         super(transform);
-        this.graphicalSphere = new Sphere(name, 16, 16, radius);
-        this.graphicalSphere.addController(new EntityController(this));
-        this.graphicalSphere.setRandomColors(); // XXX Debug
+        graphicalSphere = new Sphere(name, 16, 16, radius);
+        graphicalSphere.addController(new EntityController(this));
+        graphicalSphere.setRandomColors(); // XXX Debug
 
         final CollisionShape physicalShape = new SphereShape(radius);
         final Vector3f inertia = new Vector3f(0, 0, 0);
@@ -58,9 +60,9 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
         final RigidBodyConstructionInfo info =
                 new RigidBodyConstructionInfo(mass, motionState, physicalShape,
                         inertia);
-        this.physicalSphere = new RigidBody(info);
+        physicalSphere = new RigidBody(info);
 
-        setBallKind(this.kind);
+        setBallKind(kind);
     }
 
     @Override
@@ -70,12 +72,12 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
 
     @Override
     public RigidBody getBody() {
-        return this.physicalSphere;
+        return physicalSphere;
     }
 
     @Override
     public Spatial getSpatial() {
-        return this.graphicalSphere;
+        return graphicalSphere;
     }
 
     /**

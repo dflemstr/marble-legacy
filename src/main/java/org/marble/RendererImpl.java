@@ -141,6 +141,6 @@ public enum RendererImpl {
      *         implementation.
      */
     public Factory getFactory() {
-        return this.factory;
+        return factory;
     }
 }

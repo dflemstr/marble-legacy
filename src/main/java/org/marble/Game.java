@@ -68,8 +68,7 @@ public class Game {
 
         engines =
                 ImmutableSet.of((Engine<?>) graphicsEngine,
-                        (Engine<?>) inputEngine,
-                        (Engine<?>) physicsEngine);
+                        (Engine<?>) inputEngine, (Engine<?>) physicsEngine);
     }
 
     /**

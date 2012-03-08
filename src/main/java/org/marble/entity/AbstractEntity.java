@@ -21,7 +21,7 @@ public class AbstractEntity implements Entity {
 
     @Override
     public Matrix4f getTransform() {
-        return this.transform;
+        return transform;
     }
 
     @Override

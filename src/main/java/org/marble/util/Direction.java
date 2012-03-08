@@ -11,7 +11,7 @@ public enum Direction {
     private Vector3f physicalDirection;
 
     private Direction(final float x, final float y, final float z) {
-        this.physicalDirection = new Vector3f(x, y, z);
+        physicalDirection = new Vector3f(x, y, z);
     }
 
     /**
@@ -22,6 +22,6 @@ public enum Direction {
      *         not be altered.
      */
     public Vector3f getPhysicalDirection() {
-        return this.physicalDirection;
+        return physicalDirection;
     }
 }

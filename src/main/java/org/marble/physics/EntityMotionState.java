@@ -28,13 +28,13 @@ public class EntityMotionState extends MotionState {
 
     @Override
     public Transform getWorldTransform(final Transform out) {
-        out.set(this.entity.getTransform());
+        out.set(entity.getTransform());
         return out;
     }
 
     @Override
     public void setWorldTransform(final Transform worldTrans) {
-        worldTrans.getMatrix(this.matrix);
-        this.entity.setTransform(this.matrix);
+        worldTrans.getMatrix(matrix);
+        entity.setTransform(matrix);
     }
 }

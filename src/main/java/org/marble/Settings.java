@@ -14,12 +14,12 @@ public class Settings {
 
         @Override
         public Boolean getValue() {
-            return Settings.this.prefs.getBoolean(this.node, this.defaultValue);
+            return prefs.getBoolean(node, defaultValue);
         }
 
         @Override
         public void setValue(final Boolean value) {
-            Settings.this.prefs.putBoolean(this.node, value);
+            prefs.putBoolean(node, value);
         }
 
     }
@@ -73,12 +73,12 @@ public class Settings {
 
         @Override
         public Integer getValue() {
-            return Settings.this.prefs.getInt(this.node, this.defaultValue);
+            return prefs.getInt(node, defaultValue);
         }
 
         @Override
         public void setValue(final Integer value) {
-            Settings.this.prefs.putInt(this.node, value);
+            prefs.putInt(node, value);
         }
     }
 
@@ -91,13 +91,12 @@ public class Settings {
 
         @Override
         public RendererImpl getValue() {
-            return RendererImpl.valueOf(Settings.this.prefs.get(this.node,
-                    this.defaultValue.name()));
+            return RendererImpl.valueOf(prefs.get(node, defaultValue.name()));
         }
 
         @Override
         public void setValue(final RendererImpl value) {
-            Settings.this.prefs.put(this.node, value.name());
+            prefs.put(node, value.name());
         }
 
     }
@@ -109,12 +108,12 @@ public class Settings {
 
         @Override
         public String getValue() {
-            return Settings.this.prefs.get(this.node, this.defaultValue);
+            return prefs.get(node, defaultValue);
         }
 
         @Override
         public void setValue(final String value) {
-            Settings.this.prefs.put(this.node, value);
+            prefs.put(node, value);
         }
     }
 

@@ -5,6 +5,7 @@ import javax.vecmath.Vector3f;
 import org.marble.entity.Physical;
 
 import com.ardor3d.util.ReadOnlyTimer;
+
 import com.bulletphysics.collision.broadphase.AxisSweep3;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -23,8 +24,8 @@ public class PhysicsEngine extends Engine<Physical> {
 
     public PhysicsEngine() {
         super(Physical.class);
-        this.world = createDynamicsWorld();
-        this.world.setGravity(new Vector3f(0, -10, 0));
+        world = createDynamicsWorld();
+        world.setGravity(new Vector3f(0, -10, 0));
     }
 
     private DynamicsWorld createDynamicsWorld() {
@@ -51,17 +52,17 @@ public class PhysicsEngine extends Engine<Physical> {
 
     @Override
     protected void entityAdded(final Physical entity) {
-        this.world.addRigidBody(entity.getBody());
+        world.addRigidBody(entity.getBody());
         for (final ActionInterface action : entity.getActions()) {
-            this.world.addAction(action);
+            world.addAction(action);
         }
     }
 
     @Override
     protected void entityRemoved(final Physical entity) {
-        this.world.removeRigidBody(entity.getBody());
+        world.removeRigidBody(entity.getBody());
         for (final ActionInterface action : entity.getActions()) {
-            this.world.removeAction(action);
+            world.removeAction(action);
         }
     }
 
@@ -72,7 +73,7 @@ public class PhysicsEngine extends Engine<Physical> {
 
     @Override
     public boolean update(final ReadOnlyTimer timer) {
-        this.world.stepSimulation((float) timer.getTimePerFrame());
+        world.stepSimulation((float) timer.getTimePerFrame());
         return true;
     }
 }

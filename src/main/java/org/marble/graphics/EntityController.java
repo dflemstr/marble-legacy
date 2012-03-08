@@ -32,9 +32,9 @@ public class EntityController implements SpatialController<Spatial> {
 
     @Override
     public void update(final double time, final Spatial caller) {
-        this.matrix.set(this.entity.getTransform());
-        ArdorMath.fromMatrix4f(this.matrix, this.graphicalMatrix);
-        this.transform.fromHomogeneousMatrix(this.graphicalMatrix);
-        caller.setTransform(this.transform);
+        matrix.set(entity.getTransform());
+        ArdorMath.fromMatrix4f(matrix, graphicalMatrix);
+        transform.fromHomogeneousMatrix(graphicalMatrix);
+        caller.setTransform(transform);
     }
 }

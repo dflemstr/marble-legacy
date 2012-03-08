@@ -85,26 +85,26 @@ public class Application implements Runnable, Scene, Updater {
 
         // Use the factory to create all of the renderer-provided classes that
         // we need.
-        this.canvas = rendererFactory.createCanvas(displaySettings, this);
+        canvas = rendererFactory.createCanvas(displaySettings, this);
         final PhysicalLayer physicalLayer =
                 new PhysicalLayer(rendererFactory.createKeyboardWrapper(),
                         rendererFactory.createMouseWrapper(),
                         rendererFactory.createControllerWrapper(),
-                        rendererFactory.createFocusWrapper(this.canvas));
-        this.logicalLayer = new LogicalLayer();
-        this.logicalLayer.registerInput(this.canvas, physicalLayer);
+                        rendererFactory.createFocusWrapper(canvas));
+        logicalLayer = new LogicalLayer();
+        logicalLayer.registerInput(canvas, physicalLayer);
         final MouseManager mouseManager = rendererFactory.createMouseManager();
         TextureRendererFactory.INSTANCE.setProvider(rendererFactory
                 .createTextureRendererProvider());
 
         // Set up our frame handler to schedule renders for the canvas.
-        this.timer = new Timer();
-        this.frameHandler = new FrameHandler(this.timer);
-        this.frameHandler.addUpdater(this);
-        this.frameHandler.addCanvas(this.canvas);
+        timer = new Timer();
+        frameHandler = new FrameHandler(timer);
+        frameHandler.addUpdater(this);
+        frameHandler.addCanvas(canvas);
 
         // Create the game.
-        this.game = new Game(this.canvas, this.logicalLayer, mouseManager);
+        game = new Game(canvas, logicalLayer, mouseManager);
     }
 
     @Override
@@ -113,8 +113,8 @@ public class Application implements Runnable, Scene, Updater {
         pickResults.setCheckDistance(true);
 
         // Find the objects in the scene that are hit by the ray.
-        PickingUtil.findPick(this.game.getGraphicsEngine().getRootNode(),
-                pickRay, pickResults);
+        PickingUtil.findPick(game.getGraphicsEngine().getRootNode(), pickRay,
+                pickResults);
         return pickResults;
     }
 
@@ -126,23 +126,23 @@ public class Application implements Runnable, Scene, Updater {
         AWTImageLoader.registerLoader();
 
         // Perform game-specific initialization.
-        this.game.initialize();
+        game.initialize();
     }
 
     @Override
     public boolean renderUnto(final com.ardor3d.renderer.Renderer renderer) {
         // Traverse the "render" update queue.
         GameTaskQueueManager
-                .getManager(this.canvas.getCanvasRenderer().getRenderContext())
+                .getManager(canvas.getCanvasRenderer().getRenderContext())
                 .getQueue(GameTaskQueue.RENDER).execute(renderer);
 
         // Clean up native resources such as old VBOs, textures etc.
         ContextGarbageCollector.doRuntimeCleanup(renderer);
 
-        if (this.canvas.isClosing())
+        if (canvas.isClosing())
             return false;
         else {
-            this.game.getGraphicsEngine().getRootNode().onDraw(renderer);
+            game.getGraphicsEngine().getRootNode().onDraw(renderer);
             return true;
         }
     }
@@ -153,25 +153,25 @@ public class Application implements Runnable, Scene, Updater {
         // traces; disable it for now.
         // try {
         // Opens our window and creates associated resources.
-        this.frameHandler.init();
+        frameHandler.init();
 
         // If we've successfully gotten ourself a renderer, we're good to
         // go.
-        this.running = true;
+        running = true;
 
         // Main game loop.
-        while (this.running) {
-            this.frameHandler.updateFrame();
+        while (running) {
+            frameHandler.updateFrame();
             Thread.yield();
         }
         // } finally {
         // Safely destroy the rendering system.
-        final CanvasRenderer renderer = this.canvas.getCanvasRenderer();
+        final CanvasRenderer renderer = canvas.getCanvasRenderer();
         if (renderer != null) {
             renderer.makeCurrentContext();
             try {
                 ContextGarbageCollector.doFinalCleanup(renderer.getRenderer());
-                this.canvas.close();
+                canvas.close();
             } finally {
                 renderer.releaseCurrentContext();
             }
@@ -183,11 +183,11 @@ public class Application implements Runnable, Scene, Updater {
     public void update(final ReadOnlyTimer timer) {
         // Traverse the "update" update queue.
         GameTaskQueueManager
-                .getManager(this.canvas.getCanvasRenderer().getRenderContext())
+                .getManager(canvas.getCanvasRenderer().getRenderContext())
                 .getQueue(GameTaskQueue.UPDATE).execute();
 
         // If the game wants us to quit, we quit. Once {@code running == false},
         // it can't become {@code true} again
-        this.running &= this.game.update(timer);
+        running &= game.update(timer);
     }
 }
