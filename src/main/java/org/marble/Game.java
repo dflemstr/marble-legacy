@@ -14,6 +14,9 @@ import org.marble.engine.PhysicsEngine;
 import org.marble.entity.Entity;
 import org.marble.graphics.SmoothOrbitCamControl;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.input.MouseManager;
 import com.ardor3d.input.control.OrbitCamControl;
@@ -23,8 +26,6 @@ import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.MathUtils;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.util.ReadOnlyTimer;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 /**
  * An abstracted game instance that handles a game session.
@@ -61,14 +62,14 @@ public class Game {
      */
     public Game(final NativeCanvas canvas, final LogicalLayer logicalLayer,
             final MouseManager mouseManager) {
-        this.graphicsEngine = new GraphicsEngine(canvas);
-        this.inputEngine = new InputEngine(logicalLayer, mouseManager);
-        this.physicsEngine = new PhysicsEngine();
+        graphicsEngine = new GraphicsEngine(canvas);
+        inputEngine = new InputEngine(logicalLayer, mouseManager);
+        physicsEngine = new PhysicsEngine();
 
-        this.engines =
-                ImmutableSet.of((Engine<?>) this.graphicsEngine,
-                        (Engine<?>) this.inputEngine,
-                        (Engine<?>) this.physicsEngine);
+        engines =
+                ImmutableSet.of((Engine<?>) graphicsEngine,
+                        (Engine<?>) inputEngine,
+                        (Engine<?>) physicsEngine);
     }
 
     /**
@@ -78,27 +79,27 @@ public class Game {
      *            The entity to manage.
      */
     public void addEntity(final Entity entity) {
-        for (final Engine<?> engine : this.engines) {
+        for (final Engine<?> engine : engines) {
             if (engine.shouldHandle(entity)) {
                 engine.addEntity(entity);
             }
         }
 
-        this.entities.add(entity);
+        entities.add(entity);
     }
 
     /**
      * Performs deferred destruction of all subsystems.
      */
     public void destroy() {
-        for (final Entity entity : this.entities) {
+        for (final Entity entity : entities) {
             removeEntity(entity);
         }
 
         // XXX Debug light
-        this.graphicsEngine.getLighting().detach(this.light);
+        graphicsEngine.getLighting().detach(light);
 
-        for (final Engine<?> engine : this.engines) {
+        for (final Engine<?> engine : engines) {
             engine.destroy();
         }
     }
@@ -107,44 +108,44 @@ public class Game {
      * The graphics engine that is in use.
      */
     public GraphicsEngine getGraphicsEngine() {
-        return this.graphicsEngine;
+        return graphicsEngine;
     }
 
     /**
      * The input engine that is in use.
      */
     public InputEngine getInputEngine() {
-        return this.inputEngine;
+        return inputEngine;
     }
 
     /**
      * The physics engine that is in use.
      */
     public PhysicsEngine getPhysicsEngine() {
-        return this.physicsEngine;
+        return physicsEngine;
     }
 
     /**
      * Performs deferred initialization of all subsystems.
      */
     public void initialize() {
-        for (final Engine<?> engine : this.engines) {
+        for (final Engine<?> engine : engines) {
             engine.initialize();
         }
 
         // XXX Debug light
-        this.light = new PointLight();
-        this.light.setDiffuse(new ColorRGBA(0.75f, 0.75f, 0.75f, 0.75f));
-        this.light.setAmbient(new ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f));
-        this.light.setLocation(100, 100, 100);
-        this.light.setEnabled(true);
-        this.graphicsEngine.getLighting().attach(this.light);
+        light = new PointLight();
+        light.setDiffuse(new ColorRGBA(0.75f, 0.75f, 0.75f, 0.75f));
+        light.setAmbient(new ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f));
+        light.setLocation(100, 100, 100);
+        light.setEnabled(true);
+        graphicsEngine.getLighting().attach(light);
 
-        this.cameraControl =
-                new SmoothOrbitCamControl(this.graphicsEngine.getCanvas()
+        cameraControl =
+                new SmoothOrbitCamControl(graphicsEngine.getCanvas()
                         .getCanvasRenderer().getCamera(),
-                        this.graphicsEngine.getRootNode(), 0.99f);
-        this.cameraControl.setSphereCoords(15, -90 * MathUtils.DEG_TO_RAD,
+                        graphicsEngine.getRootNode(), 8);
+        cameraControl.setSphereCoords(15, -90 * MathUtils.DEG_TO_RAD,
                 30 * MathUtils.DEG_TO_RAD);
 
         // XXX Test entities
@@ -172,13 +173,13 @@ public class Game {
      *            The entity to stop managing.
      */
     public void removeEntity(final Entity entity) {
-        for (final Engine<?> engine : this.engines) {
+        for (final Engine<?> engine : engines) {
             if (engine.shouldHandle(entity)) {
                 engine.removeEntity(entity);
             }
         }
 
-        this.entities.remove(entity);
+        entities.remove(entity);
     }
 
     /**
@@ -188,7 +189,7 @@ public class Game {
      *            The spatial to follow.
      */
     public void track(final Spatial spatial) {
-        this.cameraControl.setLookAtSpatial(spatial);
+        cameraControl.setLookAtSpatial(spatial);
     }
 
     /**
@@ -200,8 +201,8 @@ public class Game {
      */
     public boolean update(final ReadOnlyTimer timer) {
         boolean shouldContinue = true;
-        this.cameraControl.update(timer.getTimePerFrame());
-        for (final Engine<?> engine : this.engines) {
+        cameraControl.update(timer.getTimePerFrame());
+        for (final Engine<?> engine : engines) {
             shouldContinue &= engine.update(timer);
         }
 

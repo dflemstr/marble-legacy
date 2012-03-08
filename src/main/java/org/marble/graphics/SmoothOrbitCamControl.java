@@ -29,16 +29,17 @@ public class SmoothOrbitCamControl extends OrbitCamControl {
     public void update(final double time) {
         updateTargetPos();
 
-        if (!this._dirty)
+        if (!_dirty) {
             return;
-        if (this._worldUpVec.getY() == 1) {
-            MathUtils.sphericalToCartesian(this._sphereCoords,
-                    this._camPosition);
-        } else if (this._worldUpVec.getZ() == 1) {
-            MathUtils.sphericalToCartesianZ(this._sphereCoords,
-                    this._camPosition);
         }
-        this._camPosition.addLocal(this._lookAtPoint);
+        if (_worldUpVec.getY() == 1) {
+            MathUtils.sphericalToCartesian(_sphereCoords,
+                    _camPosition);
+        } else if (_worldUpVec.getZ() == 1) {
+            MathUtils.sphericalToCartesianZ(_sphereCoords,
+                    _camPosition);
+        }
+        _camPosition.addLocal(_lookAtPoint);
 
         /**
          * Linearly smoothed camera tracking: {@code
@@ -49,11 +50,11 @@ public class SmoothOrbitCamControl extends OrbitCamControl {
          * }
          */
 
-        this._camPosition.subtractLocal(this._camera.getLocation());
-        this._camPosition.multiplyLocal(this.trackSpeed * time);
-        this._camPosition.addLocal(this._camera.getLocation());
-        this._camera.setLocation(this._camPosition);
+        _camPosition.subtractLocal(_camera.getLocation());
+        _camPosition.multiplyLocal(MathUtils.clamp(trackSpeed * time, 0, 1));
+        _camPosition.addLocal(_camera.getLocation());
+        _camera.setLocation(_camPosition);
 
-        this._camera.lookAt(this._lookAtPoint, this._worldUpVec);
+        _camera.lookAt(_lookAtPoint, _worldUpVec);
     }
 }
