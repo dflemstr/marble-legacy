@@ -4,13 +4,23 @@ import javax.vecmath.Matrix4f;
 
 /**
  * An entity located somewhere in the simulated world.
+ *
+ * A class implementing this interface must have one or more public constructors
+ * that take zero or more arguments of the types
+ * {@code [String, Vector3f, Float]} that will be called when the entity is
+ * loaded.
  */
 public interface Entity {
-
     /**
      * The current location and rotation of the entity.
      */
     public Matrix4f getTransform();
+
+    /**
+     * Performs allocation of resources. This method is called when the entity
+     * is inserted into the world but before it is added to any engines.
+     */
+    public void initialize();
 
     /**
      * Sets the location and rotation of the entity.

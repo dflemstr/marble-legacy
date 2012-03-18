@@ -5,18 +5,18 @@ import javax.vecmath.Matrix4f;
 /**
  * A default entity implementation with sensible defaults.
  */
-public class AbstractEntity implements Entity {
+public abstract class AbstractEntity implements Entity {
     private final Matrix4f transform;
 
     /**
      * Creates a new entity.
-     * 
+     *
      * @param transform
      *            The initial transform of the entity. This transform will not
      *            be copied before use.
      */
-    public AbstractEntity(final Matrix4f transform) {
-        this.transform = transform;
+    public AbstractEntity() {
+        transform = new Matrix4f();
     }
 
     @Override
