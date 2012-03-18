@@ -144,6 +144,7 @@ public class Game {
                 new SmoothOrbitCamControl(graphicsEngine.getCanvas()
                         .getCanvasRenderer().getCamera(),
                         graphicsEngine.getRootNode(), 8);
+        cameraControl.setWorldUpVec(new Vector3(0, 0, 1));
         cameraControl.setSphereCoords(15, -90 * MathUtils.DEG_TO_RAD,
                 30 * MathUtils.DEG_TO_RAD);
 

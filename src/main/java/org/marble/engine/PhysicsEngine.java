@@ -2,8 +2,6 @@ package org.marble.engine;
 
 import javax.vecmath.Vector3f;
 
-import org.marble.entity.Physical;
-
 import com.ardor3d.util.ReadOnlyTimer;
 
 import com.bulletphysics.collision.broadphase.AxisSweep3;
@@ -16,6 +14,8 @@ import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 
+import org.marble.entity.Physical;
+
 /**
  * The JBullet-based physics engine.
  */
@@ -25,7 +25,7 @@ public class PhysicsEngine extends Engine<Physical> {
     public PhysicsEngine() {
         super(Physical.class);
         world = createDynamicsWorld();
-        world.setGravity(new Vector3f(0, -10, 0));
+        world.setGravity(new Vector3f(0, 0, -10));
     }
 
     private DynamicsWorld createDynamicsWorld() {
@@ -53,17 +53,15 @@ public class PhysicsEngine extends Engine<Physical> {
     @Override
     protected void entityAdded(final Physical entity) {
         world.addRigidBody(entity.getBody());
-        for (final ActionInterface action : entity.getActions()) {
+        for (final ActionInterface action : entity.getActions())
             world.addAction(action);
-        }
     }
 
     @Override
     protected void entityRemoved(final Physical entity) {
         world.removeRigidBody(entity.getBody());
-        for (final ActionInterface action : entity.getActions()) {
+        for (final ActionInterface action : entity.getActions())
             world.removeAction(action);
-        }
     }
 
     @Override
