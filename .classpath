@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry exported="true" kind="lib" path="lib/ardor3d-core.jar" sourcepath="lib/ardor3d-core-sources.jar">
 		<attributes>
@@ -43,10 +42,16 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/vecmath.jar"/>
-	<classpathentry kind="lib" path="lib/jparsec.jar" sourcepath="lib/jparsec-sources.jar">
+	<classpathentry exported="true" kind="lib" path="lib/jparsec.jar" sourcepath="lib/jparsec-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/jparsec-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/cglib.jar" sourcepath="lib/cglib-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/cglib-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="output" path="target"/>
 </classpath>
