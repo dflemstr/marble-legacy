@@ -1,0 +1,11 @@
+// Import our slab class
+using Slab as org.marble.block.Slab
+
+// Create two slabs
+let slab1 be Slab(15, 15, 1),
+    slab2 be Slab(2, 4, 1),
+    slab3 be Slab(6, 6, 6)
+
+position slab1 at (0, 0, 0)
+connect slab2.south to slab1.north,
+		slab3.south to slab2.north

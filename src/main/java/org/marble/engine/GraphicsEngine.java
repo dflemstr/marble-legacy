@@ -1,13 +1,14 @@
 package org.marble.engine;
 
-import org.marble.entity.Graphical;
-
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.renderer.queue.RenderBucketType;
 import com.ardor3d.renderer.state.LightState;
+import com.ardor3d.renderer.state.WireframeState;
 import com.ardor3d.renderer.state.ZBufferState;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.util.ReadOnlyTimer;
+
+import org.marble.entity.Graphical;
 
 /**
  * The Ardor3D-based graphics engine.
@@ -17,10 +18,11 @@ public class GraphicsEngine extends Engine<Graphical> {
     private final NativeCanvas canvas;
     private ZBufferState zbuffer;
     private LightState lighting;
+    private WireframeState wireframeState;
 
     /**
      * Creates a new graphics engine.
-     * 
+     *
      * @param canvas
      *            The canvas to render to.
      */
@@ -87,6 +89,10 @@ public class GraphicsEngine extends Engine<Graphical> {
         lighting = new LightState();
         lighting.setEnabled(true);
         rootNode.setRenderState(lighting);
+
+        wireframeState = new WireframeState();
+        wireframeState.setEnabled(true);
+        rootNode.setRenderState(wireframeState);
 
         rootNode.updateGeometricState(0);
     }

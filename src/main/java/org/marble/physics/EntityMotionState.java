@@ -2,10 +2,10 @@ package org.marble.physics;
 
 import javax.vecmath.Matrix4f;
 
-import org.marble.entity.Entity;
-
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
+
+import org.marble.entity.Entity;
 
 /**
  * Links a physical motion state to the state of an entity.
@@ -18,7 +18,7 @@ public class EntityMotionState extends MotionState {
 
     /**
      * Creates a new entity-linked motion state.
-     * 
+     *
      * @param entity
      *            The entity to link.
      */
