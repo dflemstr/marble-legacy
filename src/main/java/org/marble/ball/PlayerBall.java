@@ -2,14 +2,7 @@ package org.marble.ball;
 
 import java.util.Set;
 
-import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
-
-import org.marble.entity.Interactive;
-import org.marble.util.Direction;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 import com.ardor3d.framework.Canvas;
 import com.ardor3d.input.Key;
@@ -22,6 +15,12 @@ import com.ardor3d.input.logical.TwoInputStates;
 import com.bulletphysics.collision.dispatch.CollisionWorld;
 import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.linearmath.IDebugDraw;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
+import org.marble.entity.Interactive;
+import org.marble.util.Direction;
 
 /**
  * A player-controlled ball.
@@ -74,7 +73,7 @@ public class PlayerBall extends Ball implements Interactive {
 
     /**
      * Creates a new player-controlled ball.
-     * 
+     *
      * @param name
      *            The name of the ball, for debug purposes.
      * @param transform
@@ -85,32 +84,31 @@ public class PlayerBall extends Ball implements Interactive {
      * @param mass
      *            The base mass of the ball.
      */
-    public PlayerBall(final String name, final Matrix4f transform,
-            final float radius, final float mass) {
-        super(name, transform, radius, mass);
-        disImpNorth = new DisplaceImpulse(Direction.North, 1);
-        disImpEast = new DisplaceImpulse(Direction.East, 1);
-        disImpSouth = new DisplaceImpulse(Direction.South, 1);
-        disImpWest = new DisplaceImpulse(Direction.West, 1);
+    public PlayerBall(final Float radius, final Float mass) {
+        super(radius, mass);
+        disImpNorth = new DisplaceImpulse(Direction.NORTH, 1);
+        disImpEast = new DisplaceImpulse(Direction.EAST, 1);
+        disImpSouth = new DisplaceImpulse(Direction.SOUTH, 1);
+        disImpWest = new DisplaceImpulse(Direction.WEST, 1);
 
         final InputTrigger upPressTrigger =
                 new InputTrigger(new KeyPressedCondition(Key.UP), disImpNorth);
         final InputTrigger leftPressTrigger =
-                new InputTrigger(new KeyPressedCondition(Key.LEFT), disImpEast);
+                new InputTrigger(new KeyPressedCondition(Key.LEFT), disImpWest);
         final InputTrigger downPressTrigger =
                 new InputTrigger(new KeyPressedCondition(Key.DOWN), disImpSouth);
         final InputTrigger rightPressTrigger =
-                new InputTrigger(new KeyPressedCondition(Key.RIGHT), disImpWest);
+                new InputTrigger(new KeyPressedCondition(Key.RIGHT), disImpEast);
         final InputTrigger upReleaseTrigger =
                 new InputTrigger(new KeyReleasedCondition(Key.UP), disImpSouth);
         final InputTrigger leftReleaseTrigger =
-                new InputTrigger(new KeyReleasedCondition(Key.LEFT), disImpWest);
+                new InputTrigger(new KeyReleasedCondition(Key.LEFT), disImpEast);
         final InputTrigger downReleaseTrigger =
                 new InputTrigger(new KeyReleasedCondition(Key.DOWN),
                         disImpNorth);
         final InputTrigger rightReleaseTrigger =
                 new InputTrigger(new KeyReleasedCondition(Key.RIGHT),
-                        disImpEast);
+                        disImpWest);
 
         triggers =
                 ImmutableSet.of(leftPressTrigger, rightPressTrigger,
