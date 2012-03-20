@@ -41,11 +41,11 @@ public class Slab extends AbstractEntity implements Connectivity, Graphical,
      * Creates a new slab.
      *
      * @param width
-     *            The size "radius" along the X-axis.
+     *            The size along the X-axis.
      * @param height
-     *            The size "radius" along the Y-axis.
+     *            The size along the Y-axis.
      * @param depth
-     *            The size "radius" along the Z-axis.
+     *            The size along the Z-axis.
      */
     public Slab(final Float width, final Float height, final Float depth) {
         this(width, height, depth, 0.0f);
@@ -55,11 +55,11 @@ public class Slab extends AbstractEntity implements Connectivity, Graphical,
      * Creates a new slab.
      *
      * @param width
-     *            The size "radius" along the X-axis.
+     *            The size along the X-axis.
      * @param height
-     *            The size "radius" along the Y-axis.
+     *            The size along the Y-axis.
      * @param depth
-     *            The size "radius" along the Z-axis.
+     *            The size along the Z-axis.
      * @param mass
      *            The mass.
      */
@@ -83,11 +83,7 @@ public class Slab extends AbstractEntity implements Connectivity, Graphical,
 
     @Override
     public Map<String, Connector> getConnectors() {
-        // TODO add more connectors
-        return ImmutableMap.of("north",
-                Connectors.offsetBy(0, height, 0, (float) Math.PI, 0, 0),
-                "south",
-                Connectors.offsetBy(0, -height, 0, (float) -Math.PI, 0, 0));
+        return Connectors.fromBox(width, height, depth);
     }
 
     @Override
@@ -99,12 +95,13 @@ public class Slab extends AbstractEntity implements Connectivity, Graphical,
     public void initialize() {
 
         graphicalBox =
-                new Box("slab", new Vector3(0, 0, 0), width, height, depth);
+                new Box("slab", new Vector3(0, 0, 0), width / 2, height / 2,
+                        depth / 2);
         graphicalBox.addController(new EntityController(this));
         graphicalBox.setRandomColors(); // XXX Debug
 
         final CollisionShape physicalShape =
-                new BoxShape(new Vector3f(width, height, depth));
+                new BoxShape(new Vector3f(width / 2, height / 2, depth / 2));
         final Vector3f inertia = new Vector3f(0, 0, 0);
         physicalShape.calculateLocalInertia(mass, inertia);
 
