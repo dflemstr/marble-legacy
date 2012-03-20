@@ -1,8 +1,5 @@
 package org.marble.util;
 
-import static com.ardor3d.math.FastMath.cos;
-import static com.ardor3d.math.FastMath.sin;
-
 import javax.vecmath.Matrix4f;
 
 import com.google.common.collect.ImmutableMap;
@@ -79,32 +76,45 @@ public final class Connectors {
     public static Connector
             offsetBy(final float x, final float y, final float z,
                     final float yaw, final float pitch, final float roll) {
+        final Matrix4f rotation = new Matrix4f();
         final Matrix4f transform = new Matrix4f();
+
+        // TODO make more efficient; we don't need a temp matrix here.
         transform.setIdentity();
+        rotation.rotZ(yaw);
+        transform.mul(rotation);
+        rotation.rotX(pitch);
+        transform.mul(rotation);
+        rotation.rotY(roll);
+        transform.mul(rotation);
+
+        /**
+         * XXX This calculation is buggy; yaw=2pi does for example collapse the
+         * matrix {@code
+         * final double sinPitch = sin(pitch);
+         * final double cosPitch = cos(pitch);
+         * final double sinRoll = sin(roll);
+         * final double cosRoll = cos(roll);
+         * final double sinYaw = sin(yaw);
+         * final double cosYaw = cos(yaw);
+         * transform.setElement(0, 0, (float) (cosPitch * cosYaw));
+         * transform.setElement(0, 1, (float) (-sinYaw * cosPitch));
+         * transform.setElement(0, 2, (float) sinPitch); transform.setElement(1,
+         * 0, (float) (cosYaw * sinPitch * sinRoll + sinYaw * cosRoll));
+         * transform.setElement(1, 1, (float) (-sinYaw * sinPitch * sinRoll +
+         * cosYaw * cosRoll)); transform.setElement(1, 2, (float) (-cosPitch *
+         * sinRoll)); transform.setElement(2, 0, (float) (-cosYaw * sinPitch *
+         * cosRoll + sinYaw * sinRoll)); transform.setElement(2, 1, (float)
+         * (sinYaw * sinPitch * cosRoll + cosYaw * sinRoll));
+         * transform.setElement(2, 2, (float) (cosPitch * cosRoll));
+         * }
+         */
+
+        // Translation column
         transform.setElement(0, 3, x);
         transform.setElement(1, 3, y);
         transform.setElement(2, 3, z);
-
-        final float sinPitch = (float) sin(pitch);
-        final float cosPitch = (float) cos(pitch);
-        final float sinRoll = (float) sin(roll);
-        final float cosRoll = (float) cos(roll);
-        final float sinYaw = (float) sin(yaw);
-        final float cosYaw = (float) cos(yaw);
-
-        transform.setElement(0, 0, cosPitch * cosYaw);
-        transform.setElement(0, 1, -sinYaw * cosPitch);
-        transform.setElement(0, 2, sinPitch);
-        transform.setElement(1, 0, cosYaw * sinPitch * sinRoll + sinYaw
-                * cosRoll);
-        transform.setElement(1, 1, -sinYaw * sinPitch * sinRoll + cosYaw
-                * cosRoll);
-        transform.setElement(1, 2, -cosPitch * sinRoll);
-        transform.setElement(2, 0, -cosYaw * sinPitch * cosRoll + sinYaw
-                * sinRoll);
-        transform.setElement(2, 1, sinYaw * sinPitch * cosRoll + cosYaw
-                * sinRoll);
-        transform.setElement(2, 2, cosPitch * cosRoll);
+        transform.setElement(3, 3, 1);
 
         return new Connector(transform);
     }
