@@ -85,8 +85,9 @@ public class Slab extends AbstractEntity implements Connectivity, Graphical,
     public Map<String, Connector> getConnectors() {
         // TODO add more connectors
         return ImmutableMap.of("north",
-                Connectors.offsetBy(0, depth * 2, 0, 0, 0, 0), "south",
-                Connectors.offsetBy(0, -depth * 2, 0, (float) Math.PI, 0, 0));
+                Connectors.offsetBy(0, height, 0, (float) Math.PI, 0, 0),
+                "south",
+                Connectors.offsetBy(0, -height, 0, (float) -Math.PI, 0, 0));
     }
 
     @Override

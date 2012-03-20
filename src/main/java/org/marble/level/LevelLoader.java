@@ -208,8 +208,6 @@ public final class LevelLoader {
                 validateConnector(movedConnector, movedConnectorName,
                         movedEntityName, loc);
 
-                transform.setIdentity();
-
                 // Calculate the transformation that aligns the moved connector
                 // to the base connector
                 baseConnector.transformInto(movedConnector, transform);
