@@ -61,11 +61,7 @@ public final class Connectors {
             }
         }
 
-        final ImmutableMap<String, Connector> connectors =
-                connectorBuilder.build();
-        System.out.println("box_" + width + "_" + height + "_" + depth + ":\n"
-                + connectors);
-        return connectors;
+        return connectorBuilder.build();
     }
 
     private static String makeAnchorName(final String base, final int coord1,
