@@ -210,7 +210,7 @@ public class Game {
         // XXX Test entities
         try {
             for (final Entity entity : new LevelLoader().loadLevel(Game.class
-                    .getResource("/level/core/1.level")))
+                    .getResource("level/core/1.level")))
                 addEntity(entity);
         } catch (final ParserException e) {
             e.printStackTrace();
