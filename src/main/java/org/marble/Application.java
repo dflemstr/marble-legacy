@@ -1,5 +1,7 @@
 package org.marble;
 
+import java.net.URISyntaxException;
+
 import com.ardor3d.framework.CanvasRenderer;
 import com.ardor3d.framework.DisplaySettings;
 import com.ardor3d.framework.FrameHandler;
@@ -20,6 +22,8 @@ import com.ardor3d.util.GameTaskQueue;
 import com.ardor3d.util.GameTaskQueueManager;
 import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.Timer;
+import com.ardor3d.util.resource.ResourceLocatorTool;
+import com.ardor3d.util.resource.SimpleResourceLocator;
 
 /**
  * The main entry point for the desktop version of marble.
@@ -124,6 +128,18 @@ public class Application implements Runnable, Scene, Updater {
         // TODO use alternative image loader, and drop the dependency on AWT
         // completely.
         AWTImageLoader.registerLoader();
+        SimpleResourceLocator srl;
+        try {
+            srl =
+                    new SimpleResourceLocator(
+                            ResourceLocatorTool.getClassPathResource(
+                                    Application.class, "org/marble/media/"));
+        } catch (final URISyntaxException e) {
+            e.printStackTrace();
+            return;
+        }
+        ResourceLocatorTool.addResourceLocator(
+                ResourceLocatorTool.TYPE_TEXTURE, srl);
 
         // Perform game-specific initialization.
         game.initialize();
