@@ -4,8 +4,10 @@ import java.util.Set;
 
 import javax.vecmath.Vector3f;
 
+import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.scenegraph.shape.Sphere;
+import com.ardor3d.scenegraph.shape.GeoSphere;
+import com.ardor3d.scenegraph.shape.GeoSphere.TextureMode;
 
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.SphereShape;
@@ -16,9 +18,11 @@ import com.bulletphysics.linearmath.MotionState;
 
 import com.google.common.collect.ImmutableSet;
 
+import org.marble.Game;
 import org.marble.entity.AbstractEntity;
 import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
+import org.marble.graphics.ChromaticAbberationNode;
 import org.marble.graphics.EntityController;
 import org.marble.physics.EntityMotionState;
 
@@ -28,7 +32,7 @@ import org.marble.physics.EntityMotionState;
 public class Ball extends AbstractEntity implements Graphical, Physical {
     protected final float radius;
     protected final float mass;
-    protected Sphere graphicalSphere;
+    protected Node graphicalSphere;
     protected RigidBody physicalSphere;
     protected BallKind kind = BallKind.Wood;
 
@@ -67,9 +71,13 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
 
     @Override
     public void initialize(final Game game) {
-        graphicalSphere = new Sphere("ball", 16, 16, radius);
+        graphicalSphere =
+                new ChromaticAbberationNode(game.getGraphicsEngine()
+                        .getRootNode());
+        final GeoSphere sphere =
+                new GeoSphere("ball", true, radius, 4, TextureMode.Original);
+        graphicalSphere.attachChild(sphere);
         graphicalSphere.addController(new EntityController(this));
-        graphicalSphere.setRandomColors(); // XXX Debug
 
         final CollisionShape physicalShape = new SphereShape(radius);
         final Vector3f inertia = new Vector3f(0, 0, 0);
