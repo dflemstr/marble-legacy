@@ -17,6 +17,7 @@ import com.bulletphysics.linearmath.MotionState;
 
 import com.google.common.collect.ImmutableSet;
 
+import org.marble.Game;
 import org.marble.entity.AbstractEntity;
 import org.marble.entity.Connectivity;
 import org.marble.entity.Connector;
@@ -91,13 +92,11 @@ public class Slab extends AbstractEntity implements Connectivity, Graphical,
     }
 
     @Override
-    public void initialize() {
-
+    public void initialize(final Game game) {
         graphicalBox =
                 new Box("slab", new Vector3(0, 0, 0), width / 2, height / 2,
                         depth / 2);
         graphicalBox.addController(new EntityController(this));
-        graphicalBox.setRandomColors(); // XXX Debug
 
         final CollisionShape physicalShape =
                 new BoxShape(new Vector3f(width / 2, height / 2, depth / 2));

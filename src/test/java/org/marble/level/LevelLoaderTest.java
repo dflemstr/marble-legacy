@@ -16,6 +16,7 @@ import com.google.common.collect.UnmodifiableIterator;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.marble.Game;
 import org.marble.entity.AbstractEntity;
 import org.marble.entity.Connectivity;
 import org.marble.entity.Connector;
@@ -189,7 +190,7 @@ class MockEntity extends AbstractEntity implements Connectivity {
     }
 
     @Override
-    public void initialize() {
+    public void initialize(final Game game) {
     }
 
 }

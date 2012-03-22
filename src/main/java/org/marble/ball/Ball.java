@@ -66,7 +66,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
     }
 
     @Override
-    public void initialize() {
+    public void initialize(final Game game) {
         graphicalSphere = new Sphere("ball", 16, 16, radius);
         graphicalSphere.addController(new EntityController(this));
         graphicalSphere.setRandomColors(); // XXX Debug
