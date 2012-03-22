@@ -16,14 +16,17 @@ public final class Connectors {
                 (height - ycount + 1) / 2, zborder = (depth - zcount + 1) / 2;
         final float xhalf = width / 2, yhalf = height / 2, zhalf = depth / 2;
         final float pi = (float) Math.PI;
+        final float pihalf = pi / 2;
         final ImmutableMap.Builder<String, Connector> connectorBuilder =
                 ImmutableMap.builder();
 
-        connectorBuilder.put("top_middle", offsetBy(0, 0, zhalf, 0, pi, 0));
-        connectorBuilder
-                .put("bottom_middle", offsetBy(0, 0, -zhalf, 0, -pi, 0));
-        connectorBuilder.put("north_middle", offsetBy(0, yhalf, 0, pi, 0, 0));
-        connectorBuilder.put("south_middle", offsetBy(0, -yhalf, 0, -pi, 0, 0));
+        connectorBuilder.put("top_middle", offsetBy(0, 0, zhalf, 0, pihalf, 0));
+        connectorBuilder.put("bottom_middle",
+                offsetBy(0, 0, -zhalf, 0, -pihalf, 0));
+        connectorBuilder.put("north_middle",
+                offsetBy(0, yhalf, 0, pihalf, 0, 0));
+        connectorBuilder.put("south_middle",
+                offsetBy(0, -yhalf, 0, -pihalf, 0, 0));
         for (int x = 0; x < xcount; x++) {
             final float xcoord = xborder + x - xhalf;
 
@@ -31,25 +34,24 @@ public final class Connectors {
             for (int y = 0; y < ycount; y++) {
                 final float ycoord = yborder + y - yhalf;
                 connectorBuilder.put(makeAnchorName("top", x, y),
-                        offsetBy(xcoord, ycoord, zhalf, 0, pi, 0));
+                        offsetBy(xcoord, ycoord, zhalf, 0, pihalf, 0));
                 connectorBuilder.put(makeAnchorName("bottom", x, y),
-                        offsetBy(xcoord, ycoord, -zhalf, 0, -pi, 0));
+                        offsetBy(xcoord, ycoord, -zhalf, 0, -pihalf, 0));
             }
 
             // North/South
             for (int z = 0; z < zcount; z++) {
                 final float zcoord = zborder + z - zhalf;
                 connectorBuilder.put(makeAnchorName("north", x, z),
-                        offsetBy(xcoord, yhalf, zcoord, pi, 0, 0));
+                        offsetBy(xcoord, yhalf, zcoord, pihalf, 0, 0));
                 connectorBuilder.put(makeAnchorName("south", x, z),
-                        offsetBy(xcoord, -yhalf, zcoord, -pi, 0, 0));
+                        offsetBy(xcoord, -yhalf, zcoord, -pihalf, 0, 0));
             }
         }
 
         // East/West
         connectorBuilder.put("east_middle", offsetBy(xhalf, 0, 0, 0, 0, 0));
-        connectorBuilder.put("west_middle",
-                offsetBy(-xhalf, 0, 0, 2 * pi, 0, 0));
+        connectorBuilder.put("west_middle", offsetBy(-xhalf, 0, 0, pi, 0, 0));
         for (int y = 0; y < ycount; y++) {
             final float ycoord = yborder + y - yhalf;
             for (int z = 0; z < zcount; z++) {
@@ -57,7 +59,7 @@ public final class Connectors {
                 connectorBuilder.put(makeAnchorName("east", y, z),
                         offsetBy(xhalf, ycoord, zcoord, 0, 0, 0));
                 connectorBuilder.put(makeAnchorName("west", y, z),
-                        offsetBy(-xhalf, ycoord, zcoord, 2 * pi, 0, 0));
+                        offsetBy(-xhalf, ycoord, zcoord, pi, 0, 0));
             }
         }
 
