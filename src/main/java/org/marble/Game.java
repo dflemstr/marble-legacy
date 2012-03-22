@@ -7,15 +7,20 @@ import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 
 import com.ardor3d.framework.NativeCanvas;
+import com.ardor3d.image.Texture;
 import com.ardor3d.input.MouseManager;
 import com.ardor3d.input.control.OrbitCamControl;
 import com.ardor3d.input.logical.LogicalLayer;
 import com.ardor3d.light.PointLight;
 import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.MathUtils;
+import com.ardor3d.math.Quaternion;
 import com.ardor3d.math.Vector3;
 import com.ardor3d.scenegraph.Spatial;
+import com.ardor3d.scenegraph.controller.SpatialController;
+import com.ardor3d.scenegraph.extension.Skybox;
 import com.ardor3d.util.ReadOnlyTimer;
+import com.ardor3d.util.TextureManager;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -52,6 +57,8 @@ public class Game {
     // XXX Debug light; create light entities instead.
     private PointLight light;
 
+    private Skybox skybox;
+
     // Simple tracking camera system.
     private OrbitCamControl cameraControl;
 
@@ -83,12 +90,58 @@ public class Game {
      *            The entity to manage.
      */
     public void addEntity(final Entity entity) {
-        entity.initialize();
+        entity.initialize(this);
         for (final Engine<?> engine : engines)
             if (engine.shouldHandle(entity))
                 engine.addEntity(entity);
 
         entities.add(entity);
+    }
+
+    private Skybox createSkybox() {
+
+        skybox = new Skybox("skybox", 10, 10, 10);
+        skybox.addController(new SpatialController<Skybox>() {
+
+            @Override
+            public void update(final double time, final Skybox caller) {
+                caller.setTranslation(graphicsEngine.getCanvas()
+                        .getCanvasRenderer().getCamera().getLocation());
+            }
+
+        });
+        final Quaternion rot = Quaternion.fetchTempInstance();
+        rot.fromEulerAngles(0, 0, Math.PI / 2);
+        skybox.setRotation(rot);
+        Quaternion.releaseTempInstance(rot);
+
+        final String dir = "skybox/";
+        final Texture north =
+                TextureManager.load(dir + "north.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture south =
+                TextureManager.load(dir + "south.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture east =
+                TextureManager.load(dir + "east.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture west =
+                TextureManager.load(dir + "west.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture up =
+                TextureManager.load(dir + "up.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture down =
+                TextureManager.load(dir + "down.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+
+        skybox.setTexture(Skybox.Face.North, north);
+        skybox.setTexture(Skybox.Face.West, west);
+        skybox.setTexture(Skybox.Face.South, south);
+        skybox.setTexture(Skybox.Face.East, east);
+        skybox.setTexture(Skybox.Face.Up, up);
+        skybox.setTexture(Skybox.Face.Down, down);
+        return skybox;
     }
 
     /**
@@ -100,6 +153,7 @@ public class Game {
 
         // XXX Debug light
         graphicsEngine.getLighting().detach(light);
+        graphicsEngine.getRootNode().detachChild(skybox);
 
         for (final Engine<?> engine : engines)
             engine.destroy();
@@ -141,6 +195,9 @@ public class Game {
         light.setEnabled(true);
         graphicsEngine.getLighting().attach(light);
 
+        skybox = createSkybox();
+        graphicsEngine.getRootNode().attachChild(skybox);
+
         cameraControl =
                 new SmoothOrbitCamControl(graphicsEngine.getCanvas()
                         .getCanvasRenderer().getCamera(),
@@ -148,6 +205,7 @@ public class Game {
         cameraControl.setWorldUpVec(new Vector3(0, 0, 1));
         cameraControl.setSphereCoords(15, -90 * MathUtils.DEG_TO_RAD,
                 30 * MathUtils.DEG_TO_RAD);
+        cameraControl.setupMouseTriggers(inputEngine.getLogicalLayer(), true);
 
         // XXX Test entities
         try {
