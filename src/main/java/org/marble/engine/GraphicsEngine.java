@@ -1,12 +1,15 @@
 package org.marble.engine;
 
 import com.ardor3d.framework.NativeCanvas;
+import com.ardor3d.image.Texture;
 import com.ardor3d.renderer.queue.RenderBucketType;
+import com.ardor3d.renderer.state.CullState;
 import com.ardor3d.renderer.state.LightState;
-import com.ardor3d.renderer.state.WireframeState;
+import com.ardor3d.renderer.state.TextureState;
 import com.ardor3d.renderer.state.ZBufferState;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.util.ReadOnlyTimer;
+import com.ardor3d.util.TextureManager;
 
 import org.marble.entity.Graphical;
 
@@ -18,7 +21,8 @@ public class GraphicsEngine extends Engine<Graphical> {
     private final NativeCanvas canvas;
     private ZBufferState zbuffer;
     private LightState lighting;
-    private WireframeState wireframeState;
+    private CullState culling;
+    private TextureState textures;
 
     /**
      * Creates a new graphics engine.
@@ -90,9 +94,20 @@ public class GraphicsEngine extends Engine<Graphical> {
         lighting.setEnabled(true);
         rootNode.setRenderState(lighting);
 
-        wireframeState = new WireframeState();
-        wireframeState.setEnabled(true);
-        rootNode.setRenderState(wireframeState);
+        // final WireframeState wireframeState = new WireframeState();
+        // wireframeState.setEnabled(true);
+        // rootNode.setRenderState(wireframeState);
+
+        culling = new CullState();
+        culling.setEnabled(true);
+        culling.setCullFace(CullState.Face.Back);
+        rootNode.setRenderState(culling);
+
+        textures = new TextureState();
+        textures.setEnabled(true);
+        textures.setTexture(TextureManager.load("texture/missing.png",
+                Texture.MinificationFilter.Trilinear, true));
+        rootNode.setRenderState(textures);
 
         rootNode.updateGeometricState(0);
     }
