@@ -1,13 +1,14 @@
 
 uniform vec3 cameraPos;
+uniform mat4 modelMatrix;
 
 varying vec3 incident;
 varying vec3 normal;
 
 void main(void) {
-    vec4 position = gl_ModelViewMatrix * gl_Vertex;
+    vec4 position = modelMatrix * gl_Vertex;
     incident = position.xyz / position.w - cameraPos;
-    normal   = gl_NormalMatrix * gl_Normal;
+    normal   = mat3(modelMatrix) * gl_Normal;
 
     gl_Position = ftransform();
 }

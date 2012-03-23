@@ -37,8 +37,6 @@ public class ChromaticAbberationNode extends Node {
     protected TextureState textures;
     protected GLSLShaderObjectsState shader;
 
-    protected Matrix4 worldTransform = new Matrix4();
-
     public ChromaticAbberationNode(final Spatial root,
             final ReadOnlyColorRGBA environmentColor) {
         this.root = root;
@@ -99,7 +97,13 @@ public class ChromaticAbberationNode extends Node {
 
         setLastFrustumIntersection(FrustumIntersect.Inside);
 
-        shader.setUniform("cameraPos", Camera.getCurrentCamera().getLocation());
+        final Camera mainCamera = Camera.getCurrentCamera();
+        shader.setUniform("cameraPos", mainCamera.getLocation());
+
+        final Matrix4 modelMatrix = Matrix4.fetchTempInstance();
+        getWorldTransform().getHomogeneousMatrix(modelMatrix);
+        shader.setUniform("modelMatrix", modelMatrix, true);
+        Matrix4.releaseTempInstance(modelMatrix);
 
         // Render subnodes
         super.draw(r);
