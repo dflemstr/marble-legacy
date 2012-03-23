@@ -97,7 +97,7 @@ public class ChromaticAbberationNode extends Node {
         // We are no longer rendering the environment.
         getSceneHints().setCullHint(CullHint.Dynamic);
 
-        _frustumIntersects = FrustumIntersect.Inside; // XXX HACK
+        setLastFrustumIntersection(FrustumIntersect.Inside);
 
         // Render subnodes
         super.draw(r);
