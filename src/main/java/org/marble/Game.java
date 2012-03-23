@@ -222,7 +222,7 @@ public class Game {
 
         final Matrix4f ballTransform = new Matrix4f();
         ballTransform.set(new Vector3f(0, 0, 8));
-        final PlayerBall ball = new PlayerBall(0.5f, 5.0f);
+        final PlayerBall ball = new PlayerBall(3f, 5.0f);
         ball.setTransform(ballTransform);
         addEntity(ball);
         track(ball.getSpatial());

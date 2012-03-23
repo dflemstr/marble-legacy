@@ -6,6 +6,7 @@ import com.ardor3d.image.TextureCubeMap.Face;
 import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.Matrix4;
 import com.ardor3d.math.Vector3;
+import com.ardor3d.math.type.ReadOnlyColorRGBA;
 import com.ardor3d.renderer.Camera;
 import com.ardor3d.renderer.Camera.FrustumIntersect;
 import com.ardor3d.renderer.ContextCapabilities;
@@ -26,6 +27,7 @@ public class ChromaticAbberationNode extends Node {
     private boolean initialized = false;
 
     protected final Spatial root;
+    protected final ColorRGBA environmentColor = new ColorRGBA();
 
     protected TextureRenderer renderer;
     protected TextureCubeMap environment;
@@ -37,8 +39,10 @@ public class ChromaticAbberationNode extends Node {
 
     protected Matrix4 worldTransform = new Matrix4();
 
-    public ChromaticAbberationNode(final Spatial root) {
+    public ChromaticAbberationNode(final Spatial root,
+            final ReadOnlyColorRGBA environmentColor) {
         this.root = root;
+        this.environmentColor.set(environmentColor);
     }
 
     private void applyChromaticAbberation(final Spatial spatial) {
@@ -113,12 +117,11 @@ public class ChromaticAbberationNode extends Node {
         renderer =
                 TextureRendererFactory.INSTANCE.createTextureRenderer(1024,
                         1024, r, caps);
-        renderer.setBackgroundColor(new ColorRGBA(0, 0, 0, 1));
-        renderer.getCamera().setFrustum(0.1, 1024, -0.5, 0.5, 0.5, -0.5);
+        renderer.setBackgroundColor(environmentColor);
+        renderer.getCamera().setFrustum(1, 1024, -1, 1, 1, -1);
 
         environment = new TextureCubeMap();
         environment.setEnvironmentalMapMode(EnvironmentalMapMode.ObjectLinear);
-        environment.setConstantColor(0, 0, 0, 1);
 
         renderer.setupTexture(environment);
 

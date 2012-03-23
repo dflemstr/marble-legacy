@@ -4,6 +4,7 @@ import java.util.Set;
 
 import javax.vecmath.Vector3f;
 
+import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.shape.GeoSphere;
@@ -73,7 +74,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
     public void initialize(final Game game) {
         graphicalSphere =
                 new ChromaticAbberationNode(game.getGraphicsEngine()
-                        .getRootNode());
+                        .getRootNode(), new ColorRGBA(0.941f, 0.984f, 1, 1));
         final GeoSphere sphere =
                 new GeoSphere("ball", true, radius, 4, TextureMode.Original);
         graphicalSphere.attachChild(sphere);
