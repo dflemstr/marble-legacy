@@ -99,6 +99,8 @@ public class ChromaticAbberationNode extends Node {
 
         setLastFrustumIntersection(FrustumIntersect.Inside);
 
+        shader.setUniform("cameraPos", Camera.getCurrentCamera().getLocation());
+
         // Render subnodes
         super.draw(r);
     }
