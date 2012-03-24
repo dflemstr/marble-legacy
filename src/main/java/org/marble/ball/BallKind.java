@@ -11,5 +11,5 @@ public enum BallKind {
     Wood,
 
     /** A paper ball: feathery and flimsy */
-    Paper;
+    Paper, Glass, Mercury;
 }

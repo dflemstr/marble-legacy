@@ -84,8 +84,8 @@ public class PlayerBall extends Ball implements Interactive {
      * @param mass
      *            The base mass of the ball.
      */
-    public PlayerBall(final Float radius, final Float mass) {
-        super(radius, mass);
+    public PlayerBall(final BallKind kind, final float radius, final float mass) {
+        super(kind, radius, mass);
         disImpNorth = new DisplaceImpulse(Direction.NORTH, 1);
         disImpEast = new DisplaceImpulse(Direction.EAST, 1);
         disImpSouth = new DisplaceImpulse(Direction.SOUTH, 1);
@@ -115,6 +115,10 @@ public class PlayerBall extends Ball implements Interactive {
                         downPressTrigger, upPressTrigger, leftReleaseTrigger,
                         rightReleaseTrigger, downReleaseTrigger,
                         upReleaseTrigger);
+    }
+
+    public PlayerBall(final String kind, final float radius, final float mass) {
+        this(BallKind.valueOf(kind), radius, mass);
     }
 
     @Override

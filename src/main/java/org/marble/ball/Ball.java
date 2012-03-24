@@ -23,8 +23,9 @@ import org.marble.Game;
 import org.marble.entity.AbstractEntity;
 import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
-import org.marble.graphics.ChromaticAbberationNode;
+import org.marble.graphics.ChromaticAberrationNode;
 import org.marble.graphics.EntityController;
+import org.marble.graphics.ReflectionNode;
 import org.marble.physics.EntityMotionState;
 
 /**
@@ -33,13 +34,16 @@ import org.marble.physics.EntityMotionState;
 public class Ball extends AbstractEntity implements Graphical, Physical {
     protected final float radius;
     protected final float mass;
+    protected BallKind kind;
+
     protected Node graphicalSphere;
     protected RigidBody physicalSphere;
-    protected BallKind kind = BallKind.Wood;
+    private Spatial rootNode;
+    private final GeoSphere sphereMesh;
 
     /**
      * Creates a new ball.
-     *
+     * 
      * @param name
      *            The name, for debug purposes.
      * @param transform
@@ -50,9 +54,17 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
      * @param mass
      *            The base mass.
      */
-    public Ball(final Float radius, final Float mass) {
+    public Ball(final BallKind kind, final float radius, final float mass) {
         this.radius = radius;
         this.mass = mass;
+        this.kind = kind;
+
+        sphereMesh =
+                new GeoSphere("ball", true, radius, 4, TextureMode.Original);
+    }
+
+    public Ball(final String kind, final float radius, final float mass) {
+        this(BallKind.valueOf(kind), radius, mass);
     }
 
     @Override
@@ -72,12 +84,9 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
 
     @Override
     public void initialize(final Game game) {
-        graphicalSphere =
-                new ChromaticAbberationNode(game.getGraphicsEngine()
-                        .getRootNode(), new ColorRGBA(0.941f, 0.984f, 1, 1));
-        final GeoSphere sphere =
-                new GeoSphere("ball", true, radius, 4, TextureMode.Original);
-        graphicalSphere.attachChild(sphere);
+        rootNode = game.getGraphicsEngine().getRootNode();
+
+        graphicalSphere = new Node();
         graphicalSphere.addController(new EntityController(this));
 
         final CollisionShape physicalShape = new SphereShape(radius);
@@ -102,12 +111,27 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
      */
     public void setBallKind(final BallKind kind) {
         // TODO implement material properties and changes.
+        graphicalSphere.detachAllChildren();
         switch (kind) {
         case Wood:
             break;
         case Stone:
             break;
         case Paper:
+            break;
+        case Glass:
+            final Node chromAberrator =
+                    new ChromaticAberrationNode(rootNode, new ColorRGBA(0.941f,
+                            0.984f, 1, 1));
+            chromAberrator.attachChild(sphereMesh);
+            graphicalSphere.attachChild(chromAberrator);
+            break;
+        case Mercury:
+            final Node reflector =
+                    new ReflectionNode(rootNode, new ColorRGBA(0.941f, 0.984f,
+                            1, 1));
+            reflector.attachChild(sphereMesh);
+            graphicalSphere.attachChild(reflector);
             break;
         }
         this.kind = kind;

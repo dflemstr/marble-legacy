@@ -47,7 +47,7 @@ public class Slab extends AbstractEntity implements Connectivity, Graphical,
      * @param depth
      *            The size along the Z-axis.
      */
-    public Slab(final Float width, final Float height, final Float depth) {
+    public Slab(final float width, final float height, final float depth) {
         this(width, height, depth, 0.0f);
     }
 
@@ -63,8 +63,8 @@ public class Slab extends AbstractEntity implements Connectivity, Graphical,
      * @param mass
      *            The mass.
      */
-    public Slab(final Float width, final Float height, final Float depth,
-            final Float mass) {
+    public Slab(final float width, final float height, final float depth,
+            final float mass) {
         this.width = width;
         this.height = height;
         this.depth = depth;
