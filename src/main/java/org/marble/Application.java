@@ -133,7 +133,7 @@ public class Application implements Runnable, Scene, Updater {
             srl =
                     new SimpleResourceLocator(
                             ResourceLocatorTool.getClassPathResource(
-                                    Application.class, "org/marble/media/"));
+                                    Application.class, "org/marble/texture/"));
         } catch (final URISyntaxException e) {
             e.printStackTrace();
             return;

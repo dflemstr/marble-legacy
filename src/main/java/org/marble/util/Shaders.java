@@ -10,7 +10,7 @@ import org.marble.Game;
 public final class Shaders {
     private static final String SHADER_DIR = Game.class.getPackage().getName()
             .replace('.', '/')
-            + "/media/shader/";
+            + "/shader/";
 
     public static GLSLShaderObjectsState loadShader(final String name) {
         final GLSLShaderObjectsState shader = new GLSLShaderObjectsState();
@@ -25,6 +25,8 @@ public final class Shaders {
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
+        shader._fragmentShaderName = name;
+        shader._vertexShaderName = name;
 
         return shader;
     }
