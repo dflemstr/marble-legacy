@@ -1,5 +1,7 @@
 package org.marble.graphics;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.ardor3d.image.Texture.EnvironmentalMapMode;
 import com.ardor3d.image.TextureCubeMap;
 import com.ardor3d.image.TextureCubeMap.Face;
@@ -24,6 +26,8 @@ import com.ardor3d.scenegraph.hint.CullHint;
 public class EnvironmentNode extends Node {
 
     private boolean initialized = false;
+    private static final AtomicBoolean renderingToEnv =
+            new AtomicBoolean(false);
 
     protected final Spatial root;
     protected final ColorRGBA environmentColor = new ColorRGBA();
@@ -31,16 +35,25 @@ public class EnvironmentNode extends Node {
     protected TextureRenderer renderer;
     protected TextureCubeMap environment;
 
-    protected CullState culling;
+    protected final CullState culling;
+    protected final TextureState textures;
 
-    protected TextureState textures;
     protected final GLSLShaderObjectsState shader;
 
     public EnvironmentNode(final Spatial root,
-            final ReadOnlyColorRGBA environmentColor, final GLSLShaderObjectsState shader) {
+            final ReadOnlyColorRGBA environmentColor,
+            final GLSLShaderObjectsState shader) {
         this.root = root;
         this.environmentColor.set(environmentColor);
         this.shader = shader;
+
+        culling = new CullState();
+        culling.setCullFace(CullState.Face.None);
+        culling.setEnabled(true);
+
+        textures = new TextureState();
+        textures.setTexture(environment, 0);
+        textures.setEnabled(true);
     }
 
     private void applyMaterial(final Spatial spatial) {
@@ -53,54 +66,66 @@ public class EnvironmentNode extends Node {
     public void draw(final Renderer r) {
         initialize(r);
 
-        // This node isn't part of the refracted/reflected surroundings, so if
-        // this method is being called while we're rendering to the environment
-        // textures, we'll cull ourselves from the render.
+        /*
+         * We only allow one environment to be rendered at a time, because
+         * otherwise environments will be recursively rendered into one another,
+         * having a 6^n complexity
+         */
+        if (renderingToEnv.compareAndSet(false, true)) {
+            // We are now rendering the environment.
 
-        // We are now rendering the environment.
-        getSceneHints().setCullHint(CullHint.Always);
+            /*
+             * This node isn't part of the refracted/reflected surroundings, so
+             * if this method is being called while we're rendering to the
+             * environment textures, we'll cull ourselves from the render.
+             */
+            getSceneHints().setCullHint(CullHint.Always);
 
-        final Camera renderCam = renderer.getCamera();
-        renderCam.setLocation(getWorldTranslation());
+            final Camera renderCam = renderer.getCamera();
+            renderCam.setLocation(getWorldTranslation());
 
-        // Render the environment as seen from the center of our node
-        renderCam.setAxes(Vector3.NEG_UNIT_Z, Vector3.NEG_UNIT_Y,
-                Vector3.NEG_UNIT_X);
-        environment.setCurrentRTTFace(Face.NegativeX);
-        renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
+            // Render the environment as seen from the center of our
+            // node
+            renderCam.setAxes(Vector3.NEG_UNIT_Z, Vector3.NEG_UNIT_Y,
+                    Vector3.NEG_UNIT_X);
+            environment.setCurrentRTTFace(Face.NegativeX);
+            renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
 
-        renderCam.setAxes(Vector3.UNIT_Z, Vector3.NEG_UNIT_Y, Vector3.UNIT_X);
-        environment.setCurrentRTTFace(Face.PositiveX);
-        renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
+            renderCam.setAxes(Vector3.UNIT_Z, Vector3.NEG_UNIT_Y,
+                    Vector3.UNIT_X);
+            environment.setCurrentRTTFace(Face.PositiveX);
+            renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
 
-        renderCam.setAxes(Vector3.NEG_UNIT_X, Vector3.NEG_UNIT_Z,
-                Vector3.NEG_UNIT_Y);
-        environment.setCurrentRTTFace(Face.NegativeY);
-        renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
+            renderCam.setAxes(Vector3.NEG_UNIT_X, Vector3.NEG_UNIT_Z,
+                    Vector3.NEG_UNIT_Y);
+            environment.setCurrentRTTFace(Face.NegativeY);
+            renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
 
-        renderCam.setAxes(Vector3.NEG_UNIT_X, Vector3.UNIT_Z, Vector3.UNIT_Y);
-        environment.setCurrentRTTFace(Face.PositiveY);
-        renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
+            renderCam.setAxes(Vector3.NEG_UNIT_X, Vector3.UNIT_Z,
+                    Vector3.UNIT_Y);
+            environment.setCurrentRTTFace(Face.PositiveY);
+            renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
 
-        renderCam.setAxes(Vector3.UNIT_X, Vector3.NEG_UNIT_Y,
-                Vector3.NEG_UNIT_Z);
-        environment.setCurrentRTTFace(Face.NegativeZ);
-        renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
+            renderCam.setAxes(Vector3.UNIT_X, Vector3.NEG_UNIT_Y,
+                    Vector3.NEG_UNIT_Z);
+            environment.setCurrentRTTFace(Face.NegativeZ);
+            renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
 
-        renderCam.setAxes(Vector3.NEG_UNIT_X, Vector3.NEG_UNIT_Y,
-                Vector3.UNIT_Z);
-        environment.setCurrentRTTFace(Face.PositiveZ);
-        renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
+            renderCam.setAxes(Vector3.NEG_UNIT_X, Vector3.NEG_UNIT_Y,
+                    Vector3.UNIT_Z);
+            environment.setCurrentRTTFace(Face.PositiveZ);
+            renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
 
-        // We are no longer rendering the environment.
-        getSceneHints().setCullHint(CullHint.Dynamic);
+            // We are no longer rendering the environment.
+            getSceneHints().setCullHint(CullHint.Dynamic);
+
+            renderingToEnv.set(false);
+        }
 
         setLastFrustumIntersection(FrustumIntersect.Inside);
+        shader.setUniform("cameraPos", Camera.getCurrentCamera().getLocation());
 
-        final Camera mainCamera = Camera.getCurrentCamera();
-        shader.setUniform("cameraPos", mainCamera.getLocation());
-
-        final Matrix4 modelMatrix = Matrix4.fetchTempInstance();
+        final Matrix4 modelMatrix = new Matrix4();
         getWorldTransform().getHomogeneousMatrix(modelMatrix);
         shader.setUniform("modelMatrix", modelMatrix, true);
         Matrix4.releaseTempInstance(modelMatrix);
@@ -121,8 +146,8 @@ public class EnvironmentNode extends Node {
                 ContextManager.getCurrentContext().getCapabilities();
 
         renderer =
-                TextureRendererFactory.INSTANCE.createTextureRenderer(1024,
-                        1024, r, caps);
+                TextureRendererFactory.INSTANCE.createTextureRenderer(128, 128,
+                        r, caps);
         renderer.setBackgroundColor(environmentColor);
         renderer.getCamera().setFrustum(.1, 1024, -.1, .1, .1, -.1);
 
@@ -130,14 +155,6 @@ public class EnvironmentNode extends Node {
         environment.setEnvironmentalMapMode(EnvironmentalMapMode.ObjectLinear);
 
         renderer.setupTexture(environment);
-
-        culling = new CullState();
-        culling.setCullFace(CullState.Face.None);
-        culling.setEnabled(true);
-
-        textures = new TextureState();
-        textures.setTexture(environment, 0);
-        textures.setEnabled(true);
 
         shader.setUniform("environment", 0);
         shader.setEnabled(true);
