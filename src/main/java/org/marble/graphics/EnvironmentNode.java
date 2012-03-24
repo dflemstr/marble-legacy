@@ -21,9 +21,8 @@ import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.hint.CullHint;
 
-import org.marble.util.Shaders;
+public class EnvironmentNode extends Node {
 
-public class ChromaticAbberationNode extends Node {
     private boolean initialized = false;
 
     protected final Spatial root;
@@ -35,15 +34,16 @@ public class ChromaticAbberationNode extends Node {
     protected CullState culling;
 
     protected TextureState textures;
-    protected GLSLShaderObjectsState shader;
+    protected final GLSLShaderObjectsState shader;
 
-    public ChromaticAbberationNode(final Spatial root,
-            final ReadOnlyColorRGBA environmentColor) {
+    public EnvironmentNode(final Spatial root,
+            final ReadOnlyColorRGBA environmentColor, final GLSLShaderObjectsState shader) {
         this.root = root;
         this.environmentColor.set(environmentColor);
+        this.shader = shader;
     }
 
-    private void applyChromaticAbberation(final Spatial spatial) {
+    private void applyMaterial(final Spatial spatial) {
         spatial.setRenderState(culling);
         spatial.setRenderState(textures);
         spatial.setRenderState(shader);
@@ -124,7 +124,7 @@ public class ChromaticAbberationNode extends Node {
                 TextureRendererFactory.INSTANCE.createTextureRenderer(1024,
                         1024, r, caps);
         renderer.setBackgroundColor(environmentColor);
-        renderer.getCamera().setFrustum(1, 1024, -1, 1, 1, -1);
+        renderer.getCamera().setFrustum(.1, 1024, -.1, .1, .1, -.1);
 
         environment = new TextureCubeMap();
         environment.setEnvironmentalMapMode(EnvironmentalMapMode.ObjectLinear);
@@ -139,23 +139,10 @@ public class ChromaticAbberationNode extends Node {
         textures.setTexture(environment, 0);
         textures.setEnabled(true);
 
-        shader = Shaders.loadShader("chromatic-aberration");
         shader.setUniform("environment", 0);
-
-        // IOR values for Borosilicate Crown Glass, unrealistic?
-        // shader.setUniform("etaR", 1 / 1.50917f);
-        // shader.setUniform("etaG", 1 / 1.51534f);
-        // shader.setUniform("etaB", 1 / 1.52136f);
-
-        // Non-convex IOR values, making the refracted object look "hollow"
-        shader.setUniform("etaR", 1.14f);
-        shader.setUniform("etaG", 1.12f);
-        shader.setUniform("etaB", 1.10f);
-
-        shader.setUniform("fresnelPower", 2.0f);
         shader.setEnabled(true);
 
-        applyChromaticAbberation(this);
+        applyMaterial(this);
 
         initialized = true;
     }
