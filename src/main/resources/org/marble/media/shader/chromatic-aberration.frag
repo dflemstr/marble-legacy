@@ -1,16 +1,16 @@
 
-const float etaR = 1.14;
-const float etaG = 1.12;
-const float etaB = 1.10;
-const float fresnelPower = 2.0;
-const float F = ((1.0 - etaG) * (1.0 - etaG)) / ((1.0 + etaG) * (1.0 + etaG));
-
+// Spectrum of reciprocals of indices of refraction
+uniform float etaR; // Red
+uniform float etaG; // Green
+uniform float etaB; // Blue
+uniform float fresnelPower;
 uniform samplerCube environment;
 
 varying vec3 incident;
 varying vec3 normal;
 
 void main(void) {
+    float F = ((1.0 - etaG) * (1.0 - etaG)) / ((1.0 + etaG) * (1.0 + etaG));
     vec3 i = normalize(incident);
     vec3 n = normalize(normal);
 

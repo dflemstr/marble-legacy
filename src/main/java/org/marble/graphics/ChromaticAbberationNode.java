@@ -141,6 +141,18 @@ public class ChromaticAbberationNode extends Node {
 
         shader = Shaders.loadShader("chromatic-aberration");
         shader.setUniform("environment", 0);
+
+        // IOR values for Borosilicate Crown Glass, unrealistic?
+        // shader.setUniform("etaR", 1 / 1.50917f);
+        // shader.setUniform("etaG", 1 / 1.51534f);
+        // shader.setUniform("etaB", 1 / 1.52136f);
+
+        // Non-convex IOR values, making the refracted object look "hollow"
+        shader.setUniform("etaR", 1.14f);
+        shader.setUniform("etaG", 1.12f);
+        shader.setUniform("etaB", 1.10f);
+
+        shader.setUniform("fresnelPower", 2.0f);
         shader.setEnabled(true);
 
         applyChromaticAbberation(this);
