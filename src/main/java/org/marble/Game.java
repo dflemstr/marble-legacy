@@ -204,7 +204,7 @@ public class Game {
                         .getCanvasRenderer().getCamera(),
                         graphicsEngine.getRootNode(), 8);
         cameraControl.setWorldUpVec(new Vector3(0, 0, 1));
-        cameraControl.setSphereCoords(15, -90 * MathUtils.DEG_TO_RAD,
+        cameraControl.setSphereCoords(10, -90 * MathUtils.DEG_TO_RAD,
                 30 * MathUtils.DEG_TO_RAD);
         cameraControl.setupMouseTriggers(inputEngine.getLogicalLayer(), true);
 
