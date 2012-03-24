@@ -10,6 +10,14 @@ public enum BallKind {
     /** A wooden ball: light and agile */
     Wood,
 
-    /** A paper ball: feathery and flimsy */
-    Paper, Glass, Mercury;
+    /** A fabric ball: very light and flimsy */
+    Fabric,
+
+    /** An easily controlled ball that might break when moved too quickly */
+    Glass,
+
+    /**
+     * A ball that leaves a trail of mercury as it moves, slowly growing smaller
+     */
+    Mercury;
 }

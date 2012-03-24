@@ -1,15 +1,26 @@
 // Import our slab class
 using Slab as org.marble.block.Slab
+using Ball as org.marble.ball.Ball
 
 // Create two slabs
 let slab1 be Slab(15, 15, 1),
     slab2 be Slab(3, 4, 1),
     slab3 be Slab(7, 7, 1),
     slab4 be Slab(4, 3, 1),
-    slab5 be Slab(15, 7, 1)
+    slab5 be Slab(15, 7, 1),
+    woodenBall  be Ball([Wood], 0.5, 1),
+    stoneBall   be Ball([Stone], 0.5, 1),
+    fabricBall  be Ball([Fabric], 0.5, 1),
+    glassBall   be Ball([Glass], 0.5, 1),
+    mercuryBall be Ball([Mercury], 0.5, 1)
 
 position slab1 at (0, 0, 0)
 connect slab2.south_middle to slab1.north_1_0,
-		slab3.south_middle to slab2.north_middle,
-		slab4.west_middle to slab3.east_middle,
-		slab5.west_middle to slab4.east_middle
+        slab3.south_middle to slab2.north_middle,
+        slab4.west_middle to slab3.east_middle,
+        slab5.west_middle to slab4.east_middle
+position woodenBall  at (-2, 0, 8) from slab1
+position stoneBall   at (-4, 0, 8) from slab1
+position fabricBall  at (-6, 0, 8) from slab1
+position glassBall   at ( 2, 0, 8) from slab1
+position mercuryBall at ( 4, 0, 8) from slab1
