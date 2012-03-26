@@ -6,7 +6,6 @@ import com.ardor3d.image.Texture.EnvironmentalMapMode;
 import com.ardor3d.image.TextureCubeMap;
 import com.ardor3d.image.TextureCubeMap.Face;
 import com.ardor3d.math.ColorRGBA;
-import com.ardor3d.math.Matrix4;
 import com.ardor3d.math.Vector3;
 import com.ardor3d.math.type.ReadOnlyColorRGBA;
 import com.ardor3d.renderer.Camera;
@@ -24,16 +23,14 @@ import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.hint.CullHint;
 
 public class EnvironmentNode extends Node {
-
-    private boolean initialized = false;
     private static final AtomicBoolean renderingToEnv =
             new AtomicBoolean(false);
 
     protected final Spatial root;
     protected final ColorRGBA environmentColor = new ColorRGBA();
 
-    protected TextureRenderer renderer;
-    protected TextureCubeMap environment;
+    protected TextureRenderer envRenderer;
+    protected final TextureCubeMap environment;
 
     protected final CullState culling;
     protected final TextureState textures;
@@ -46,25 +43,43 @@ public class EnvironmentNode extends Node {
         this.root = root;
         this.environmentColor.set(environmentColor);
         this.shader = shader;
+        shader.setUniform("environment", 0);
+        shader.setShaderDataLogic(new WorldSpaceDataLogic());
+        shader.setEnabled(true);
 
         culling = new CullState();
         culling.setCullFace(CullState.Face.None);
         culling.setEnabled(true);
 
+        environment = new TextureCubeMap();
+        environment.setEnvironmentalMapMode(EnvironmentalMapMode.ObjectLinear);
+
         textures = new TextureState();
         textures.setTexture(environment, 0);
         textures.setEnabled(true);
+
+        setRenderState(culling);
+        setRenderState(textures);
+        setRenderState(shader);
     }
 
-    private void applyMaterial(final Spatial spatial) {
-        spatial.setRenderState(culling);
-        spatial.setRenderState(textures);
-        spatial.setRenderState(shader);
+    private TextureRenderer createEnvironmentRenderer(final Renderer r) {
+        final ContextCapabilities caps =
+                ContextManager.getCurrentContext().getCapabilities();
+
+        final TextureRenderer renderer =
+                TextureRendererFactory.INSTANCE.createTextureRenderer(128, 128,
+                        r, caps);
+        renderer.setBackgroundColor(environmentColor);
+        renderer.getCamera().setFrustum(.1, 1024, -.1, .1, .1, -.1);
+        renderer.setupTexture(environment);
+        return renderer;
     }
 
     @Override
     public void draw(final Renderer r) {
-        initialize(r);
+        if(envRenderer == null)
+            envRenderer = createEnvironmentRenderer(r);
 
         /*
          * We only allow one environment to be rendered at a time, because
@@ -81,7 +96,7 @@ public class EnvironmentNode extends Node {
              */
             getSceneHints().setCullHint(CullHint.Always);
 
-            final Camera renderCam = renderer.getCamera();
+            final Camera renderCam = envRenderer.getCamera();
             renderCam.setLocation(getWorldTranslation());
 
             // Render the environment as seen from the center of our
@@ -89,32 +104,32 @@ public class EnvironmentNode extends Node {
             renderCam.setAxes(Vector3.NEG_UNIT_Z, Vector3.NEG_UNIT_Y,
                     Vector3.NEG_UNIT_X);
             environment.setCurrentRTTFace(Face.NegativeX);
-            renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
+            envRenderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
 
             renderCam.setAxes(Vector3.UNIT_Z, Vector3.NEG_UNIT_Y,
                     Vector3.UNIT_X);
             environment.setCurrentRTTFace(Face.PositiveX);
-            renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
+            envRenderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
 
             renderCam.setAxes(Vector3.NEG_UNIT_X, Vector3.NEG_UNIT_Z,
                     Vector3.NEG_UNIT_Y);
             environment.setCurrentRTTFace(Face.NegativeY);
-            renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
+            envRenderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
 
             renderCam.setAxes(Vector3.NEG_UNIT_X, Vector3.UNIT_Z,
                     Vector3.UNIT_Y);
             environment.setCurrentRTTFace(Face.PositiveY);
-            renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
+            envRenderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
 
             renderCam.setAxes(Vector3.UNIT_X, Vector3.NEG_UNIT_Y,
                     Vector3.NEG_UNIT_Z);
             environment.setCurrentRTTFace(Face.NegativeZ);
-            renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
+            envRenderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
 
             renderCam.setAxes(Vector3.NEG_UNIT_X, Vector3.NEG_UNIT_Y,
                     Vector3.UNIT_Z);
             environment.setCurrentRTTFace(Face.PositiveZ);
-            renderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
+            envRenderer.render(root, environment, Renderer.BUFFER_COLOR_AND_DEPTH);
 
             // We are no longer rendering the environment.
             getSceneHints().setCullHint(CullHint.Dynamic);
@@ -122,13 +137,7 @@ public class EnvironmentNode extends Node {
             renderingToEnv.set(false);
         }
 
-        setLastFrustumIntersection(FrustumIntersect.Inside);
-        shader.setUniform("cameraPos", Camera.getCurrentCamera().getLocation());
-
-        final Matrix4 modelMatrix = new Matrix4();
-        getWorldTransform().getHomogeneousMatrix(modelMatrix);
-        shader.setUniform("modelMatrix", modelMatrix, true);
-        Matrix4.releaseTempInstance(modelMatrix);
+        setLastFrustumIntersection(FrustumIntersect.Intersects);
 
         // Render subnodes
         super.draw(r);
@@ -136,31 +145,5 @@ public class EnvironmentNode extends Node {
 
     public TextureCubeMap getEnvironment() {
         return environment;
-    }
-
-    private void initialize(final Renderer r) {
-        if (initialized)
-            return;
-
-        final ContextCapabilities caps =
-                ContextManager.getCurrentContext().getCapabilities();
-
-        renderer =
-                TextureRendererFactory.INSTANCE.createTextureRenderer(128, 128,
-                        r, caps);
-        renderer.setBackgroundColor(environmentColor);
-        renderer.getCamera().setFrustum(.1, 1024, -.1, .1, .1, -.1);
-
-        environment = new TextureCubeMap();
-        environment.setEnvironmentalMapMode(EnvironmentalMapMode.ObjectLinear);
-
-        renderer.setupTexture(environment);
-
-        shader.setUniform("environment", 0);
-        shader.setEnabled(true);
-
-        applyMaterial(this);
-
-        initialized = true;
     }
 }
