@@ -143,6 +143,11 @@ public class EnvironmentNode extends Node {
         super.draw(r);
     }
 
+    @Override
+    protected void finalize() {
+        envRenderer.cleanup();
+    }
+
     public TextureCubeMap getEnvironment() {
         return environment;
     }
