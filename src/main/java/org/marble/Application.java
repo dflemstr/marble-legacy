@@ -25,6 +25,8 @@ import com.ardor3d.util.Timer;
 import com.ardor3d.util.resource.ResourceLocatorTool;
 import com.ardor3d.util.resource.SimpleResourceLocator;
 
+import org.marble.settings.Settings;
+
 /**
  * The main entry point for the desktop version of marble.
  *
