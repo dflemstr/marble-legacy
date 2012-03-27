@@ -94,9 +94,11 @@ public class GraphicsEngine extends Engine<Graphical> {
         lighting.setEnabled(true);
         rootNode.setRenderState(lighting);
 
-        // final WireframeState wireframeState = new WireframeState();
-        // wireframeState.setEnabled(true);
-        // rootNode.setRenderState(wireframeState);
+        /*
+         * final WireframeState wireframeState = new WireframeState();
+         * wireframeState.setEnabled(true);
+         * rootNode.setRenderState(wireframeState);
+         */
 
         culling = new CullState();
         culling.setEnabled(true);
@@ -106,7 +108,7 @@ public class GraphicsEngine extends Engine<Graphical> {
         textures = new TextureState();
         textures.setEnabled(true);
         textures.setTexture(TextureManager.load("texture/missing.png",
-                Texture.MinificationFilter.Trilinear, true));
+                Texture.MinificationFilter.Trilinear, false));
         rootNode.setRenderState(textures);
 
         rootNode.updateGeometricState(0);

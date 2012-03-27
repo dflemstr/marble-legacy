@@ -206,6 +206,7 @@ public class Game {
         cameraControl.setWorldUpVec(new Vector3(0, 0, 1));
         cameraControl.setSphereCoords(10, -90 * MathUtils.DEG_TO_RAD,
                 30 * MathUtils.DEG_TO_RAD);
+        cameraControl.setZoomSpeed(0.001);
         cameraControl.setupMouseTriggers(inputEngine.getLogicalLayer(), true);
 
         // XXX Test entities
