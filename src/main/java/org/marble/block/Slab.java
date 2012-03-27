@@ -24,6 +24,7 @@ import org.marble.entity.Connector;
 import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
 import org.marble.graphics.EntityController;
+import org.marble.graphics.SegmentedBox;
 import org.marble.physics.EntityMotionState;
 import org.marble.util.Connectors;
 
@@ -94,8 +95,8 @@ public class Slab extends AbstractEntity implements Connectivity, Graphical,
     @Override
     public void initialize(final Game game) {
         graphicalBox =
-                new Box("slab", new Vector3(0, 0, 0), width / 2, height / 2,
-                        depth / 2);
+                new SegmentedBox("slab", 1, 1, 0.3, Vector3.ZERO, width / 2,
+                        height / 2, depth / 2);
         graphicalBox.addController(new EntityController(this));
 
         final CollisionShape physicalShape =
