@@ -1,7 +1,7 @@
 
 const float distanceWeight = 4.0;
 const float noiseScale     = 0.6;
-const float noiseWeight    = 1.4;
+const float noiseWeight    = 1.5;
 
 uniform vec3 trunkCenter1;
 uniform vec3 trunkCenter2;
@@ -97,9 +97,7 @@ void main(void) {
     float distance =
         length(cross(position - trunkCenter1, position - trunkCenter2)) /
         length(trunkCenter2 - trunkCenter1);
-
     float intensity = (1.0 + sin(distance * distanceWeight +
                                  snoise(noiseScale * position + noiseSeed) * noiseWeight)) / 2.0;
-
-    gl_FragColor = texture2D(woodGradient, vec2(intensity, variation));
+    gl_FragColor = texture2D(woodGradient, vec2(variation, intensity));
 }

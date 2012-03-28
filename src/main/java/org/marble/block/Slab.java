@@ -92,12 +92,12 @@ public class Slab extends AbstractEntity implements Connectivity, Graphical,
         final Vector3 vec = Vector3.fetchTempInstance();
         randomize(vec);
         vec.multiplyLocal(width / 2, height / 2, depth / 2);
-        vec.subtractLocal(width / 4, height / 4, depth / 4);
+        vec.subtractLocal(width / 4, height / 4, 0);
         wood.setUniform("trunkCenter1", vec);
 
         randomize(vec);
         vec.multiplyLocal(width / 2, height / 2, depth / 2);
-        vec.subtractLocal(width / 4, height / 4, depth / 4);
+        vec.subtractLocal(width / 4, height / 4, depth / 2);
         wood.setUniform("trunkCenter2", vec);
 
         randomize(vec);
