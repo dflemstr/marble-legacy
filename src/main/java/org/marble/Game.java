@@ -6,9 +6,16 @@ import java.util.Set;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import com.ardor3d.extension.ui.UIButton;
+import com.ardor3d.extension.ui.UIComponent;
+import com.ardor3d.extension.ui.UIFrame;
+import com.ardor3d.extension.ui.UIHud;
+import com.ardor3d.extension.ui.UIPanel;
+import com.ardor3d.extension.ui.layout.BorderLayout;
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.image.Texture;
 import com.ardor3d.input.MouseManager;
+import com.ardor3d.input.PhysicalLayer;
 import com.ardor3d.input.control.OrbitCamControl;
 import com.ardor3d.input.logical.LogicalLayer;
 import com.ardor3d.light.PointLight;
@@ -16,6 +23,7 @@ import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.MathUtils;
 import com.ardor3d.math.Quaternion;
 import com.ardor3d.math.Vector3;
+import com.ardor3d.renderer.Renderer;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.controller.SpatialController;
 import com.ardor3d.scenegraph.extension.Skybox;
@@ -61,8 +69,11 @@ public class Game {
 
     private Skybox skybox;
 
+    private UIFrame frame;
+
     // Simple tracking camera system.
     private OrbitCamControl cameraControl;
+    private UIHud hud;
 
     /**
      * Creates a new game instance.
@@ -75,9 +86,11 @@ public class Game {
      *            The way to control the mouse.
      */
     public Game(final NativeCanvas canvas, final LogicalLayer logicalLayer,
+            final PhysicalLayer physicalLayer,
             final MouseManager mouseManager) {
         graphicsEngine = new GraphicsEngine(canvas);
-        inputEngine = new InputEngine(logicalLayer, mouseManager);
+        inputEngine =
+                new InputEngine(logicalLayer, physicalLayer, mouseManager);
         physicsEngine = new PhysicsEngine();
 
         engines =
@@ -204,6 +217,26 @@ public class Game {
         skybox = createSkybox();
         graphicsEngine.getRootNode().attachChild(skybox);
 
+        UIComponent.setUseTransparency(true);
+
+        final UIPanel panel = new UIPanel();
+        panel.setLayout(new BorderLayout());
+
+        final UIButton button = new UIButton("Test button");
+        panel.add(button);
+
+        frame = new UIFrame("test");
+        frame.setContentPanel(panel);
+        frame.updateMinimumSizeFromContents();
+        frame.layout();
+        frame.pack();
+
+        frame.setTitle("Test");
+        frame.setUseStandin(true);
+        frame.setOpacity(1f);
+        frame.setLocationRelativeTo(graphicsEngine.getCanvas()
+                .getCanvasRenderer().getCamera());
+
         cameraControl =
                 new SmoothOrbitCamControl(graphicsEngine.getCanvas()
                         .getCanvasRenderer().getCamera(),
@@ -213,6 +246,12 @@ public class Game {
                 30 * MathUtils.DEG_TO_RAD);
         cameraControl.setZoomSpeed(0.001);
         cameraControl.setupMouseTriggers(inputEngine.getLogicalLayer(), true);
+
+        hud = new UIHud();
+        hud.add(frame);
+        hud.setupInput(graphicsEngine.getCanvas(),
+                inputEngine.getPhysicalLayer(), inputEngine.getLogicalLayer());
+        hud.setMouseManager(inputEngine.getMouseManager());
 
         // XXX Test entities
         try {
@@ -231,7 +270,7 @@ public class Game {
         final Matrix4d ballTransform = new Matrix4d();
         ballTransform.set(new Vector3d(0, 0, 8));
         final PlayerBall ball =
-                new PlayerBall(BallKind.Glass, 0.5, Optional.of(5.0));
+                new PlayerBall(BallKind.Wood, 0.5, Optional.of(5.0));
         ball.setTransform(ballTransform);
         addEntity(ball);
         track(ball.getSpatial());
@@ -272,10 +311,19 @@ public class Game {
     public boolean update(final ReadOnlyTimer timer) {
         boolean shouldContinue = true;
         cameraControl.update(timer.getTimePerFrame());
+        hud.getLogicalLayer().checkTriggers(timer.getTimePerFrame());
+        hud.updateGeometricState(timer.getTimePerFrame());
+
         for (final Engine<?> engine : engines) {
             shouldContinue &= engine.update(timer);
         }
 
         return shouldContinue;
+    }
+
+    public void render(final Renderer renderer) {
+        getGraphicsEngine().getRootNode().onDraw(renderer);
+        renderer.renderBuckets();
+        renderer.draw(hud);
     }
 }

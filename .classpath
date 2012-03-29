@@ -54,5 +54,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/quickhull3d.jar"/>
+	<classpathentry kind="lib" path="lib/ardor3d-ui.jar" sourcepath="lib/ardor3d-ui-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/ardor3d-ui-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target"/>
 </classpath>

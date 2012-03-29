@@ -110,7 +110,7 @@ public class Application implements Runnable, Scene, Updater {
         frameHandler.addCanvas(canvas);
 
         // Create the game.
-        game = new Game(canvas, logicalLayer, mouseManager);
+        game = new Game(canvas, logicalLayer, physicalLayer, mouseManager);
     }
 
     @Override
@@ -151,8 +151,8 @@ public class Application implements Runnable, Scene, Updater {
     public boolean renderUnto(final com.ardor3d.renderer.Renderer renderer) {
         // Traverse the "render" update queue.
         GameTaskQueueManager
-                .getManager(canvas.getCanvasRenderer().getRenderContext())
-                .getQueue(GameTaskQueue.RENDER).execute(renderer);
+        .getManager(canvas.getCanvasRenderer().getRenderContext())
+        .getQueue(GameTaskQueue.RENDER).execute(renderer);
 
         // Clean up native resources such as old VBOs, textures etc.
         ContextGarbageCollector.doRuntimeCleanup(renderer);
@@ -160,7 +160,7 @@ public class Application implements Runnable, Scene, Updater {
         if (canvas.isClosing())
             return false;
         else {
-            game.getGraphicsEngine().getRootNode().onDraw(renderer);
+            game.render(renderer);
             return true;
         }
     }
@@ -201,8 +201,8 @@ public class Application implements Runnable, Scene, Updater {
     public void update(final ReadOnlyTimer timer) {
         // Traverse the "update" update queue.
         GameTaskQueueManager
-                .getManager(canvas.getCanvasRenderer().getRenderContext())
-                .getQueue(GameTaskQueue.UPDATE).execute();
+        .getManager(canvas.getCanvasRenderer().getRenderContext())
+        .getQueue(GameTaskQueue.UPDATE).execute();
 
         // If the game wants us to quit, we quit. Once {@code running == false},
         // it can't become {@code true} again
