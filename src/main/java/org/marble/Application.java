@@ -29,13 +29,13 @@ import org.marble.settings.Settings;
 
 /**
  * The main entry point for the desktop version of marble.
- *
+ * 
  * This application will run the game using the LWJGL renderer and input system.
  */
 public class Application implements Runnable, Scene, Updater {
     /**
      * Runs this application.
-     *
+     * 
      * @param args
      *            Command-line arguments specified when launching the
      *            application.

@@ -1,8 +1,8 @@
 package org.marble.engine;
 
-import org.marble.entity.Entity;
-
 import com.ardor3d.util.ReadOnlyTimer;
+
+import org.marble.entity.Entity;
 
 /**
  * An engine that handles a particular trait of entities.

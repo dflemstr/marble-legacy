@@ -7,8 +7,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.HashMap;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -29,7 +29,7 @@ public final class LevelLoader {
 
     /**
      * Creates a new instance of the specified class of entity.
-     *
+     * 
      * @param entityClass
      *            The class of entity to instantiate.
      * @param className
@@ -72,7 +72,7 @@ public final class LevelLoader {
 
     /**
      * Locates the class file for a specified entity class.
-     *
+     * 
      * @param className
      *            The name of the entity class to locate.
      * @param loc
@@ -100,7 +100,7 @@ public final class LevelLoader {
 
     /**
      * Loads a level from the specified URL.
-     *
+     * 
      * @param url
      *            The URL to load the level from.
      * @return The entities that the loaded level consists of.
@@ -119,7 +119,7 @@ public final class LevelLoader {
 
     /**
      * Fetches a series of level statements from the specified URL.
-     *
+     * 
      * @param url
      *            The URL to load level statements from.
      * @return The loaded series of level statements, describing how a level
@@ -141,8 +141,9 @@ public final class LevelLoader {
                     parser.getParser().parse(new InputStreamReader(input),
                             url.toExternalForm());
         } finally {
-            if (input != null)
+            if (input != null) {
                 input.close();
+            }
         }
         return statements;
     }
@@ -150,7 +151,7 @@ public final class LevelLoader {
     /**
      * Runs (executes) a series of level statements, producing a set of
      * initialized world entities.
-     *
+     * 
      * @param statements
      *            The statements to execute.
      * @return The produced set of world entities.
@@ -167,8 +168,8 @@ public final class LevelLoader {
         final ImmutableSet.Builder<Entity> entityBuilder =
                 ImmutableSet.builder();
         // Temporary variables:
-        final Matrix4f transform = new Matrix4f();
-        final Vector3f translation = new Vector3f();
+        final Matrix4d transform = new Matrix4d();
+        final Vector3d translation = new Vector3d();
 
         for (final LevelStatement statement : statements) {
             final int loc = statement.getLocation();
@@ -225,8 +226,9 @@ public final class LevelLoader {
                         classAliases.get(className);
 
                 // We aren't using a class alias; load the class directly
-                if (entityClass == null)
+                if (entityClass == null) {
                     entityClass = loadEntityClass(className, loc);
+                }
 
                 final Entity entity =
                         createEntity(entityClass, declaration.getInitArgs(),
@@ -254,8 +256,9 @@ public final class LevelLoader {
                     baseEntity.getTransform().get(translation);
                     translation.add(position.getPosition());
                     transform.setTranslation(translation);
-                } else
+                } else {
                     transform.setTranslation(position.getPosition());
+                }
                 movedEntity.setTransform(transform);
             }
         }

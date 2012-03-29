@@ -1,5 +1,7 @@
 package org.marble.engine;
 
+import java.util.Map;
+
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.image.Texture;
 import com.ardor3d.renderer.queue.RenderBucketType;
@@ -8,10 +10,14 @@ import com.ardor3d.renderer.state.LightState;
 import com.ardor3d.renderer.state.TextureState;
 import com.ardor3d.renderer.state.ZBufferState;
 import com.ardor3d.scenegraph.Node;
+import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.TextureManager;
 
+import com.google.common.collect.Maps;
+
 import org.marble.entity.Graphical;
+import org.marble.graphics.EntityController;
 
 /**
  * The Ardor3D-based graphics engine.
@@ -23,10 +29,12 @@ public class GraphicsEngine extends Engine<Graphical> {
     private LightState lighting;
     private CullState culling;
     private TextureState textures;
+    private final Map<Graphical, EntityController> controllers = Maps
+            .newIdentityHashMap();
 
     /**
      * Creates a new graphics engine.
-     *
+     * 
      * @param canvas
      *            The canvas to render to.
      */
@@ -42,12 +50,21 @@ public class GraphicsEngine extends Engine<Graphical> {
 
     @Override
     protected void entityAdded(final Graphical entity) {
-        rootNode.attachChild(entity.getSpatial());
+        final Spatial spatial = entity.getSpatial();
+        final EntityController controller = new EntityController(entity);
+
+        spatial.addController(controller);
+        controllers.put(entity, controller);
+        rootNode.attachChild(spatial);
     }
 
     @Override
     protected void entityRemoved(final Graphical entity) {
-        rootNode.detachChild(entity.getSpatial());
+        final Spatial spatial = entity.getSpatial();
+        final EntityController controller = controllers.remove(entity);
+
+        spatial.removeController(controller);
+        rootNode.detachChild(spatial);
     }
 
     /**

@@ -12,7 +12,7 @@ import static org.codehaus.jparsec.Scanners.string;
 
 import java.util.List;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -33,18 +33,18 @@ import org.marble.level.LevelStatement.Position;
  */
 public class LevelParser {
     /**
-     * Converts a String to a Float object.
+     * Converts a String to a double object.
      */
-    private static final class Floatifier implements Map<String, Object> {
+    private static final class Doublifier implements Map<String, Object> {
         @Override
-        public Float map(final String from) {
-            return Float.valueOf(from);
+        public Double map(final String from) {
+            return Double.valueOf(from);
         }
     }
 
     /**
      * Flattens a list of immutable lists.
-     *
+     * 
      * @param <A>
      *            The type of elements in the lists.
      */
@@ -55,8 +55,9 @@ public class LevelParser {
         public ImmutableList<A>
                 map(final List<ImmutableList<? extends A>> from) {
             final ImmutableList.Builder<A> builder = ImmutableList.builder();
-            for (final ImmutableList<? extends A> list : from)
+            for (final ImmutableList<? extends A> list : from) {
                 builder.addAll(list);
+            }
             return builder.build();
         }
 
@@ -64,7 +65,7 @@ public class LevelParser {
 
     /**
      * Converts any list to an immutable list.
-     *
+     * 
      * @param <A>
      *            The type of element in the list.
      */
@@ -79,7 +80,7 @@ public class LevelParser {
     /**
      * Converts something that might be null into the equivalent
      * {@link Optional} instance.
-     *
+     * 
      * @param <A>
      *            The type of the value that is optional.
      */
@@ -106,11 +107,10 @@ public class LevelParser {
     /**
      * Constructs a 3D vector from a sequence of double parsers.
      */
-    private static final class Vectorizer extends Mapper<Vector3f> {
+    private static final class Vectorizer extends Mapper<Vector3d> {
         @SuppressWarnings("unused")
-        // CGLIB uses this method internally
-                Vector3f map(final Float x, final Float y, final Float z) {
-            return new Vector3f(x, y, z);
+        Vector3d map(final Double x, final Double y, final Double z) {
+            return new Vector3d(x, y, z);
         }
     }
 
@@ -133,9 +133,9 @@ public class LevelParser {
             .followedBy(delimiter).map(new Stringifier());
     // A positive decimal number like "3" or "3.2" or "0.3" or "-3.".
     final Parser<Object> number = isChar('-').optional().next(Scanners.DECIMAL)
-            .source().followedBy(delimiter).map(new Floatifier());
+            .source().followedBy(delimiter).map(new Doublifier());
     // A 3-dimensional vector represented as a tuple like "(3, -2, 4.2)"
-    final Parser<Vector3f> vector3 = between(
+    final Parser<Vector3d> vector3 = between(
             openParen,
             new Vectorizer().sequence(number.followedBy(comma),
                     number.followedBy(comma), number), closeParen).label(

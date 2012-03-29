@@ -1,7 +1,5 @@
 package org.marble.engine;
 
-import org.marble.entity.Interactive;
-
 import com.ardor3d.framework.Canvas;
 import com.ardor3d.input.Key;
 import com.ardor3d.input.MouseManager;
@@ -11,6 +9,8 @@ import com.ardor3d.input.logical.LogicalLayer;
 import com.ardor3d.input.logical.TriggerAction;
 import com.ardor3d.input.logical.TwoInputStates;
 import com.ardor3d.util.ReadOnlyTimer;
+
+import org.marble.entity.Interactive;
 
 /**
  * The Ardor3D-based input engine.

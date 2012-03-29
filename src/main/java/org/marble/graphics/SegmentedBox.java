@@ -17,10 +17,10 @@ public class SegmentedBox extends Box {
 
     /**
      * Creates a new segmented box.
-     *
+     * 
      * It is recommended to keep {@code borderSize} and {@code middleSize} as
      * close as possible to get a natural-looking object.
-     *
+     * 
      * @param name
      *            The name of the box.
      * @param borderSize
@@ -47,38 +47,38 @@ public class SegmentedBox extends Box {
 
     /**
      * Creates a new segmented box.
-     *
+     * 
      * It is recommended to keep {@code borderSize} and {@code middleSize} as
      * close as possible to get a natural-looking object.
-     *
+     * 
      * @param name
      *            The name of the box.
-     *
+     * 
      * @param borderSize
      *            How large, in world space, that the border should be rendered
      *            as.
-     *
+     * 
      * @param middleSize
      *            How large, in world space, that a repeated middle tile should
      *            be. Middle tiles are guaranteed to have at most this size; the
      *            middle space is repartitioned to accommodate more tiles to
      *            ensure this is the case.
-     *
+     * 
      * @param textureBorderSize
      *            A value between 0 and 1 specifying how much of the texture or
      *            applied material to reserve for the static border. A value of
      *            {@code 0.1} would make 2x10% along one axis of the texture be
      *            the border, and 80% be part of the repeated middle.
-     *
+     * 
      * @param center
      *            Where the center of the box should be, in local model space.
-     *
+     * 
      * @param extentX
      *            How far the box should extend from the center in x-direction.
-     *
+     * 
      * @param extentY
      *            How far the box should extend from the center in y-direction.
-     *
+     * 
      * @param extentZ
      *            How far the box should extend from the center in z-direction.
      */
@@ -95,23 +95,23 @@ public class SegmentedBox extends Box {
 
     /**
      * Creates a new segmented box.
-     *
+     * 
      * It is recommended to keep {@code borderSize} and {@code middleSize} as
      * close as possible to get a natural-looking object.
-     *
+     * 
      * @param name
      *            The name of the box.
-     *
+     * 
      * @param borderSize
      *            How large, in world space, that the border should be rendered
      *            as.
-     *
+     * 
      * @param middleSize
      *            How large, in world space, that a repeated middle tile should
      *            be. Middle tiles are guaranteed to have at most this size; the
      *            middle space is repartitioned to accommodate more tiles to
      *            ensure this is the case.
-     *
+     * 
      * @param textureBorderSize
      *            A value between 0 and 1 specifying how much of the texture or
      *            applied material to reserve for the static border. A value of
@@ -186,7 +186,7 @@ public class SegmentedBox extends Box {
          *   ^          borderWest
          * ^            west
          * }
-         *
+         * 
          * Texture partition: {@code
          * +-+-+-+ <- 0
          * |1|2|3|
@@ -200,12 +200,12 @@ public class SegmentedBox extends Box {
          *   ^        texBorderUpper
          * ^          0
          * }
-         *
+         * 
          * The sides of the box are filled with the row of tiles from the upper
          * face closest to that side, mirrored by the upper side axis.
-         *
+         * 
          * The bottom of the box is
-         *
+         * 
          */
 
         // 1

@@ -2,6 +2,7 @@ package org.marble.level;
 
 import static org.junit.Assert.assertEquals;
 
+import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
 import com.google.common.base.Optional;
@@ -63,10 +64,10 @@ public class LevelParserTest {
     public void entityPositions() {
         final Optional<String> absent = Optional.absent();
         assertEquals(ImmutableList.of(new LevelStatement.Position(IGNORED, "a",
-                new Vector3f(1, 2, 3), absent)),
+                new Vector3d(1, 2, 3), absent)),
                 parser.entityPositions.parse("position a at ( 1, 2, 3)"));
         assertEquals(ImmutableList.of(new LevelStatement.Position(IGNORED, "a",
-                new Vector3f(1, 2, 3), Optional.of("b"))),
+                new Vector3d(1, 2, 3), Optional.of("b"))),
                 parser.entityPositions.parse("position a at ( 1, 2, 3) from b"));
     }
 
@@ -97,7 +98,7 @@ public class LevelParserTest {
                 "java.lang.String"), new Declaration(IGNORED, "s1", "String",
                 ImmutableList.of((Object) 1.0, (Object) 2.0, (Object) "3")),
                 new Declaration(IGNORED, "s2", "String2", ImmutableList.of()),
-                new Position(IGNORED, "s1", new Vector3f(0, 0, 0), absent),
+                new Position(IGNORED, "s1", new Vector3d(0, 0, 0), absent),
                 new Connection(IGNORED, "s1", "a", "s2", "b"), new Connection(
                         IGNORED, "s2", "a", "s1", "b")),
                 parser.parser.parse(level));

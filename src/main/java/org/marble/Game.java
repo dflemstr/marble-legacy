@@ -3,8 +3,8 @@ package org.marble;
 import java.io.IOException;
 import java.util.Set;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.image.Texture;
@@ -22,6 +22,7 @@ import com.ardor3d.scenegraph.extension.Skybox;
 import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.TextureManager;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
@@ -65,7 +66,7 @@ public class Game {
 
     /**
      * Creates a new game instance.
-     *
+     * 
      * @param canvas
      *            The canvas to draw on.
      * @param logicalLayer
@@ -86,15 +87,16 @@ public class Game {
 
     /**
      * Starts managing an entity.
-     *
+     * 
      * @param entity
      *            The entity to manage.
      */
     public void addEntity(final Entity entity) {
         entity.initialize(this);
         for (final Engine<?> engine : engines)
-            if (engine.shouldHandle(entity))
+            if (engine.shouldHandle(entity)) {
                 engine.addEntity(entity);
+            }
 
         entities.add(entity);
     }
@@ -149,15 +151,17 @@ public class Game {
      * Performs deferred destruction of all subsystems.
      */
     public void destroy() {
-        for (final Entity entity : entities)
+        for (final Entity entity : entities) {
             removeEntity(entity);
+        }
 
         // XXX Debug light
         graphicsEngine.getLighting().detach(light);
         graphicsEngine.getRootNode().detachChild(skybox);
 
-        for (final Engine<?> engine : engines)
+        for (final Engine<?> engine : engines) {
             engine.destroy();
+        }
     }
 
     /**
@@ -185,8 +189,9 @@ public class Game {
      * Performs deferred initialization of all subsystems.
      */
     public void initialize() {
-        for (final Engine<?> engine : engines)
+        for (final Engine<?> engine : engines) {
             engine.initialize();
+        }
 
         // XXX Debug light
         light = new PointLight();
@@ -212,8 +217,9 @@ public class Game {
         // XXX Test entities
         try {
             for (final Entity entity : new LevelLoader().loadLevel(Game.class
-                    .getResource("level/core/1.level")))
+                    .getResource("level/core/1.level"))) {
                 addEntity(entity);
+            }
         } catch (final ParserException e) {
             e.printStackTrace();
         } catch (final LevelLoadException e) {
@@ -222,9 +228,10 @@ public class Game {
             e.printStackTrace();
         }
 
-        final Matrix4f ballTransform = new Matrix4f();
-        ballTransform.set(new Vector3f(0, 0, 8));
-        final PlayerBall ball = new PlayerBall(BallKind.Glass, 0.5f, 5.0f);
+        final Matrix4d ballTransform = new Matrix4d();
+        ballTransform.set(new Vector3d(0, 0, 8));
+        final PlayerBall ball =
+                new PlayerBall(BallKind.Glass, 0.5, Optional.of(5.0));
         ball.setTransform(ballTransform);
         addEntity(ball);
         track(ball.getSpatial());
@@ -232,21 +239,22 @@ public class Game {
 
     /**
      * Stops managing an entity.
-     *
+     * 
      * @param entity
      *            The entity to stop managing.
      */
     public void removeEntity(final Entity entity) {
         for (final Engine<?> engine : engines)
-            if (engine.shouldHandle(entity))
+            if (engine.shouldHandle(entity)) {
                 engine.removeEntity(entity);
+            }
 
         entities.remove(entity);
     }
 
     /**
      * Makes the camera follow a graphical spatial.
-     *
+     * 
      * @param spatial
      *            The spatial to follow.
      */
@@ -256,7 +264,7 @@ public class Game {
 
     /**
      * Advances the simulation one step.
-     *
+     * 
      * @param timer
      *            The timer specifying how much time that has elapsed.
      * @return Whether the simulation should continue.
@@ -264,8 +272,9 @@ public class Game {
     public boolean update(final ReadOnlyTimer timer) {
         boolean shouldContinue = true;
         cameraControl.update(timer.getTimePerFrame());
-        for (final Engine<?> engine : engines)
+        for (final Engine<?> engine : engines) {
             shouldContinue &= engine.update(timer);
+        }
 
         return shouldContinue;
     }

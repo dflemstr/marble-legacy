@@ -1,6 +1,6 @@
 package org.marble.level;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -117,7 +117,8 @@ public abstract class LevelStatement {
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(nameLeft, connectorLeft, nameRight, connectorRight);
+            return Objects.hashCode(nameLeft, connectorLeft, nameRight,
+                    connectorRight);
         }
 
         @Override
@@ -196,11 +197,11 @@ public abstract class LevelStatement {
      */
     static class Position extends LevelStatement {
         private final String name;
-        private final Vector3f position;
+        private final Vector3d position;
         private final Optional<String> relativeTo;
 
         public Position(final Integer location, final String name,
-                final Vector3f position, final Optional<String> relativeTo) {
+                final Vector3d position, final Optional<String> relativeTo) {
             super(location);
             this.name = name;
             this.position = position;
@@ -228,7 +229,7 @@ public abstract class LevelStatement {
         /**
          * The position to use when positioning the entity.
          */
-        public Vector3f getPosition() {
+        public Vector3d getPosition() {
             return position;
         }
 

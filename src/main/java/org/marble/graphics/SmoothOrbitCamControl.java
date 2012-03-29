@@ -11,16 +11,16 @@ import com.ardor3d.scenegraph.Spatial;
  * transitions.
  */
 public class SmoothOrbitCamControl extends OrbitCamControl {
-    private final float trackSpeed;
+    private final double trackSpeed;
 
     public SmoothOrbitCamControl(final Camera cam,
-            final ReadOnlyVector3 target, final float trackSpeed) {
+            final ReadOnlyVector3 target, final double trackSpeed) {
         super(cam, target);
         this.trackSpeed = trackSpeed;
     }
 
     public SmoothOrbitCamControl(final Camera cam, final Spatial target,
-            final float trackSpeed) {
+            final double trackSpeed) {
         super(cam, target);
         this.trackSpeed = trackSpeed;
     }

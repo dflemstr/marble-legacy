@@ -8,7 +8,8 @@ import org.marble.util.Shaders;
 
 public class ChromaticAberrationNode extends EnvironmentNode {
     private static GLSLShaderObjectsState createChromaticAberrationShader() {
-        final GLSLShaderObjectsState shader = Shaders.loadShader("chromatic-aberration");
+        final GLSLShaderObjectsState shader =
+                Shaders.loadShader("chromatic-aberration");
 
         // IOR values for Borosilicate Crown Glass, unrealistic?
         // shader.setUniform("etaR", 1 / 1.50917f);

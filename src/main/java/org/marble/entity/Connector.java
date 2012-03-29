@@ -1,19 +1,19 @@
 package org.marble.entity;
 
-import javax.vecmath.Matrix4f;
+import javax.vecmath.Matrix4d;
 
 import com.google.common.base.Objects;
 
 public class Connector {
-    private final Matrix4f offset;
-    private static final Matrix4f rotate;
+    private final Matrix4d offset;
+    private static final Matrix4d rotate;
 
     static {
-        rotate = new Matrix4f();
-        rotate.rotZ((float) Math.PI);
+        rotate = new Matrix4d();
+        rotate.rotZ(Math.PI);
     }
 
-    public Connector(final Matrix4f offset) {
+    public Connector(final Matrix4d offset) {
         this.offset = offset;
     }
 
@@ -22,9 +22,9 @@ public class Connector {
         return Objects.toStringHelper(this).add("offset", offset).toString();
     }
 
-    public void transformInto(final Connector that, final Matrix4f out) {
-        out.invert(that.offset);
-        out.mul(rotate, out);
-        out.mul(offset, out);
+    public void transformInto(final Connector that, final Matrix4d transform) {
+        transform.invert(that.offset);
+        transform.mul(rotate, transform);
+        transform.mul(offset, transform);
     }
 }

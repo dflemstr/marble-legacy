@@ -17,7 +17,7 @@ public class QuadVertexBuilder {
 
     /**
      * Constructs a new quad vertex builder.
-     *
+     * 
      * @param quadCount
      *            The number of quads that this builder can maximally store.
      *            Going past this limit yields an exception, and going below
@@ -34,14 +34,14 @@ public class QuadVertexBuilder {
     /**
      * Adds a quad to this vertex builder. The vertices are specified in the
      * following order:
-     *
+     * 
      * {@code
      * 1---2
      * |   |
      * |   |
      * 3---4
      * }
-     *
+     * 
      * @param winding
      *            Whether to generate primitives that stores their vertices
      *            counter-clockwise (true), or clockwise (false).
@@ -169,7 +169,7 @@ public class QuadVertexBuilder {
     /**
      * Adds a quad to this vertex builder whose geometrical normal is aligned
      * with the x axis.
-     *
+     * 
      * @param winding
      *            Whether to generate primitives that stores their vertices
      *            counter-clockwise (true), or clockwise (false).
@@ -212,7 +212,7 @@ public class QuadVertexBuilder {
     /**
      * Adds a quad to this vertex builder whose geometrical normal is aligned
      * with the y axis.
-     *
+     * 
      * @param spin
      *            Whether to generate primitives that stores their vertices
      *            counter-clockwise (true), or clockwise (false).
@@ -255,7 +255,7 @@ public class QuadVertexBuilder {
     /**
      * Adds a quad to this vertex builder whose geometrical normal is aligned
      * with the z axis.
-     *
+     * 
      * @param winding
      *            Whether to generate primitives that stores their vertices
      *            counter-clockwise (true), or clockwise (false).
