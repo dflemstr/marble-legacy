@@ -25,7 +25,7 @@ import com.ardor3d.scenegraph.hint.CullHint;
  * A graphical node that manages a shader, which applies a material dependent on
  * a cube map environment. This node takes care of rendering that cube map
  * environment and keeping the shader up-to-date with the environment.
- *
+ * 
  * All of the subnodes to this node will have the shader applied by default. The
  * environment will be adjusted accordingly to match the location of each
  * sub-node.
@@ -58,7 +58,7 @@ public class EnvironmentNode extends Node {
 
     /**
      * Creates a new environment node.
-     *
+     * 
      * @param root
      *            The root of the scene to reflect. Only spatials that are
      *            children of this node will be rendered.
@@ -112,15 +112,17 @@ public class EnvironmentNode extends Node {
                 TextureRendererFactory.INSTANCE.createTextureRenderer(128, 128,
                         r, caps);
         renderer.setBackgroundColor(environmentColor);
-        renderer.getCamera().setFrustum(.1, 1024, -.1, .1, .1, -.1);
+        renderer.getCamera().setFrustum(0.0625, 1024, -0.0625, 0.0625, 0.0625,
+                -0.0625);
         renderer.setupTexture(environment);
         return renderer;
     }
 
     @Override
     public void draw(final Renderer r) {
-        if (envRenderer == null)
+        if (envRenderer == null) {
             envRenderer = createEnvironmentRenderer(r);
+        }
 
         /*
          * We only allow one environment to be rendered at a time, because
