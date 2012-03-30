@@ -1,0 +1,10 @@
+{
+  "name": "Core levels",
+  "version": "1.0",
+  "description": "The core levels that ship with Marble",
+  "levels": [
+    {
+      "name": "Starting out",
+      "uri": "classpath:/org/marble/level/core/1.level"
+  ]
+}
