@@ -12,12 +12,18 @@ import com.ardor3d.extension.ui.UIFrame;
 import com.ardor3d.extension.ui.UIHud;
 import com.ardor3d.extension.ui.UIPanel;
 import com.ardor3d.extension.ui.layout.BorderLayout;
+import com.ardor3d.framework.Canvas;
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.image.Texture;
+import com.ardor3d.input.Key;
 import com.ardor3d.input.MouseManager;
 import com.ardor3d.input.PhysicalLayer;
 import com.ardor3d.input.control.OrbitCamControl;
+import com.ardor3d.input.logical.InputTrigger;
+import com.ardor3d.input.logical.KeyPressedCondition;
 import com.ardor3d.input.logical.LogicalLayer;
+import com.ardor3d.input.logical.TriggerAction;
+import com.ardor3d.input.logical.TwoInputStates;
 import com.ardor3d.light.PointLight;
 import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.MathUtils;
@@ -46,6 +52,7 @@ import org.marble.entity.Entity;
 import org.marble.graphics.SmoothOrbitCamControl;
 import org.marble.level.LevelLoadException;
 import org.marble.level.LevelLoader;
+import org.marble.settings.Settings;
 
 /**
  * An abstracted game instance that handles a game session.
@@ -57,6 +64,8 @@ public class Game {
     private final InputEngine inputEngine;
     // Handles physics simulations.
     private final PhysicsEngine physicsEngine;
+
+    private final Settings settings;
 
     // Entities that are present in our world.
     private final Set<Entity> entities = Sets.newIdentityHashSet();
@@ -75,6 +84,16 @@ public class Game {
     private OrbitCamControl cameraControl;
     private UIHud hud;
 
+    Menu menu;
+
+    boolean showMenu = true;
+
+    enum RunState {
+        RUNNING, QUITTING, RESTARTING;
+    }
+
+    private RunState runState;
+
     /**
      * Creates a new game instance.
      * 
@@ -87,7 +106,9 @@ public class Game {
      */
     public Game(final NativeCanvas canvas, final LogicalLayer logicalLayer,
             final PhysicalLayer physicalLayer,
-            final MouseManager mouseManager) {
+            final MouseManager mouseManager,
+            final Settings settings) {
+        this.settings = settings;
         graphicsEngine = new GraphicsEngine(canvas);
         inputEngine =
                 new InputEngine(logicalLayer, physicalLayer, mouseManager);
@@ -112,6 +133,11 @@ public class Game {
             }
 
         entities.add(entity);
+    }
+
+    public void restart() {
+        runState = RunState.RESTARTING;
+
     }
 
     private Skybox createSkybox() {
@@ -247,11 +273,20 @@ public class Game {
         cameraControl.setZoomSpeed(0.001);
         cameraControl.setupMouseTriggers(inputEngine.getLogicalLayer(), true);
 
-        hud = new UIHud();
-        hud.add(frame);
-        hud.setupInput(graphicsEngine.getCanvas(),
-                inputEngine.getPhysicalLayer(), inputEngine.getLogicalLayer());
-        hud.setMouseManager(inputEngine.getMouseManager());
+        menu = new Menu(this);
+
+        inputEngine.getLogicalLayer().registerTrigger(
+                new InputTrigger(new KeyPressedCondition(Key.ESCAPE),
+                        new TriggerAction() {
+
+
+                    @Override
+                    public void perform(final Canvas source,
+                            final TwoInputStates inputStates,
+                            final double tpf) {
+                        showMenu = !showMenu;
+                    }
+                }));
 
         // XXX Test entities
         try {
@@ -310,6 +345,9 @@ public class Game {
      */
     public boolean update(final ReadOnlyTimer timer) {
         boolean shouldContinue = true;
+        if (showMenu) {
+            menu.update(timer);
+        }
         cameraControl.update(timer.getTimePerFrame());
         hud.getLogicalLayer().checkTriggers(timer.getTimePerFrame());
         hud.updateGeometricState(timer.getTimePerFrame());
@@ -317,13 +355,26 @@ public class Game {
         for (final Engine<?> engine : engines) {
             shouldContinue &= engine.update(timer);
         }
-
         return shouldContinue;
     }
 
     public void render(final Renderer renderer) {
         getGraphicsEngine().getRootNode().onDraw(renderer);
         renderer.renderBuckets();
-        renderer.draw(hud);
+        if (showMenu) {
+            menu.render(renderer);
+        }
+    }
+
+    public RunState getRunState() {
+        return runState;
+    }
+
+    public void setRunState(final RunState runState) {
+        this.runState = runState;
+    }
+
+    public Settings getSettings() {
+        return settings;
     }
 }

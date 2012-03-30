@@ -33,6 +33,9 @@ import org.marble.settings.Settings;
  * This application will run the game using the LWJGL renderer and input system.
  */
 public class Application implements Runnable, Scene, Updater {
+
+    private static boolean shouldRestart;
+
     /**
      * Runs this application.
      * 
@@ -41,11 +44,10 @@ public class Application implements Runnable, Scene, Updater {
      *            application.
      */
     public static void main(final String[] args) {
-        new Application().run();
+        do {
+            new Application().run();
+        } while (shouldRestart);
     }
-
-    // Is the application running?
-    private boolean running = false;
 
     // Measures time between updates.
     private final Timer timer;
@@ -110,7 +112,9 @@ public class Application implements Runnable, Scene, Updater {
         frameHandler.addCanvas(canvas);
 
         // Create the game.
-        game = new Game(canvas, logicalLayer, physicalLayer, mouseManager);
+        game =
+                new Game(canvas, logicalLayer, physicalLayer, mouseManager,
+                        settings);
     }
 
     @Override
@@ -170,15 +174,14 @@ public class Application implements Runnable, Scene, Updater {
         // XXX Debug; this try statement messes up the Java debugger stack
         // traces; disable it for now.
         // try {
-        // Opens our window and creates associated resources.
-        frameHandler.init();
 
+        frameHandler.init();
         // If we've successfully gotten ourself a renderer, we're good to
         // go.
-        running = true;
+        game.setRunState(Game.RunState.RUNNING);
 
         // Main game loop.
-        while (running) {
+        while (game.getRunState() == Game.RunState.RUNNING) {
             frameHandler.updateFrame();
             Thread.yield();
         }
@@ -194,7 +197,8 @@ public class Application implements Runnable, Scene, Updater {
                 renderer.releaseCurrentContext();
             }
         }
-        // }
+
+        shouldRestart = (game.getRunState() == Game.RunState.RESTARTING);
     }
 
     @Override
@@ -204,8 +208,12 @@ public class Application implements Runnable, Scene, Updater {
         .getManager(canvas.getCanvasRenderer().getRenderContext())
         .getQueue(GameTaskQueue.UPDATE).execute();
 
+        boolean running = true;
         // If the game wants us to quit, we quit. Once {@code running == false},
         // it can't become {@code true} again
         running &= game.update(timer);
+        if (!running) {
+            game.setRunState(Game.RunState.QUITTING);
+        }
     }
 }
