@@ -4,16 +4,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.Resources;
 
 import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import org.codehaus.jparsec.error.ParserException;
 
@@ -160,7 +166,7 @@ public final class LevelLoader {
      */
     public ImmutableSet<Entity> runStatements(
             final ImmutableList<LevelStatement> statements)
-            throws LevelLoadException {
+                    throws LevelLoadException {
         final HashMap<String, Class<? extends Entity>> classAliases =
                 new HashMap<String, Class<? extends Entity>>();
         final HashMap<String, Entity> entityNames =
@@ -198,14 +204,14 @@ public final class LevelLoader {
                 // connector
                 final Connector baseConnector =
                         withConnectivity(baseEntity, baseEntityName, loc)
-                                .getConnectors().get(baseConnectorName);
+                        .getConnectors().get(baseConnectorName);
                 validateConnector(baseConnector, baseConnectorName,
                         baseEntityName, loc);
 
                 // The connector to align to the first connector
                 final Connector movedConnector =
                         withConnectivity(movedEntity, movedEntityName, loc)
-                                .getConnectors().get(movedConnectorName);
+                        .getConnectors().get(movedConnectorName);
                 validateConnector(movedConnector, movedConnectorName,
                         movedEntityName, loc);
 
@@ -271,7 +277,7 @@ public final class LevelLoader {
      */
     void validateConnector(final Connector connector,
             final String connectorName, final String entityName, final int loc)
-            throws LevelLoadException {
+                    throws LevelLoadException {
 
         if (connector == null)
             throw new LevelLoadException("No connector named `" + connectorName
@@ -303,5 +309,37 @@ public final class LevelLoader {
             throw new LevelLoadException("Entity `" + entityName
                     + "' does not support connectivity",
                     LevelLoadException.Kind.INCOMPATIBLE_ENTITY, loc);
+    }
+
+    public MetaLevelPack loadMetaLevelPack(final URL url)
+            throws IOException, JSONException {
+        final String input = Resources.toString(url, Charsets.UTF_8);
+        final JSONObject packObject = new JSONObject(input);
+        return loadMetaLevelPack(packObject);
+    }
+
+    MetaLevelPack loadMetaLevelPack(final JSONObject object)
+            throws JSONException {
+        return new MetaLevelPack(object.getString("name"),
+                object.getString("version"), object.getString("description"),
+                object.getString("author"),
+                loadMetaLevels(object.getJSONArray("levels")));
+    }
+
+    ImmutableList<MetaLevel> loadMetaLevels(final JSONArray array)
+            throws JSONException {
+        final ImmutableList.Builder<MetaLevel> resultBuilder =
+                ImmutableList.builder();
+        for (int i = 0; i < array.length(); i++) {
+            final JSONObject levelObject = array.getJSONObject(i);
+            try {
+                resultBuilder.add(new MetaLevel(levelObject.getString("name"),
+                        new URL(levelObject.getString("uri")), new URL(
+                                levelObject.getString("previewURI"))));
+            } catch (final MalformedURLException e) {
+                throw new RuntimeException("Invalid URI", e);
+            }
+        }
+        return resultBuilder.build();
     }
 }
