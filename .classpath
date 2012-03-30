@@ -54,5 +54,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/quickhull3d.jar"/>
+	<classpathentry kind="lib" path="lib/json.jar"/>
 	<classpathentry kind="output" path="target"/>
 </classpath>

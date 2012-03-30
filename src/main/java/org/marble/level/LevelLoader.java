@@ -12,6 +12,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
@@ -311,8 +312,8 @@ public final class LevelLoader {
                     LevelLoadException.Kind.INCOMPATIBLE_ENTITY, loc);
     }
 
-    public MetaLevelPack loadMetaLevelPack(final URL url)
-            throws IOException, JSONException {
+    public MetaLevelPack loadMetaLevelPack(final URL url) throws IOException,
+    JSONException {
         final String input = Resources.toString(url, Charsets.UTF_8);
         final JSONObject packObject = new JSONObject(input);
         return loadMetaLevelPack(packObject);
@@ -321,8 +322,9 @@ public final class LevelLoader {
     MetaLevelPack loadMetaLevelPack(final JSONObject object)
             throws JSONException {
         return new MetaLevelPack(object.getString("name"),
-                object.getString("version"), object.getString("description"),
-                object.getString("author"),
+                Optional.fromNullable(object.optString("version")),
+                Optional.fromNullable(object.optString("description")),
+                Optional.fromNullable(object.optString("author")),
                 loadMetaLevels(object.getJSONArray("levels")));
     }
 
@@ -333,9 +335,13 @@ public final class LevelLoader {
         for (int i = 0; i < array.length(); i++) {
             final JSONObject levelObject = array.getJSONObject(i);
             try {
-                resultBuilder.add(new MetaLevel(levelObject.getString("name"),
-                        new URL(levelObject.getString("uri")), new URL(
-                                levelObject.getString("previewURI"))));
+                final String previewURIString =
+                        levelObject.optString("previewURI");
+                final Optional<URL> previewURI =
+                        previewURIString == null ? Optional.<URL> absent()
+                                : Optional.of(new URL(previewURIString));
+                        resultBuilder.add(new MetaLevel(levelObject.getString("name"),
+                                new URL(levelObject.getString("uri")), previewURI));
             } catch (final MalformedURLException e) {
                 throw new RuntimeException("Invalid URI", e);
             }

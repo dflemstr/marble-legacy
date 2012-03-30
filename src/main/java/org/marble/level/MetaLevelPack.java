@@ -1,16 +1,17 @@
 package org.marble.level;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 public class MetaLevelPack {
     private final String name;
-    private final String version;
-    private final String description;
-    private final String author;
+    private final Optional<String> version;
+    private final Optional<String> description;
+    private final Optional<String> author;
     private final ImmutableList<MetaLevel> levels;
 
-    public MetaLevelPack(final String name, final String version,
-            final String description, final String author,
+    public MetaLevelPack(final String name, final Optional<String> version,
+            final Optional<String> description, final Optional<String> author,
             final ImmutableList<MetaLevel> levels) {
         this.name = name;
         this.version = version;
@@ -24,7 +25,7 @@ public class MetaLevelPack {
         return name;
     }
 
-    public String getVersion() {
+    public Optional<String> getVersion() {
         return version;
     }
 
@@ -32,11 +33,11 @@ public class MetaLevelPack {
         return levels;
     }
 
-    public String getDescription() {
+    public Optional<String> getDescription() {
         return description;
     }
 
-    public String getAuthor() {
+    public Optional<String> getAuthor() {
         return author;
     }
 }

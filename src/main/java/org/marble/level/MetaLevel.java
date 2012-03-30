@@ -2,12 +2,15 @@ package org.marble.level;
 
 import java.net.URL;
 
+import com.google.common.base.Optional;
+
 public class MetaLevel {
     private final String name;
     private final URL uri;
-    private final URL previewURI;
+    private final Optional<URL> previewURI;
 
-    public MetaLevel(final String name, final URL uri, final URL previewURI) {
+    public MetaLevel(final String name, final URL uri,
+            final Optional<URL> previewURI) {
         this.name = name;
         this.uri = uri;
         this.previewURI = previewURI;
@@ -21,7 +24,7 @@ public class MetaLevel {
         return uri;
     }
 
-    public URL getPreviewURI() {
+    public Optional<URL> getPreviewURI() {
         return previewURI;
     }
 
