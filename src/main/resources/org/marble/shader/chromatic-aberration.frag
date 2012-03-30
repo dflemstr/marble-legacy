@@ -30,7 +30,5 @@ void main(void) {
     vec4 reflectColor;
     reflectColor    = textureCube(environment, reflectDir);
 
-    vec3 combinedColor = mix(refractColor, reflectColor, ratio);
-
-    gl_FragColor = vec4(combinedColor, 1.0);
+    gl_FragColor = mix(refractColor, reflectColor, ratio);
 }
