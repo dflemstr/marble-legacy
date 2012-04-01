@@ -109,7 +109,8 @@ public class EnvironmentNode extends Node {
                 ContextManager.getCurrentContext().getCapabilities();
 
         final TextureRenderer renderer =
-                TextureRendererFactory.INSTANCE.createTextureRenderer(128, 128,
+                TextureRendererFactory.INSTANCE.createTextureRenderer(1024,
+                        1024,
                         r, caps);
         renderer.setBackgroundColor(environmentColor);
         renderer.getCamera().setFrustum(0.0625, 1024, -0.0625, 0.0625, 0.0625,

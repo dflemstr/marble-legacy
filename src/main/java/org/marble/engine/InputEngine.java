@@ -1,10 +1,9 @@
 package org.marble.engine;
 
 import com.ardor3d.framework.Canvas;
-import com.ardor3d.input.Key;
 import com.ardor3d.input.MouseManager;
+import com.ardor3d.input.PhysicalLayer;
 import com.ardor3d.input.logical.InputTrigger;
-import com.ardor3d.input.logical.KeyPressedCondition;
 import com.ardor3d.input.logical.LogicalLayer;
 import com.ardor3d.input.logical.TriggerAction;
 import com.ardor3d.input.logical.TwoInputStates;
@@ -30,6 +29,7 @@ public class InputEngine extends Engine<Interactive> {
     }
 
     private final LogicalLayer logicalLayer;
+    private final PhysicalLayer physicalLayer;
     private final MouseManager mouseManager;
 
     private boolean shouldContinue = true;
@@ -43,9 +43,11 @@ public class InputEngine extends Engine<Interactive> {
      *            The manager for controlling the mouse.
      */
     public InputEngine(final LogicalLayer logicalLayer,
+            final PhysicalLayer physicalLayer,
             final MouseManager mouseManager) {
         super(Interactive.class);
         this.logicalLayer = logicalLayer;
+        this.physicalLayer = physicalLayer;
         this.mouseManager = mouseManager;
     }
 
@@ -78,14 +80,17 @@ public class InputEngine extends Engine<Interactive> {
 
     @Override
     public void initialize() {
-        logicalLayer.registerTrigger(new InputTrigger(new KeyPressedCondition(
-                Key.ESCAPE), new QuitAction()));
+
     }
 
     @Override
     public boolean update(final ReadOnlyTimer timer) {
         logicalLayer.checkTriggers(timer.getTimePerFrame());
         return shouldContinue;
+    }
+
+    public PhysicalLayer getPhysicalLayer() {
+        return physicalLayer;
     }
 
 }
