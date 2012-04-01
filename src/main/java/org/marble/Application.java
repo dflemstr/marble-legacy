@@ -209,8 +209,6 @@ public class Application implements Runnable, Scene, Updater {
         .getManager(canvas.getCanvasRenderer().getRenderContext())
         .getQueue(GameTaskQueue.UPDATE).execute();
 
-        // If the game wants us to quit, we quit. Once {@code running == false},
-        // it can't become {@code true} again
         game.update(timer);
     }
 }

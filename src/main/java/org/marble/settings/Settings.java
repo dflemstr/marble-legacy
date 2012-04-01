@@ -31,12 +31,16 @@ public class Settings {
             "graphics/screen/vertical_sync", false);
     public final Entry<Integer> screenSamplesPerPixel = new IntegerEntry(prefs,
             "graphics/samples_per_pixel", 0);
-    public final Entry<RendererImpl> rendererImpl = new RendererEntry(prefs,
-            "graphics/renderer", RendererImpl.LWJGL);
+    public final Entry<RendererImpl> rendererImpl =
+            new EnumEntry<RendererImpl>(prefs, "graphics/renderer",
+                    RendererImpl.LWJGL, RendererImpl.class);
     public final Entry<Integer> framerate = new IntegerEntry(prefs,
             "graphics/framerate", -1);
     public final Entry<Boolean> stereoscopic = new BooleanEntry(prefs,
             "graphics/stereoscopic", false);
+    public final Entry<Quality> environmentQuality = new EnumEntry<Quality>(
+            prefs, "graphics/environment_quality", Quality.Medium,
+            Quality.class);
     public final Entry<Boolean> musicEnabled = new BooleanEntry(prefs,
             "audio/music/enabled", true);
     public final Entry<Boolean> soundEffectsEnabled = new BooleanEntry(prefs,
