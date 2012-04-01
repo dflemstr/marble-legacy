@@ -197,6 +197,7 @@ public class Application implements Runnable, Scene, Updater {
                 renderer.releaseCurrentContext();
             }
         }
+        // }
 
         shouldRestart = (game.getRunState() == Game.RunState.RESTARTING);
     }
@@ -208,12 +209,8 @@ public class Application implements Runnable, Scene, Updater {
         .getManager(canvas.getCanvasRenderer().getRenderContext())
         .getQueue(GameTaskQueue.UPDATE).execute();
 
-        boolean running = true;
         // If the game wants us to quit, we quit. Once {@code running == false},
         // it can't become {@code true} again
-        running &= game.update(timer);
-        if (!running) {
-            game.setRunState(Game.RunState.QUITTING);
-        }
+        game.update(timer);
     }
 }

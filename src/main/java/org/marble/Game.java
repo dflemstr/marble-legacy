@@ -86,7 +86,7 @@ public class Game {
 
     boolean showMenu = true;
 
-    enum RunState {
+    public enum RunState {
         RUNNING, QUITTING, RESTARTING;
     }
 
@@ -103,8 +103,7 @@ public class Game {
      *            The way to control the mouse.
      */
     public Game(final NativeCanvas canvas, final LogicalLayer logicalLayer,
-            final PhysicalLayer physicalLayer,
-            final MouseManager mouseManager,
+            final PhysicalLayer physicalLayer, final MouseManager mouseManager,
             final Settings settings) {
         this.settings = settings;
         graphicsEngine = new GraphicsEngine(canvas);
@@ -277,7 +276,6 @@ public class Game {
                 new InputTrigger(new KeyPressedCondition(Key.ESCAPE),
                         new TriggerAction() {
 
-
                     @Override
                     public void perform(final Canvas source,
                             final TwoInputStates inputStates,
@@ -339,9 +337,8 @@ public class Game {
      * 
      * @param timer
      *            The timer specifying how much time that has elapsed.
-     * @return Whether the simulation should continue.
      */
-    public boolean update(final ReadOnlyTimer timer) {
+    public void update(final ReadOnlyTimer timer) {
         boolean shouldContinue = true;
         if (showMenu) {
             menu.update(timer);
@@ -351,7 +348,9 @@ public class Game {
         for (final Engine<?> engine : engines) {
             shouldContinue &= engine.update(timer);
         }
-        return shouldContinue;
+        if (!shouldContinue) {
+            runState = RunState.QUITTING;
+        }
     }
 
     public void render(final Renderer renderer) {

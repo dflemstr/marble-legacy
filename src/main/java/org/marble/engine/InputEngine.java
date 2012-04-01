@@ -1,12 +1,9 @@
 package org.marble.engine;
 
-import com.ardor3d.framework.Canvas;
 import com.ardor3d.input.MouseManager;
 import com.ardor3d.input.PhysicalLayer;
 import com.ardor3d.input.logical.InputTrigger;
 import com.ardor3d.input.logical.LogicalLayer;
-import com.ardor3d.input.logical.TriggerAction;
-import com.ardor3d.input.logical.TwoInputStates;
 import com.ardor3d.util.ReadOnlyTimer;
 
 import org.marble.entity.Interactive;
@@ -15,24 +12,10 @@ import org.marble.entity.Interactive;
  * The Ardor3D-based input engine.
  */
 public class InputEngine extends Engine<Interactive> {
-    /**
-     * Marks the engine for shutdown on activation.
-     */
-    private class QuitAction implements TriggerAction {
-
-        @Override
-        public void perform(final Canvas source,
-                final TwoInputStates inputStates, final double tpf) {
-            shouldContinue = false;
-        }
-
-    }
 
     private final LogicalLayer logicalLayer;
     private final PhysicalLayer physicalLayer;
     private final MouseManager mouseManager;
-
-    private boolean shouldContinue = true;
 
     /**
      * Creates a new input engine.
@@ -86,7 +69,7 @@ public class InputEngine extends Engine<Interactive> {
     @Override
     public boolean update(final ReadOnlyTimer timer) {
         logicalLayer.checkTriggers(timer.getTimePerFrame());
-        return shouldContinue;
+        return true;
     }
 
     public PhysicalLayer getPhysicalLayer() {

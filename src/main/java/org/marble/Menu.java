@@ -8,7 +8,6 @@ import java.util.StringTokenizer;
 
 import com.ardor3d.extension.ui.UIButton;
 import com.ardor3d.extension.ui.UIComboBox;
-import com.ardor3d.extension.ui.UIComponent;
 import com.ardor3d.extension.ui.UIFrame;
 import com.ardor3d.extension.ui.UIHud;
 import com.ardor3d.extension.ui.UIPanel;
@@ -20,14 +19,10 @@ import com.ardor3d.extension.ui.event.SelectionListener;
 import com.ardor3d.extension.ui.layout.BorderLayout;
 import com.ardor3d.extension.ui.layout.BorderLayoutData;
 import com.ardor3d.extension.ui.model.DefaultComboBoxModel;
-import com.ardor3d.extension.ui.util.Dimension;
-import com.ardor3d.extension.ui.util.SubTex;
-import com.ardor3d.image.Texture;
 import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.renderer.Renderer;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.util.ReadOnlyTimer;
-import com.ardor3d.util.TextureManager;
 
 public class Menu {
     private final UIHud hud;
@@ -74,7 +69,7 @@ public class Menu {
         panel.setLayout(new BorderLayout());
 
         final UIButton button = new UIButton("Restart");
-        button.addActionListener(new ActionListener(){
+        button.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent arg0) {
@@ -82,11 +77,6 @@ public class Menu {
 
             }
         });
-        final Texture tex =
-                TextureManager.load("images/ardor3d_white_256.jpg",
-                        Texture.MinificationFilter.Trilinear, false);
-        button.setIcon(new SubTex(tex));
-        button.setIconDimensions(new Dimension(26, 26));
         button.setGap(10);
         button.setLayoutData(BorderLayoutData.NORTH);
         button.setTooltipText("This is a tooltip!");
@@ -114,12 +104,12 @@ public class Menu {
             test.addItem(re);
         }
         final UIComboBox resolutionBox = new UIComboBox(test);
-        resolutionBox.addSelectionListener(new SelectionListener(){
+        resolutionBox.addSelectionListener(new SelectionListener<UIComboBox>() {
 
             @Override
-            public void selectionChanged(final UIComponent arg0, final Object arg1) {
-                final String value = (String)arg1;
-                System.out.println(arg1);
+            public void selectionChanged(final UIComboBox comboBox,
+                    final Object newValue) {
+                final String value = (String) newValue;
                 final StringTokenizer token = new StringTokenizer(value);
                 final String width = token.nextToken();
                 token.nextToken();
