@@ -26,6 +26,7 @@ import org.marble.entity.Physical;
 import org.marble.graphics.ChromaticAberrationNode;
 import org.marble.graphics.ReflectionNode;
 import org.marble.physics.GravitationalForce;
+import org.marble.util.Shaders;
 
 /**
  * A physical ball that can have different materials and physical properties.
@@ -138,8 +139,27 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
                 new GeoSphere("ball", true, radius, 4, TextureMode.Projected);
         switch (kind) {
         case Wood:
-            ts.setTexture(TextureManager.load("wood.png",
-                    Texture.MinificationFilter.Trilinear, true));
+            final GLSLShaderObjectsState wood = Shaders.loadShader("wood");
+            wood.setUniform("woodGradient", 0);
+
+            final Vector3 vec = Vector3.fetchTempInstance();
+            randomize(vec);
+            wood.setUniform("trunkCenter1", vec);
+
+            randomize(vec);
+            wood.setUniform("trunkCenter2", vec);
+
+            randomize(vec);
+            vec.multiplyLocal(289);
+            wood.setUniform("noiseSeed", vec);
+
+            wood.setUniform("variation", (float) Math.random());
+
+            Vector3.releaseTempInstance(vec);
+            sphere.setRenderState(wood);
+
+            ts.setTexture(TextureManager.load("wood-gradient.png",
+                    Texture.MinificationFilter.BilinearNoMipMaps, false));
             sphere.setRenderState(ts);
             ballNode.attachChild(sphere);
             break;
