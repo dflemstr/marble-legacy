@@ -6,12 +6,7 @@ import java.util.Set;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import com.ardor3d.extension.ui.UIButton;
 import com.ardor3d.extension.ui.UIComponent;
-import com.ardor3d.extension.ui.UIFrame;
-import com.ardor3d.extension.ui.UIHud;
-import com.ardor3d.extension.ui.UIPanel;
-import com.ardor3d.extension.ui.layout.BorderLayout;
 import com.ardor3d.framework.Canvas;
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.image.Texture;
@@ -78,11 +73,9 @@ public class Game {
 
     private Skybox skybox;
 
-    private UIFrame frame;
 
     // Simple tracking camera system.
     private OrbitCamControl cameraControl;
-    private UIHud hud;
 
     Menu menu;
 
@@ -245,23 +238,6 @@ public class Game {
 
         UIComponent.setUseTransparency(true);
 
-        final UIPanel panel = new UIPanel();
-        panel.setLayout(new BorderLayout());
-
-        final UIButton button = new UIButton("Test button");
-        panel.add(button);
-
-        frame = new UIFrame("test");
-        frame.setContentPanel(panel);
-        frame.updateMinimumSizeFromContents();
-        frame.layout();
-        frame.pack();
-
-        frame.setTitle("Test");
-        frame.setUseStandin(true);
-        frame.setOpacity(1f);
-        frame.setLocationRelativeTo(graphicsEngine.getCanvas()
-                .getCanvasRenderer().getCamera());
 
         cameraControl =
                 new SmoothOrbitCamControl(graphicsEngine.getCanvas()
@@ -349,8 +325,6 @@ public class Game {
             menu.update(timer);
         }
         cameraControl.update(timer.getTimePerFrame());
-        hud.getLogicalLayer().checkTriggers(timer.getTimePerFrame());
-        hud.updateGeometricState(timer.getTimePerFrame());
 
         for (final Engine<?> engine : engines) {
             shouldContinue &= engine.update(timer);
