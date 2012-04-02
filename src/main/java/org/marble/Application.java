@@ -155,8 +155,8 @@ public class Application implements Runnable, Scene, Updater {
     public boolean renderUnto(final com.ardor3d.renderer.Renderer renderer) {
         // Traverse the "render" update queue.
         GameTaskQueueManager
-        .getManager(canvas.getCanvasRenderer().getRenderContext())
-        .getQueue(GameTaskQueue.RENDER).execute(renderer);
+                .getManager(canvas.getCanvasRenderer().getRenderContext())
+                .getQueue(GameTaskQueue.RENDER).execute(renderer);
 
         // Clean up native resources such as old VBOs, textures etc.
         ContextGarbageCollector.doRuntimeCleanup(renderer);
@@ -199,15 +199,15 @@ public class Application implements Runnable, Scene, Updater {
         }
         // }
 
-        shouldRestart = (game.getRunState() == Game.RunState.RESTARTING);
+        shouldRestart = game.getRunState() == Game.RunState.RESTARTING;
     }
 
     @Override
     public void update(final ReadOnlyTimer timer) {
         // Traverse the "update" update queue.
         GameTaskQueueManager
-        .getManager(canvas.getCanvasRenderer().getRenderContext())
-        .getQueue(GameTaskQueue.UPDATE).execute();
+                .getManager(canvas.getCanvasRenderer().getRenderContext())
+                .getQueue(GameTaskQueue.UPDATE).execute();
 
         game.update(timer);
     }

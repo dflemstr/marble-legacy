@@ -277,13 +277,13 @@ public class Game {
                 new InputTrigger(new KeyPressedCondition(Key.ESCAPE),
                         new TriggerAction() {
 
-                    @Override
-                    public void perform(final Canvas source,
-                            final TwoInputStates inputStates,
-                            final double tpf) {
-                        showMenu = !showMenu;
-                    }
-                }));
+                            @Override
+                            public void perform(final Canvas source,
+                                    final TwoInputStates inputStates,
+                                    final double tpf) {
+                                showMenu = !showMenu;
+                            }
+                        }));
 
         // XXX Test entities
         try {

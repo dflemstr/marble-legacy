@@ -32,7 +32,7 @@ import org.marble.util.Connectors;
  * A box-shaped block.
  */
 public class Slab extends AbstractEntity implements Connectivity, Graphical,
-Physical {
+        Physical {
     private final double width, height, depth;
     private final Box graphicalBox;
     private final RigidBody physicalBox;

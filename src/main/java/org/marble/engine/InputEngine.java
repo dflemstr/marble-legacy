@@ -26,8 +26,7 @@ public class InputEngine extends Engine<Interactive> {
      *            The manager for controlling the mouse.
      */
     public InputEngine(final LogicalLayer logicalLayer,
-            final PhysicalLayer physicalLayer,
-            final MouseManager mouseManager) {
+            final PhysicalLayer physicalLayer, final MouseManager mouseManager) {
         super(Interactive.class);
         this.logicalLayer = logicalLayer;
         this.physicalLayer = physicalLayer;

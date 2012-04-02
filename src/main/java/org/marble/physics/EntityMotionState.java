@@ -20,7 +20,7 @@ public class EntityMotionState extends MotionState {
 
     /**
      * Creates a new entity-linked motion state.
-     *
+     * 
      * @param entity
      *            The entity to link.
      */

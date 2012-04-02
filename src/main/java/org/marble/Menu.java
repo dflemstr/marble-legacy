@@ -129,7 +129,7 @@ public class Menu {
     private DisplayMode[] getResolutions() {
         final DisplayMode[] modes =
                 GraphicsEnvironment.getLocalGraphicsEnvironment()
-                .getDefaultScreenDevice().getDisplayModes();
+                        .getDefaultScreenDevice().getDisplayModes();
         return modes;
     }
 

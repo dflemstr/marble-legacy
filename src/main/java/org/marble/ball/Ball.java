@@ -179,15 +179,15 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
             break;
         case Glass:
             final Node chromAberrator =
-            new ChromaticAberrationNode(rootNode, new ColorRGBA(0.941f,
-                    0.984f, 1, 1), textureSizeMagnitude);
+                    new ChromaticAberrationNode(rootNode, new ColorRGBA(0.941f,
+                            0.984f, 1, 1), textureSizeMagnitude);
             chromAberrator.attachChild(sphere);
             ballNode.attachChild(chromAberrator);
             break;
         case Mercury:
             final Node reflector =
-            new ReflectionNode(rootNode, new ColorRGBA(0.941f, 0.984f,
-                    1, 1), textureSizeMagnitude);
+                    new ReflectionNode(rootNode, new ColorRGBA(0.941f, 0.984f,
+                            1, 1), textureSizeMagnitude);
             reflector.attachChild(sphere);
             ballNode.attachChild(reflector);
             break;

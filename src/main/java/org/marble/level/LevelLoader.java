@@ -167,7 +167,7 @@ public final class LevelLoader {
      */
     public ImmutableSet<Entity> runStatements(
             final ImmutableList<LevelStatement> statements)
-                    throws LevelLoadException {
+            throws LevelLoadException {
         final HashMap<String, Class<? extends Entity>> classAliases =
                 new HashMap<String, Class<? extends Entity>>();
         final HashMap<String, Entity> entityNames =
@@ -205,14 +205,14 @@ public final class LevelLoader {
                 // connector
                 final Connector baseConnector =
                         withConnectivity(baseEntity, baseEntityName, loc)
-                        .getConnectors().get(baseConnectorName);
+                                .getConnectors().get(baseConnectorName);
                 validateConnector(baseConnector, baseConnectorName,
                         baseEntityName, loc);
 
                 // The connector to align to the first connector
                 final Connector movedConnector =
                         withConnectivity(movedEntity, movedEntityName, loc)
-                        .getConnectors().get(movedConnectorName);
+                                .getConnectors().get(movedConnectorName);
                 validateConnector(movedConnector, movedConnectorName,
                         movedEntityName, loc);
 
@@ -278,7 +278,7 @@ public final class LevelLoader {
      */
     void validateConnector(final Connector connector,
             final String connectorName, final String entityName, final int loc)
-                    throws LevelLoadException {
+            throws LevelLoadException {
 
         if (connector == null)
             throw new LevelLoadException("No connector named `" + connectorName
@@ -313,7 +313,7 @@ public final class LevelLoader {
     }
 
     public MetaLevelPack loadMetaLevelPack(final URL url) throws IOException,
-    JSONException {
+            JSONException {
         final String input = Resources.toString(url, Charsets.UTF_8);
         final JSONObject packObject = new JSONObject(input);
         return loadMetaLevelPack(packObject);
@@ -340,8 +340,8 @@ public final class LevelLoader {
                 final Optional<URL> previewURI =
                         previewURIString == null ? Optional.<URL> absent()
                                 : Optional.of(new URL(previewURIString));
-                        resultBuilder.add(new MetaLevel(levelObject.getString("name"),
-                                new URL(levelObject.getString("uri")), previewURI));
+                resultBuilder.add(new MetaLevel(levelObject.getString("name"),
+                        new URL(levelObject.getString("uri")), previewURI));
             } catch (final MalformedURLException e) {
                 throw new RuntimeException("Invalid URI", e);
             }
