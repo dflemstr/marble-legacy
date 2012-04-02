@@ -69,7 +69,6 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
 
         bs.setEnabled(true);
         bs.setBlendEnabled(true);
-        bs.setReference(0.7f);
 
         final jinngine.geometry.Sphere geometricalSphere =
                 new jinngine.geometry.Sphere(radius);

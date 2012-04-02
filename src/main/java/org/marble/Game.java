@@ -231,8 +231,9 @@ public class Game {
 
         // XXX Debug light
         light = new PointLight();
-        light.setDiffuse(new ColorRGBA(0.75f, 0.75f, 0.75f, 0.75f));
-        light.setAmbient(new ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f));
+        light.setAmbient(new ColorRGBA(0.2f, 0.2f, 0.2f, 1.0f));
+        light.setDiffuse(new ColorRGBA(0.7f, 0.7f, 0.7f, 0.75f));
+        light.setSpecular(new ColorRGBA(0.4f, 0.4f, 0.4f, 1.0f));
         light.setLocation(100, 100, 100);
         light.setEnabled(true);
         graphicsEngine.getLighting().attach(light);

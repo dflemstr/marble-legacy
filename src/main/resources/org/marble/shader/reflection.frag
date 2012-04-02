@@ -20,9 +20,8 @@ void main(void) {
         vec3 h = normalize(l + i);
         float diffuse = dot(l, n);
         if (diffuse > 0.0) {
-            float specular = pow(max(0.0, dot(n, h)), gl_FrontMaterial.shininess);
-            color += gl_LightSource[lightIndex].diffuse  * gl_FrontMaterial.diffuse  * diffuse;
-            color += gl_LightSource[lightIndex].specular * gl_FrontMaterial.specular * specular;
+            float specular = pow(max(0.0, dot(n, h)), 86);
+            color += gl_LightSource[lightIndex].specular * specular;
         }
     }
 
