@@ -2,8 +2,7 @@ package org.marble.ball;
 
 import java.util.Set;
 
-import jinngine.physics.Body;
-import jinngine.physics.force.Force;
+import javax.vecmath.Vector3f;
 
 import com.ardor3d.image.Texture;
 import com.ardor3d.math.ColorRGBA;
@@ -18,6 +17,13 @@ import com.ardor3d.scenegraph.shape.GeoSphere;
 import com.ardor3d.scenegraph.shape.GeoSphere.TextureMode;
 import com.ardor3d.util.TextureManager;
 
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.SphereShape;
+import com.bulletphysics.dynamics.ActionInterface;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
+import com.bulletphysics.linearmath.DefaultMotionState;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
@@ -27,7 +33,6 @@ import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
 import org.marble.graphics.ChromaticAberrationNode;
 import org.marble.graphics.ReflectionNode;
-import org.marble.physics.GravitationalForce;
 import org.marble.util.Shaders;
 
 /**
@@ -39,8 +44,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
 
     protected final Node centerNode;
     protected final Node ballNode;
-    protected final Body physicalSphere;
-    protected final Force gravityForce;
+    protected final RigidBody physicalSphere;
     private Spatial rootNode;
     private int textureSizeMagnitude;
 
@@ -70,18 +74,16 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
         bs.setEnabled(true);
         bs.setBlendEnabled(true);
 
-        final jinngine.geometry.Sphere geometricalSphere =
-                new jinngine.geometry.Sphere(radius);
+        final CollisionShape geometricalSphere =
+                new SphereShape((float) radius);
+        final Vector3f inertia = new Vector3f(0, 0, 0);
+        geometricalSphere.calculateLocalInertia((float) (double) mass.or(0.0),
+                inertia);
 
-        physicalSphere = new Body("ball", geometricalSphere);
-
-        if (mass.isPresent()) {
-            geometricalSphere.setMass(mass.get());
-        } else {
-            physicalSphere.setFixed(true);
-        }
-
-        gravityForce = new GravitationalForce(physicalSphere);
+        final RigidBodyConstructionInfo info =
+                new RigidBodyConstructionInfo((float) (double) mass.or(0.0),
+                        new DefaultMotionState(), geometricalSphere, inertia);
+        physicalSphere = new RigidBody(info);
     }
 
     /**
@@ -107,13 +109,8 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
     }
 
     @Override
-    public Body getBody() {
+    public RigidBody getBody() {
         return physicalSphere;
-    }
-
-    @Override
-    public Set<Force> getForces() {
-        return ImmutableSet.of(gravityForce);
     }
 
     @Override
@@ -202,5 +199,10 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
         vec.setX(Math.random());
         vec.setY(Math.random());
         vec.setZ(Math.random());
+    }
+
+    @Override
+    public Set<ActionInterface> getActions() {
+        return ImmutableSet.of();
     }
 }

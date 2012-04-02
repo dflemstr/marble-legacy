@@ -1,13 +1,20 @@
 package org.marble.block;
 
 import java.util.Map;
+import java.util.Set;
 
-import jinngine.physics.Body;
-import jinngine.physics.force.Force;
+import javax.vecmath.Vector3f;
 
 import com.ardor3d.math.Vector3;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.shape.Box;
+
+import com.bulletphysics.collision.shapes.BoxShape;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.dynamics.ActionInterface;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
+import com.bulletphysics.linearmath.DefaultMotionState;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
@@ -25,10 +32,10 @@ import org.marble.util.Connectors;
  * A box-shaped block.
  */
 public class Slab extends AbstractEntity implements Connectivity, Graphical,
-        Physical {
+Physical {
     private final double width, height, depth;
     private final Box graphicalBox;
-    private final Body physicalBox;
+    private final RigidBody physicalBox;
 
     /**
      * Creates a new slab.
@@ -84,20 +91,22 @@ public class Slab extends AbstractEntity implements Connectivity, Graphical,
                         height / 2, depth / 2);
         graphicalBox.addController(new EntityController(this));
 
-        final jinngine.geometry.Box geometricalBox =
-                new jinngine.geometry.Box(width, height, depth);
+        final CollisionShape geometricalBox =
+                new BoxShape(new Vector3f((float) width / 2,
+                        (float) height / 2, (float) depth / 2));
 
-        physicalBox = new Body("slab", geometricalBox);
+        final Vector3f inertia = new Vector3f(0, 0, 0);
+        geometricalBox.calculateLocalInertia((float) (double) mass.or(0.0),
+                inertia);
 
-        if (mass.isPresent()) {
-            geometricalBox.setMass(mass.get());
-        } else {
-            physicalBox.setFixed(true);
-        }
+        final RigidBodyConstructionInfo info =
+                new RigidBodyConstructionInfo((float) (double) mass.or(0.0),
+                        new DefaultMotionState(), geometricalBox, inertia);
+        physicalBox = new RigidBody(info);
     }
 
     @Override
-    public Body getBody() {
+    public RigidBody getBody() {
         return physicalBox;
     }
 
@@ -107,12 +116,12 @@ public class Slab extends AbstractEntity implements Connectivity, Graphical,
     }
 
     @Override
-    public Iterable<Force> getForces() {
-        return ImmutableSet.of();
+    public Spatial getSpatial() {
+        return graphicalBox;
     }
 
     @Override
-    public Spatial getSpatial() {
-        return graphicalBox;
+    public Set<ActionInterface> getActions() {
+        return ImmutableSet.of();
     }
 }

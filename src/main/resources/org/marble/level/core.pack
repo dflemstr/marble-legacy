@@ -6,5 +6,6 @@
     {
       "name": "Starting out",
       "uri": "classpath:/org/marble/level/core/1.level"
+    }
   ]
 }

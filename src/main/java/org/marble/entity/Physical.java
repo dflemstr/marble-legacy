@@ -1,19 +1,20 @@
 package org.marble.entity;
 
-import jinngine.physics.Body;
-import jinngine.physics.force.Force;
+import com.bulletphysics.dynamics.ActionInterface;
+import com.bulletphysics.dynamics.RigidBody;
 
 /**
  * An entity that has physical properties.
  */
 public interface Physical extends Entity {
+
+    /**
+     * Actions that should be performed on each physics simulation iteration.
+     */
+    public Iterable<ActionInterface> getActions();
+
     /**
      * The body that represents this entity.
      */
-    public Body getBody();
-
-    /**
-     * The forces that apply to this entity.
-     */
-    public Iterable<Force> getForces();
+    public RigidBody getBody();
 }

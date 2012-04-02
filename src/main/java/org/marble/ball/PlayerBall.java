@@ -2,8 +2,7 @@ package org.marble.ball;
 
 import java.util.Set;
 
-import jinngine.math.Vector3;
-import jinngine.physics.force.Force;
+import javax.vecmath.Vector3f;
 
 import com.ardor3d.framework.Canvas;
 import com.ardor3d.input.Key;
@@ -13,13 +12,16 @@ import com.ardor3d.input.logical.KeyReleasedCondition;
 import com.ardor3d.input.logical.TriggerAction;
 import com.ardor3d.input.logical.TwoInputStates;
 
+import com.bulletphysics.collision.dispatch.CollisionWorld;
+import com.bulletphysics.dynamics.ActionInterface;
+import com.bulletphysics.linearmath.IDebugDraw;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import org.marble.entity.Interactive;
 import org.marble.util.Direction;
-import org.marble.util.JinngineConversion;
 
 /**
  * A player-controlled ball.
@@ -28,19 +30,18 @@ public class PlayerBall extends Ball implements Interactive {
     /**
      * Alters the {@code inputImpulse} on activation.
      */
-    private class AddInputForce implements TriggerAction {
-        private final Vector3 addedForce = new Vector3();
+    private class AddInputImpulse implements TriggerAction {
+        private final Vector3f addedImpulse = new Vector3f();
 
-        public AddInputForce(final Direction direction, final double magnitude) {
-            JinngineConversion.fromVector3(direction.getPhysicalDirection(),
-                    addedForce);
-            Vector3.multiply(addedForce, magnitude);
+        public AddInputImpulse(final Direction direction, final double magnitude) {
+            addedImpulse.set(direction.getPhysicalDirection());
+            addedImpulse.scale((float) magnitude);
         }
 
         @Override
         public void perform(final Canvas source,
                 final TwoInputStates inputStates, final double tpf) {
-            Vector3.add(inputForceStrength, addedForce);
+            inputImpulse.add(addedImpulse);
         }
 
     }
@@ -48,21 +49,26 @@ public class PlayerBall extends Ball implements Interactive {
     /**
      * An action that applies the {@code inputImpulse} impulse every tick.
      */
-    private class BallInputForce implements Force {
-        private final Vector3 zero = new Vector3();
+    private class PushBallAction extends ActionInterface {
+        @Override
+        public void debugDraw(final IDebugDraw debugDrawer) {
+            // Do nothing
+        }
 
         @Override
-        public void apply(final double dt) {
-            physicalSphere.applyForce(zero, inputForceStrength, dt);
+        public void updateAction(final CollisionWorld collisionWorld,
+                final float deltaTimeStep) {
+            PlayerBall.this.physicalSphere.activate();
+            PlayerBall.this.physicalSphere.applyCentralImpulse(inputImpulse);
         }
+
     }
 
     private final ImmutableSet<InputTrigger> triggers;
 
-    private final AddInputForce forceNorth, forceEast, forceSouth, forceWest;
-    private final Force inputForce = new BallInputForce();
-
-    private final Vector3 inputForceStrength = new Vector3();
+    private final AddInputImpulse forceNorth, forceEast, forceSouth, forceWest;
+    private final PushBallAction pushBallAction = new PushBallAction();
+    private final Vector3f inputImpulse = new Vector3f();
 
     /**
      * Creates a new player-controlled ball.
@@ -76,10 +82,10 @@ public class PlayerBall extends Ball implements Interactive {
             final Optional<Double> mass) {
         super(kind, radius, mass);
 
-        forceNorth = new AddInputForce(Direction.NORTH, 1);
-        forceEast = new AddInputForce(Direction.EAST, 1);
-        forceSouth = new AddInputForce(Direction.SOUTH, 1);
-        forceWest = new AddInputForce(Direction.WEST, 1);
+        forceNorth = new AddInputImpulse(Direction.NORTH, 1);
+        forceEast = new AddInputImpulse(Direction.EAST, 1);
+        forceSouth = new AddInputImpulse(Direction.SOUTH, 1);
+        forceWest = new AddInputImpulse(Direction.WEST, 1);
 
         final InputTrigger upPressTrigger =
                 new InputTrigger(new KeyPressedCondition(Key.UP), forceNorth);
@@ -128,12 +134,12 @@ public class PlayerBall extends Ball implements Interactive {
     }
 
     @Override
-    public Set<Force> getForces() {
-        return Sets.union(ImmutableSet.of(inputForce), super.getForces());
+    public Set<ActionInterface> getActions() {
+        return Sets.union(ImmutableSet.of(pushBallAction), super.getActions());
     }
 
     @Override
-    public ImmutableSet<InputTrigger> getTriggers() {
+    public Set<InputTrigger> getTriggers() {
         return triggers;
     }
 }
