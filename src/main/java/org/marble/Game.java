@@ -6,7 +6,6 @@ import java.util.Set;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import com.ardor3d.extension.ui.UIButton;
 import com.ardor3d.extension.ui.UIComponent;
 import com.ardor3d.extension.ui.UIFrame;
 import com.ardor3d.extension.ui.UIPanel;
@@ -77,7 +76,6 @@ public class Game {
 
     private Skybox skybox;
 
-    private UIFrame frame;
 
     // Simple tracking camera system.
     private OrbitCamControl cameraControl;
@@ -243,23 +241,6 @@ public class Game {
 
         UIComponent.setUseTransparency(true);
 
-        final UIPanel panel = new UIPanel();
-        panel.setLayout(new BorderLayout());
-
-        final UIButton button = new UIButton("Test button");
-        panel.add(button);
-
-        frame = new UIFrame("test");
-        frame.setContentPanel(panel);
-        frame.updateMinimumSizeFromContents();
-        frame.layout();
-        frame.pack();
-
-        frame.setTitle("Test");
-        frame.setUseStandin(true);
-        frame.setOpacity(1f);
-        frame.setLocationRelativeTo(graphicsEngine.getCanvas()
-                .getCanvasRenderer().getCamera());
 
         cameraControl =
                 new SmoothOrbitCamControl(graphicsEngine.getCanvas()
