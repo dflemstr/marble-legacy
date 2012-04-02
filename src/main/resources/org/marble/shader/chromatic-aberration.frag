@@ -6,21 +6,24 @@ uniform float etaB; // Blue
 uniform float fresnelPower;
 uniform samplerCube environment;
 
-varying vec3 incident;
 varying vec3 normal;
+varying vec3 normalW;
+varying vec3 incident;
+varying vec3 incidentW;
+varying vec3 light[gl_MaxLights];
 
 void main(void) {
     float F = ((1.0 - etaG) * (1.0 - etaG)) / ((1.0 + etaG) * (1.0 + etaG));
-    vec3 i = normalize(incident);
-    vec3 n = normalize(normal);
+    vec3 iW = normalize(incidentW);
+    vec3 nW = normalize(normalW);
 
-    float ratio = F + (1.0 - F) * pow(1.0 - dot(-i, n), fresnelPower);
+    float ratio = F + (1.0 - F) * pow(1.0 - dot(-iW, nW), fresnelPower);
 
-    vec3 refractR = vec3(gl_TextureMatrix[0] * vec4(refract(i, n, etaR), 1.0));
-    vec3 refractG = vec3(gl_TextureMatrix[0] * vec4(refract(i, n, etaG), 1.0));
-    vec3 refractB = vec3(gl_TextureMatrix[0] * vec4(refract(i, n, etaB), 1.0));
+    vec3 refractR = vec3(gl_TextureMatrix[0] * vec4(refract(iW, nW, etaR), 1.0));
+    vec3 refractG = vec3(gl_TextureMatrix[0] * vec4(refract(iW, nW, etaG), 1.0));
+    vec3 refractB = vec3(gl_TextureMatrix[0] * vec4(refract(iW, nW, etaB), 1.0));
 
-    vec3 reflectDir = vec3(gl_TextureMatrix[0] * vec4(reflect(i, n), 1.0));
+    vec3 reflectDir = vec3(gl_TextureMatrix[0] * vec4(reflect(iW, nW), 1.0));
 
     vec4 refractColor;
     refractColor.ra = textureCube(environment, refractR).ra;
@@ -30,5 +33,21 @@ void main(void) {
     vec4 reflectColor;
     reflectColor    = textureCube(environment, reflectDir);
 
-    gl_FragColor = mix(refractColor, reflectColor, ratio);
+    vec4 color = mix(refractColor, reflectColor, ratio);
+
+    vec3 i = normalize(incident);
+    vec3 n = normalize(normal);
+    int lightIndex;
+    for (lightIndex = 0; lightIndex < gl_MaxLights; lightIndex++) {
+        vec3 l = normalize(light[lightIndex]);
+        vec3 h = normalize(l + i);
+        float diffuse = dot(l, n);
+        if (diffuse > 0.0) {
+            float specular = pow(max(0.0, dot(n, h)), gl_FrontMaterial.shininess);
+            color += gl_LightSource[lightIndex].diffuse  * gl_FrontMaterial.diffuse  * diffuse;
+            color += gl_LightSource[lightIndex].specular * gl_FrontMaterial.specular * specular;
+        }
+    }
+
+    gl_FragColor = color;
 }

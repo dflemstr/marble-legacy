@@ -2,8 +2,11 @@
 uniform vec3 cameraPos;
 uniform mat4 modelMatrix;
 
-varying vec3 incident;
 varying vec3 normal;
+varying vec3 normalW;
+varying vec3 incident;
+varying vec3 incidentW;
+varying vec3 light[gl_MaxLights];
 
 mat3 linearize(mat4 matrix) {
     mat3 result;
@@ -20,9 +23,18 @@ mat3 linearize(mat4 matrix) {
 }
 
 void main(void) {
-    vec4 position = modelMatrix * gl_Vertex;
-    incident = position.xyz / position.w - cameraPos;
-    normal   = linearize(modelMatrix) * gl_Normal;
+    vec3 positionW = vec3(modelMatrix * gl_Vertex);
+    vec4 vertex = gl_ModelViewMatrix * gl_Vertex;
+
+    incident = -vertex.xyz;
+    incidentW = positionW - cameraPos;
+    normal = gl_NormalMatrix * gl_Normal;
+    normalW   = linearize(modelMatrix) * gl_Normal;
+
+    int i;
+    for (i = 0; i < gl_MaxLights; i++) {
+        light[i] = gl_LightSource[i].position.xyz - vertex.xyz;
+    }
 
     gl_Position = ftransform();
 }

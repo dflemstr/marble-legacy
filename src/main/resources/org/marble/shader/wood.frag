@@ -10,6 +10,9 @@ uniform float variation;
 uniform sampler2D woodGradient;
 
 varying vec3 position;
+varying vec3 normal;
+varying vec3 incident;
+varying vec3 light[gl_MaxLights];
 
 // Procedural 3D noise
 // Copyright (C) 2011 Ashima Arts. All rights reserved.
@@ -99,5 +102,20 @@ void main(void) {
         length(trunkCenter2 - trunkCenter1);
     float intensity = (1.0 + sin(distance * distanceWeight +
                                  snoise(noiseScale * position + noiseSeed) * noiseWeight)) / 2.0;
-    gl_FragColor = texture2D(woodGradient, vec2(variation, intensity));
+    vec4 color = texture2D(woodGradient, vec2(variation, intensity));
+
+    vec3 i = normalize(incident);
+    vec3 n = normalize(normal);
+    int lightIndex;
+    for (lightIndex = 0; lightIndex < gl_MaxLights; lightIndex++) {
+        vec3 l = normalize(light[lightIndex]);
+        vec3 h = normalize(l + i);
+        float diffuse = dot(l, n);
+        if (diffuse > 0.0) {
+            float specular = pow(max(0.0, dot(n, h)), gl_FrontMaterial.shininess);
+            color += gl_LightSource[lightIndex].diffuse  * gl_FrontMaterial.diffuse  * diffuse;
+            color += gl_LightSource[lightIndex].specular * gl_FrontMaterial.specular * specular;
+        }
+    }
+    gl_FragColor = color;
 }
