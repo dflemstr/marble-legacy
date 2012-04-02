@@ -56,6 +56,8 @@ public class EnvironmentNode extends Node {
     // The applied shader
     protected final GLSLShaderObjectsState shader;
 
+    protected final int textureSizeMagnitude;
+
     /**
      * Creates a new environment node.
      * 
@@ -78,10 +80,11 @@ public class EnvironmentNode extends Node {
      */
     public EnvironmentNode(final Spatial root,
             final ReadOnlyColorRGBA environmentColor,
-            final GLSLShaderObjectsState shader) {
+            final GLSLShaderObjectsState shader, final int textureSizeMagnitude) {
         this.root = root;
         this.environmentColor.set(environmentColor);
         this.shader = shader;
+        this.textureSizeMagnitude = textureSizeMagnitude;
 
         // Inform the shader that the environment will be stored in texture unit
         // 0
@@ -109,8 +112,8 @@ public class EnvironmentNode extends Node {
                 ContextManager.getCurrentContext().getCapabilities();
 
         final TextureRenderer renderer =
-                TextureRendererFactory.INSTANCE.createTextureRenderer(1024,
-                        1024,
+                TextureRendererFactory.INSTANCE.createTextureRenderer(
+                        1 << textureSizeMagnitude, 1 << textureSizeMagnitude,
                         r, caps);
         renderer.setBackgroundColor(environmentColor);
         renderer.getCamera().setFrustum(0.0625, 1024, -0.0625, 0.0625, 0.0625,

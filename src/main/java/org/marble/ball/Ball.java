@@ -7,8 +7,10 @@ import jinngine.physics.force.Force;
 
 import com.ardor3d.image.Texture;
 import com.ardor3d.math.ColorRGBA;
+import com.ardor3d.math.Vector3;
 import com.ardor3d.renderer.queue.RenderBucketType;
 import com.ardor3d.renderer.state.BlendState;
+import com.ardor3d.renderer.state.GLSLShaderObjectsState;
 import com.ardor3d.renderer.state.TextureState;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
@@ -40,6 +42,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
     protected final Body physicalSphere;
     protected final Force gravityForce;
     private Spatial rootNode;
+    private int textureSizeMagnitude;
 
     private final TextureState ts = new TextureState();
     private final BlendState bs = new BlendState();
@@ -122,6 +125,8 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
     @Override
     public void initialize(final Game game) {
         rootNode = game.getGraphicsEngine().getRootNode();
+        textureSizeMagnitude =
+                game.getSettings().environmentQuality.getValue().ordinal() + 5;
 
         setBallKind(kind);
     }
@@ -178,19 +183,25 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
             break;
         case Glass:
             final Node chromAberrator =
-                    new ChromaticAberrationNode(rootNode, new ColorRGBA(0.941f,
-                            0.984f, 1, 1));
+            new ChromaticAberrationNode(rootNode, new ColorRGBA(0.941f,
+                    0.984f, 1, 1), textureSizeMagnitude);
             chromAberrator.attachChild(sphere);
             ballNode.attachChild(chromAberrator);
             break;
         case Mercury:
             final Node reflector =
-                    new ReflectionNode(rootNode, new ColorRGBA(0.941f, 0.984f,
-                            1, 1));
+            new ReflectionNode(rootNode, new ColorRGBA(0.941f, 0.984f,
+                    1, 1), textureSizeMagnitude);
             reflector.attachChild(sphere);
             ballNode.attachChild(reflector);
             break;
         }
         this.kind = kind;
+    }
+
+    private void randomize(final Vector3 vec) {
+        vec.setX(Math.random());
+        vec.setY(Math.random());
+        vec.setZ(Math.random());
     }
 }

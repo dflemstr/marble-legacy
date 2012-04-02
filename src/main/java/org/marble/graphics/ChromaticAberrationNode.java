@@ -27,8 +27,10 @@ public class ChromaticAberrationNode extends EnvironmentNode {
     }
 
     public ChromaticAberrationNode(final Spatial root,
-            final ReadOnlyColorRGBA environmentColor) {
-        super(root, environmentColor, createChromaticAberrationShader());
+            final ReadOnlyColorRGBA environmentColor,
+            final int textureSizeMagnitude) {
+        super(root, environmentColor, createChromaticAberrationShader(),
+                textureSizeMagnitude);
     }
 
 }
