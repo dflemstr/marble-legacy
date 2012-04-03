@@ -16,6 +16,7 @@ import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.DefaultMotionState;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
@@ -24,7 +25,6 @@ import org.marble.entity.Connected;
 import org.marble.entity.Connector;
 import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
-import org.marble.graphics.EntityController;
 import org.marble.graphics.SegmentedBox;
 import org.marble.util.Connectors;
 
@@ -89,7 +89,6 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
         graphicalBox =
                 new SegmentedBox("slab", 1, 1, 0.3, Vector3.ZERO, width / 2,
                         height / 2, depth / 2);
-        graphicalBox.addController(new EntityController(this));
 
         final CollisionShape geometricalBox =
                 new BoxShape(new Vector3f((float) width / 2,
@@ -123,5 +122,12 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
     @Override
     public Set<ActionInterface> getActions() {
         return ImmutableSet.of();
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("name", name)
+                .add("width", width).add("height", height).add("depth", depth)
+                .toString();
     }
 }
