@@ -20,7 +20,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
 import org.marble.entity.AbstractEntity;
-import org.marble.entity.Connectivity;
+import org.marble.entity.Connected;
 import org.marble.entity.Connector;
 import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
@@ -31,7 +31,7 @@ import org.marble.util.Connectors;
 /**
  * A box-shaped block.
  */
-public class Slab extends AbstractEntity implements Connectivity, Graphical,
+public class Slab extends AbstractEntity implements Connected, Graphical,
         Physical {
     private final double width, height, depth;
     private final Box graphicalBox;

@@ -24,7 +24,7 @@ import org.json.JSONObject;
 
 import org.codehaus.jparsec.error.ParserException;
 
-import org.marble.entity.Connectivity;
+import org.marble.entity.Connected;
 import org.marble.entity.Connector;
 import org.marble.entity.Entity;
 
@@ -302,11 +302,11 @@ public final class LevelLoader {
      * Checks to see that an entity supports connectivity and casts it
      * accordingly; throws an exception otherwise.
      */
-    Connectivity withConnectivity(final Entity entity, final String entityName,
+    Connected withConnectivity(final Entity entity, final String entityName,
             final int loc) throws LevelLoadException {
 
-        if (entity instanceof Connectivity)
-            return (Connectivity) entity;
+        if (entity instanceof Connected)
+            return (Connected) entity;
         else
             throw new LevelLoadException("Entity `" + entityName
                     + "' does not support connectivity",

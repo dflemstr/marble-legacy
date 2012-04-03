@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import org.marble.Game;
 import org.marble.entity.AbstractEntity;
-import org.marble.entity.Connectivity;
+import org.marble.entity.Connected;
 import org.marble.entity.Connector;
 import org.marble.entity.Entity;
 import org.marble.level.LevelStatement.Alias;
@@ -162,7 +162,7 @@ public class LevelLoaderTest {
     }
 }
 
-class MockEntity extends AbstractEntity implements Connectivity {
+class MockEntity extends AbstractEntity implements Connected {
     int initializerIndex = -1;
 
     public MockEntity() {
