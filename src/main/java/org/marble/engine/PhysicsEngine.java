@@ -18,6 +18,7 @@ import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
+import com.bulletphysics.linearmath.Transform;
 
 import com.google.common.collect.Sets;
 
@@ -34,7 +35,10 @@ import org.marble.physics.EntityMotionState;
  */
 public class PhysicsEngine extends Engine<Physical> {
     private final DynamicsWorld world;
+    private final Set<Physical> entities = Sets.newHashSet();
     private final Set<Pair<Physical, Physical>> contacts = Sets.newHashSet();
+
+    private final Transform worldTransform = new Transform();
 
     public PhysicsEngine() {
         super(Physical.class);
@@ -77,6 +81,7 @@ public class PhysicsEngine extends Engine<Physical> {
         for (final ActionInterface action : entity.getActions()) {
             world.addAction(action);
         }
+        entities.add(entity);
     }
 
     @Override
@@ -85,6 +90,7 @@ public class PhysicsEngine extends Engine<Physical> {
         for (final ActionInterface action : entity.getActions()) {
             world.removeAction(action);
         }
+        entities.remove(entity);
     }
 
     @Override
@@ -97,6 +103,12 @@ public class PhysicsEngine extends Engine<Physical> {
 
     @Override
     public boolean update(final ReadOnlyTimer timer) {
+        for (final Physical entity : entities) {
+            final RigidBody body = entity.getBody();
+            body.getMotionState().getWorldTransform(worldTransform);
+            body.setWorldTransform(worldTransform);
+        }
+
         world.stepSimulation((float) timer.getTimePerFrame());
         return true;
     }
