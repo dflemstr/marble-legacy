@@ -240,6 +240,7 @@ public final class LevelLoader {
                 final Entity entity =
                         createEntity(entityClass, declaration.getInitArgs(),
                                 className, loc);
+                entity.setName(declaration.getName());
                 entityNames.put(declaration.getName(), entity);
                 entityBuilder.add(entity);
             } else if (statement instanceof LevelStatement.Position) {

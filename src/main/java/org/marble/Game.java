@@ -7,9 +7,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.ardor3d.extension.ui.UIComponent;
-import com.ardor3d.extension.ui.UIFrame;
-import com.ardor3d.extension.ui.UIPanel;
-import com.ardor3d.extension.ui.layout.BorderLayout;
 import com.ardor3d.framework.Canvas;
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.image.Texture;
@@ -75,7 +72,6 @@ public class Game {
     private PointLight light;
 
     private Skybox skybox;
-
 
     // Simple tracking camera system.
     private OrbitCamControl cameraControl;
@@ -240,7 +236,6 @@ public class Game {
         graphicsEngine.getRootNode().attachChild(skybox);
 
         UIComponent.setUseTransparency(true);
-
 
         cameraControl =
                 new SmoothOrbitCamControl(graphicsEngine.getCanvas()

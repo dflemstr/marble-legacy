@@ -28,4 +28,14 @@ public interface Entity {
      * Sets the location and rotation of the entity.
      */
     public void setTransform(Matrix4d transform);
+
+    /**
+     * Sets the debug name of this entity.
+     */
+    public void setName(String name);
+
+    /**
+     * The debug name of this entity.
+     */
+    public String getName();
 }

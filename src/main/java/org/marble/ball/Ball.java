@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableSet;
 
 import org.marble.Game;
 import org.marble.entity.AbstractEntity;
+import org.marble.entity.Collidable;
 import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
 import org.marble.graphics.ChromaticAberrationNode;
@@ -38,7 +39,8 @@ import org.marble.util.Shaders;
 /**
  * A physical ball that can have different materials and physical properties.
  */
-public class Ball extends AbstractEntity implements Graphical, Physical {
+public class Ball extends AbstractEntity implements Graphical, Physical,
+        Collidable {
     protected BallKind kind;
     protected final double radius;
 
@@ -122,7 +124,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
     public void initialize(final Game game) {
         rootNode = game.getGraphicsEngine().getRootNode();
         textureSizeMagnitude =
-                game.getSettings().environmentQuality.getValue().ordinal() + 5;
+                game.getSettings().environmentQuality.getValue().ordinal() + 3;
 
         setBallKind(kind);
     }
@@ -204,5 +206,15 @@ public class Ball extends AbstractEntity implements Graphical, Physical {
     @Override
     public Set<ActionInterface> getActions() {
         return ImmutableSet.of();
+    }
+
+    @Override
+    public void handleContactAdded(final Physical other) {
+        System.out.println(this + " is now connected with " + other);
+    }
+
+    @Override
+    public void handleContactRemoved(final Physical other) {
+        System.out.println(this + " is no longer connected with " + other);
     }
 }

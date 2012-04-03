@@ -1,12 +1,16 @@
 package org.marble.engine;
 
+import java.util.Set;
+
 import javax.vecmath.Vector3f;
 
 import com.ardor3d.util.ReadOnlyTimer;
 
+import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.AxisSweep3;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
+import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
@@ -15,7 +19,14 @@ import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 
+import com.google.common.collect.Sets;
+
+import org.apache.commons.lang3.tuple.Pair;
+
+import org.marble.entity.Collidable;
 import org.marble.entity.Physical;
+import org.marble.physics.CollContactAdded;
+import org.marble.physics.CollContactDestroyed;
 import org.marble.physics.EntityMotionState;
 
 /**
@@ -23,6 +34,7 @@ import org.marble.physics.EntityMotionState;
  */
 public class PhysicsEngine extends Engine<Physical> {
     private final DynamicsWorld world;
+    private final Set<Pair<Physical, Physical>> contacts = Sets.newHashSet();
 
     public PhysicsEngine() {
         super(Physical.class);
@@ -56,6 +68,11 @@ public class PhysicsEngine extends Engine<Physical> {
     protected void entityAdded(final Physical entity) {
         final RigidBody body = entity.getBody();
         body.setMotionState(new EntityMotionState(entity));
+        body.setUserPointer(entity);
+        if (entity instanceof Collidable) {
+            body.setCollisionFlags(CollisionFlags.CUSTOM_MATERIAL_CALLBACK);
+        }
+
         world.addRigidBody(body);
         for (final ActionInterface action : entity.getActions()) {
             world.addAction(action);
@@ -72,7 +89,10 @@ public class PhysicsEngine extends Engine<Physical> {
 
     @Override
     public void initialize() {
-        // Do nothing
+        BulletGlobals.setContactBreakingThreshold(0.1f);
+        BulletGlobals.setContactAddedCallback(new CollContactAdded(contacts));
+        BulletGlobals.setContactDestroyedCallback(new CollContactDestroyed(
+                contacts));
     }
 
     @Override
