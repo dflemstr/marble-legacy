@@ -1,6 +1,7 @@
 package org.marble.ball;
 
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.vecmath.Vector3f;
 
@@ -24,6 +25,7 @@ import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.DefaultMotionState;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
@@ -41,6 +43,7 @@ import org.marble.util.Shaders;
  */
 public class Ball extends AbstractEntity implements Graphical, Physical,
         Collidable {
+    private static final Logger log = Logger.getLogger(Ball.class.getName());
     protected BallKind kind;
     protected final double radius;
 
@@ -197,6 +200,10 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         this.kind = kind;
     }
 
+    public BallKind getBallKind() {
+        return kind;
+    }
+
     private void randomize(final Vector3 vec) {
         vec.setX(Math.random());
         vec.setY(Math.random());
@@ -210,11 +217,17 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
 
     @Override
     public void handleContactAdded(final Physical other) {
-        System.out.println(this + " is now connected with " + other);
+        log.info("Connected " + this + " to " + other);
     }
 
     @Override
     public void handleContactRemoved(final Physical other) {
-        System.out.println(this + " is no longer connected with " + other);
+        log.info("Disconnected " + this + " from " + other);
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("name", name).add("kind", kind)
+                .add("radius", radius).toString();
     }
 }
