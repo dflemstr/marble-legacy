@@ -197,6 +197,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
             ballNode.attachChild(reflector);
             break;
         }
+        ballNode.updateGeometricState(0);
         this.kind = kind;
     }
 
