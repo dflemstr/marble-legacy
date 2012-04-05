@@ -19,8 +19,6 @@ import com.ardor3d.input.logical.KeyPressedCondition;
 import com.ardor3d.input.logical.LogicalLayer;
 import com.ardor3d.input.logical.TriggerAction;
 import com.ardor3d.input.logical.TwoInputStates;
-import com.ardor3d.light.PointLight;
-import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.MathUtils;
 import com.ardor3d.math.Quaternion;
 import com.ardor3d.math.Vector3;
@@ -68,9 +66,6 @@ public class Game {
 
     // Engines to handle.
     private final ImmutableSet<Engine<?>> engines;
-
-    // XXX Debug light; create light entities instead.
-    private PointLight light;
 
     private Skybox skybox;
 
@@ -185,8 +180,6 @@ public class Game {
             removeEntity(entity);
         }
 
-        // XXX Debug light
-        graphicsEngine.getLighting().detach(light);
         graphicsEngine.getRootNode().detachChild(skybox);
 
         for (final Engine<?> engine : engines) {
@@ -222,15 +215,6 @@ public class Game {
         for (final Engine<?> engine : engines) {
             engine.initialize();
         }
-
-        // XXX Debug light
-        light = new PointLight();
-        light.setAmbient(new ColorRGBA(0.2f, 0.2f, 0.2f, 1.0f));
-        light.setDiffuse(new ColorRGBA(0.7f, 0.7f, 0.7f, 0.75f));
-        light.setSpecular(new ColorRGBA(0.4f, 0.4f, 0.4f, 1.0f));
-        light.setLocation(100, 100, 100);
-        light.setEnabled(true);
-        graphicsEngine.getLighting().attach(light);
 
         skybox = createSkybox();
         graphicsEngine.getRootNode().attachChild(skybox);
