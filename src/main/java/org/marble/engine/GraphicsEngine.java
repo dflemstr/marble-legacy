@@ -16,6 +16,7 @@ import com.ardor3d.util.TextureManager;
 
 import com.google.common.collect.Maps;
 
+import org.marble.entity.Emitter;
 import org.marble.entity.Graphical;
 import org.marble.graphics.EntityController;
 
@@ -53,6 +54,10 @@ public class GraphicsEngine extends Engine<Graphical> {
         final Spatial spatial = entity.getSpatial();
         final EntityController controller = new EntityController(entity);
 
+        if (entity instanceof Emitter) {
+            lighting.attach(((Emitter) entity).getLight());
+        }
+
         spatial.addController(controller);
         controllers.put(entity, controller);
         rootNode.attachChild(spatial);
@@ -62,6 +67,10 @@ public class GraphicsEngine extends Engine<Graphical> {
     protected void entityRemoved(final Graphical entity) {
         final Spatial spatial = entity.getSpatial();
         final EntityController controller = controllers.remove(entity);
+
+        if (entity instanceof Emitter) {
+            lighting.detach(((Emitter) entity).getLight());
+        }
 
         spatial.removeController(controller);
         rootNode.detachChild(spatial);
