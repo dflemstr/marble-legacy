@@ -8,12 +8,7 @@ import com.ardor3d.util.resource.ResourceLocatorTool;
 
 import com.google.common.collect.Maps;
 
-import org.marble.Game;
-
 public final class Shaders {
-    private static final String SHADER_DIR = Game.class.getPackage().getName()
-            .replace('.', '/')
-            + "/shader/";
     private static final Map<String, Integer> shaderLoadCount = Maps
             .newHashMap();
 
@@ -21,12 +16,12 @@ public final class Shaders {
         final GLSLShaderObjectsState shader = new GLSLShaderObjectsState();
 
         try {
-            shader.setVertexShader(ResourceLocatorTool
-                    .getClassPathResourceAsStream(Shaders.class, SHADER_DIR
-                            + name + ".vert"));
-            shader.setFragmentShader(ResourceLocatorTool
-                    .getClassPathResourceAsStream(Shaders.class, SHADER_DIR
-                            + name + ".frag"));
+            shader.setVertexShader(ResourceLocatorTool.locateResource(
+                    ResourceLocatorTool.TYPE_SHADER, name + ".vert")
+                    .openStream());
+            shader.setFragmentShader(ResourceLocatorTool.locateResource(
+                    ResourceLocatorTool.TYPE_SHADER, name + ".frag")
+                    .openStream());
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

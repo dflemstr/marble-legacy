@@ -140,12 +140,26 @@ public class Application implements Runnable, Scene, Updater {
                     new SimpleResourceLocator(
                             ResourceLocatorTool.getClassPathResource(
                                     Application.class, "org/marble/texture/"));
+            ResourceLocatorTool.addResourceLocator(
+                    ResourceLocatorTool.TYPE_TEXTURE, srl);
+
+            srl =
+                    new SimpleResourceLocator(
+                            ResourceLocatorTool.getClassPathResource(
+                                    Application.class, "org/marble/shader/"));
+            ResourceLocatorTool.addResourceLocator(
+                    ResourceLocatorTool.TYPE_SHADER, srl);
+
+            srl =
+                    new SimpleResourceLocator(
+                            ResourceLocatorTool.getClassPathResource(
+                                    Application.class, "org/marble/model/"));
+            ResourceLocatorTool.addResourceLocator(
+                    ResourceLocatorTool.TYPE_MODEL, srl);
         } catch (final URISyntaxException e) {
             e.printStackTrace();
             return;
         }
-        ResourceLocatorTool.addResourceLocator(
-                ResourceLocatorTool.TYPE_TEXTURE, srl);
 
         // Perform game-specific initialization.
         game.initialize();
