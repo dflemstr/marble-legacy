@@ -15,10 +15,6 @@ public class AbstractEntity implements Entity {
 
     /**
      * Creates a new entity.
-     * 
-     * @param transform
-     *            The initial transform of the entity. This transform will not
-     *            be copied before use.
      */
     public AbstractEntity() {
         transform = new Matrix4d();
@@ -31,6 +27,7 @@ public class AbstractEntity implements Entity {
 
     @Override
     public void initialize(final Game game) {
+        // Do nothing
     }
 
     @Override
@@ -51,5 +48,10 @@ public class AbstractEntity implements Entity {
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("name", name).toString();
+    }
+
+    @Override
+    public void destroy() {
+        // Do nothing
     }
 }

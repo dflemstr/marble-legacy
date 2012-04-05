@@ -30,7 +30,7 @@ import com.ardor3d.scenegraph.hint.CullHint;
  * environment will be adjusted accordingly to match the location of each
  * sub-node.
  */
-public class EnvironmentNode extends Node {
+public class EnvironmentNode extends Node implements PreparedDrawing {
     // Marks whether we are rendering an environment
     private static final AtomicBoolean renderingToEnv =
             new AtomicBoolean(false);
@@ -128,6 +128,29 @@ public class EnvironmentNode extends Node {
             envRenderer = createEnvironmentRenderer(r);
         }
 
+        super.draw(r);
+    }
+
+    @Override
+    protected void finalize() {
+        // XXX This might be called too late/never, but it's better than
+        // nothing.
+        envRenderer.cleanup();
+    }
+
+    /**
+     * The environment that is being rendered by this node.
+     */
+    public TextureCubeMap getEnvironment() {
+        return environment;
+    }
+
+    @Override
+    public void preDraw(final Renderer r) {
+        if (envRenderer == null) {
+            envRenderer = createEnvironmentRenderer(r);
+        }
+
         /*
          * We only allow one environment to be rendered at a time, because
          * otherwise environments will be recursively rendered into one another,
@@ -194,22 +217,5 @@ public class EnvironmentNode extends Node {
         // hint, so we'll inform the frustum solver that we might be visible
         // again, by saying that we are at the edge of the view frustum
         setLastFrustumIntersection(FrustumIntersect.Intersects);
-
-        // Render subnodes
-        super.draw(r);
-    }
-
-    @Override
-    protected void finalize() {
-        // XXX This might be called too late/never, but it's better than
-        // nothing.
-        envRenderer.cleanup();
-    }
-
-    /**
-     * The environment that is being rendered by this node.
-     */
-    public TextureCubeMap getEnvironment() {
-        return environment;
     }
 }

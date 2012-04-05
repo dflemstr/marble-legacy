@@ -44,6 +44,7 @@ import org.marble.engine.GraphicsEngine;
 import org.marble.engine.InputEngine;
 import org.marble.engine.PhysicsEngine;
 import org.marble.entity.Entity;
+import org.marble.graphics.PreparedDrawingVisitor;
 import org.marble.graphics.SmoothOrbitCamControl;
 import org.marble.level.LevelLoadException;
 import org.marble.level.LevelLoader;
@@ -128,7 +129,6 @@ public class Game {
 
     public void restart() {
         runState = RunState.RESTARTING;
-
     }
 
     private Skybox createSkybox() {
@@ -297,6 +297,7 @@ public class Game {
             }
 
         entities.remove(entity);
+        entity.destroy();
     }
 
     /**
@@ -331,6 +332,8 @@ public class Game {
     }
 
     public void render(final Renderer renderer) {
+        getGraphicsEngine().getRootNode().acceptVisitor(
+                new PreparedDrawingVisitor(renderer), true);
         getGraphicsEngine().getRootNode().onDraw(renderer);
         renderer.renderBuckets();
         if (showMenu) {

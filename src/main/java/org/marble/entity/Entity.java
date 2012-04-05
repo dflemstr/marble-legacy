@@ -25,6 +25,12 @@ public interface Entity {
     public void initialize(Game game);
 
     /**
+     * Destroys resources that were allocated in the {@link #initialize(Game)}
+     * call.
+     */
+    public void destroy();
+
+    /**
      * Sets the location and rotation of the entity.
      */
     public void setTransform(Matrix4d transform);
