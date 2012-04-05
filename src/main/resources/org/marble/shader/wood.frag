@@ -2,12 +2,14 @@
 const float distanceWeight = 4.0;
 const float noiseScale     = 0.6;
 const float noiseWeight    = 1.5;
+const float roughness      = 1.0;
 
 uniform vec3 trunkCenter1;
 uniform vec3 trunkCenter2;
 uniform vec3 noiseSeed;
 uniform float variation;
 uniform sampler2D woodGradient;
+uniform int lightCount;
 
 varying vec3 position;
 varying vec3 normal;
@@ -104,18 +106,34 @@ void main(void) {
                                  snoise(noiseScale * position + noiseSeed) * noiseWeight)) / 2.0;
     vec4 color = texture2D(woodGradient, vec2(variation, intensity));
 
+    // Oren-Nayar shading model
     vec3 i = normalize(incident);
     vec3 n = normalize(normal);
+    float r2 = roughness * roughness;
+    float a = 1.0 - 0.5 * r2 / (r2 + 0.33);
+
     int lightIndex;
-    for (lightIndex = 0; lightIndex < gl_MaxLights; lightIndex++) {
+    for (lightIndex = 0; lightIndex < lightCount; lightIndex++) {
         vec3 l = normalize(light[lightIndex]);
-        vec3 h = normalize(l + i);
-        float diffuse = dot(l, n);
-        if (diffuse > 0.0) {
-            float specular = pow(max(0.0, dot(n, h)), 47);
-            color += gl_LightSource[lightIndex].diffuse  * diffuse * 0.5;
-            color += gl_LightSource[lightIndex].specular * specular;
+        float idotn = dot(i, n);
+        float ldotn = dot(l, n);
+        float irradiance = max(0.0, ldotn);
+        float angleDifference = max(0.0, dot(normalize(i - n * idotn), normalize(l - n * ldotn)));
+        float alpha = min(idotn, ldotn);
+        float beta  = max(idotn, ldotn);
+
+        float bTerm;
+        if (angleDifference >= 0.0) {
+            float b = 0.45 * r2 / (r2 + 0.09);
+            bTerm = b * sqrt((1.0 - alpha * alpha) * (1.0 - beta * beta)) / beta * angleDifference;
+        } else {
+            bTerm = 0.0;
         }
+
+        float diffuse = ldotn * (a + bTerm);
+
+        color += gl_FrontLightProduct[lightIndex].ambient;
+        color += gl_FrontLightProduct[lightIndex].diffuse * diffuse;
     }
     gl_FragColor = color;
 }

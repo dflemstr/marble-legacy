@@ -1,3 +1,6 @@
+const float roughness = 0.005;
+const float sharpness = 0.8;
+const float scattering = 0.25;
 
 // Spectrum of reciprocals of indices of refraction
 uniform float etaR; // Red
@@ -5,6 +8,7 @@ uniform float etaG; // Green
 uniform float etaB; // Blue
 uniform float fresnelPower;
 uniform samplerCube environment;
+uniform int lightCount;
 
 varying vec3 normal;
 varying vec3 normalW;
@@ -35,17 +39,22 @@ void main(void) {
 
     vec4 color = mix(refractColor, reflectColor, ratio);
 
+    // Blinn shading
     vec3 i = normalize(incident);
     vec3 n = normalize(normal);
+    float w = 0.18 * (1.0 - sharpness);
     int lightIndex;
-    for (lightIndex = 0; lightIndex < gl_MaxLights; lightIndex++) {
+    for (lightIndex = 0; lightIndex < lightCount; lightIndex++) {
         vec3 l = normalize(light[lightIndex]);
         vec3 h = normalize(l + i);
+
         float diffuse = dot(l, n);
         if (diffuse > 0.0) {
-            float specular = pow(max(0.0, dot(n, h)), 86);
-            color += gl_LightSource[lightIndex].specular  * specular;
+            color += gl_LightSource[lightIndex].diffuse * diffuse * scattering;
         }
+
+        float specular = smoothstep(0.72 - w, 0.72 + w, pow(max(0.0, dot(n, h)), 1 / roughness));
+        color += gl_LightSource[lightIndex].specular * specular;
     }
 
     gl_FragColor = color;

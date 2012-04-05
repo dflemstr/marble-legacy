@@ -1,4 +1,6 @@
 
+uniform int lightCount;
+
 varying vec3 position;
 varying vec3 normal;
 varying vec3 incident;
@@ -11,9 +13,9 @@ void main(void) {
     vec4 vertex = gl_ModelViewMatrix * gl_Vertex;
     incident = -vertex.xyz;
 
-    int i;
-    for (i = 0; i < gl_MaxLights; i++) {
-        light[i] = gl_LightSource[i].position.xyz - vertex.xyz;
+    int lightIndex;
+    for (lightIndex = 0; lightIndex < lightCount; lightIndex++) {
+        light[lightIndex] = gl_LightSource[lightIndex].position.xyz - vertex.xyz;
     }
 
     gl_Position = ftransform();

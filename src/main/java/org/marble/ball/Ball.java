@@ -35,6 +35,7 @@ import org.marble.entity.Collidable;
 import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
 import org.marble.graphics.ChromaticAberrationNode;
+import org.marble.graphics.LightDataLogic;
 import org.marble.graphics.ReflectionNode;
 import org.marble.util.Shaders;
 
@@ -146,6 +147,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         switch (kind) {
         case Wood:
             final GLSLShaderObjectsState wood = Shaders.loadShader("wood");
+            wood.setShaderDataLogic(new LightDataLogic());
             wood.setUniform("woodGradient", 0);
 
             final Vector3 vec = Vector3.fetchTempInstance();

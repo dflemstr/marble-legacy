@@ -1,6 +1,7 @@
 
 uniform vec3 cameraPos;
 uniform mat4 modelMatrix;
+uniform int lightCount;
 
 varying vec3 normal;
 varying vec3 normalW;
@@ -29,11 +30,11 @@ void main(void) {
     incident = -vertex.xyz;
     incidentW = positionW - cameraPos;
     normal = gl_NormalMatrix * gl_Normal;
-    normalW   = linearize(modelMatrix) * gl_Normal;
+    normalW = linearize(modelMatrix) * gl_Normal;
 
-    int i;
-    for (i = 0; i < gl_MaxLights; i++) {
-        light[i] = gl_LightSource[i].position.xyz - vertex.xyz;
+    int lightIndex;
+    for (lightIndex = 0; lightIndex < lightCount; lightIndex++) {
+        light[lightIndex] = gl_LightSource[lightIndex].position.xyz - vertex.xyz;
     }
 
     gl_Position = ftransform();
