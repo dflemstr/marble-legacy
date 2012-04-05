@@ -59,6 +59,11 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/jbullet-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/ardor3d-extras.jar" sourcepath="lib/ardor3d-extras-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/ardor3d-extras-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/ardor3d-effects.jar" sourcepath="lib/ardor3d-effects-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/ardor3d-effects-javadoc.jar!/"/>
