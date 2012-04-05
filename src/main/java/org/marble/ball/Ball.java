@@ -128,7 +128,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     public void initialize(final Game game) {
         rootNode = game.getGraphicsEngine().getRootNode();
         textureSizeMagnitude =
-                game.getSettings().environmentQuality.getValue().ordinal() + 3;
+                game.getSettings().environmentQuality.getValue().ordinal() + 4;
 
         setBallKind(kind);
     }
