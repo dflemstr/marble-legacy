@@ -2,20 +2,30 @@
 using Slab as org.marble.block.Slab
 using Ball as org.marble.ball.Ball
 using Transformer as org.marble.block.Transformer
+using Lantern as org.marble.block.Lantern
 
-// Create two slabs
+// Create some slabs
 let slab1 be Slab(15, 15, 1),
     slab2 be Slab(3, 4, 1),
     slab3 be Slab(7, 7, 1),
     slab4 be Slab(4, 3, 1),
-    slab5 be Slab(15, 7, 1),
-    woodenBall  be Ball([Wood], 0.5, 1),
+    slab5 be Slab(15, 7, 1)
+
+// Create demo balls
+let woodenBall  be Ball([Wood], 0.5, 1),
     stoneBall   be Ball([Stone], 0.5, 1),
     fabricBall  be Ball([Fabric], 0.5, 1),
     glassBall   be Ball([Glass], 0.5, 1),
-    mercuryBall be Ball([Mercury], 0.5, 1),
-    glassTrans  be Transformer([Glass]),
+    mercuryBall be Ball([Mercury], 0.5, 1)
+
+// Transformers
+let glassTrans  be Transformer([Glass]),
     woodTrans   be Transformer([Wood])
+
+// Create a lantern
+let lanternRed   be Lantern((1, 0, 0)),
+    lanternGreen be Lantern((0, 1, 0)),
+    lanternBlue  be Lantern((0, 0, 1))
 
 position slab1 at (0, 0, 0)
 connect slab2.south_middle to slab1.north_1_0,
@@ -31,3 +41,7 @@ position mercuryBall at ( 4, 0, 8) from slab1
 
 position glassTrans  at (-2, 4, 1) from slab1
 position woodTrans   at ( 2, 4, 1) from slab1
+
+position lanternRed   at (-4,  4, 1) from slab1
+position lanternGreen at ( 4,  4, 1) from slab1
+position lanternBlue  at ( 0, -4, 1) from slab1
