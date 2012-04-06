@@ -41,6 +41,8 @@ public class Settings {
     public final Entry<Quality> environmentQuality = new EnumEntry<Quality>(
             prefs, "graphics/environment_quality", Quality.Medium,
             Quality.class);
+    public final Entry<Boolean> bloom = new BooleanEntry(prefs,
+            "graphics/bloom", true);
     public final Entry<Boolean> musicEnabled = new BooleanEntry(prefs,
             "audio/music/enabled", true);
     public final Entry<Boolean> soundEffectsEnabled = new BooleanEntry(prefs,

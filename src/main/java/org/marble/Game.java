@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import com.ardor3d.extension.effect.bloom.BloomRenderPass;
 import com.ardor3d.extension.ui.UIComponent;
 import com.ardor3d.extension.ui.UIHud;
 import com.ardor3d.framework.Canvas;
@@ -234,6 +235,14 @@ public class Game {
         cameraControl.setZoomSpeed(0.001);
         cameraControl.setupMouseTriggers(inputEngine.getLogicalLayer(), true);
 
+        if (settings.bloom.getValue()) {
+            final BloomRenderPass bloomRenderPass =
+                    new BloomRenderPass(getGraphicsEngine().getCanvas()
+                            .getCanvasRenderer().getCamera(), 1);
+            bloomRenderPass.setBlurSize(0.005f);
+            bloomRenderPass.setUseCurrentScene(true);
+            getGraphicsEngine().getPasses().add(bloomRenderPass);
+        }
 
         hud = new UIHud();
         hud.setupInput(getGraphicsEngine().getCanvas(), getInputEngine()
