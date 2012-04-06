@@ -7,6 +7,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.ardor3d.extension.ui.UIComponent;
+import com.ardor3d.extension.ui.UIHud;
 import com.ardor3d.framework.Canvas;
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.image.Texture;
@@ -23,6 +24,7 @@ import com.ardor3d.math.MathUtils;
 import com.ardor3d.math.Quaternion;
 import com.ardor3d.math.Vector3;
 import com.ardor3d.renderer.Renderer;
+import com.ardor3d.renderer.pass.RenderPass;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.controller.SpatialController;
 import com.ardor3d.scenegraph.extension.Skybox;
@@ -72,7 +74,8 @@ public class Game {
     // Simple tracking camera system.
     private OrbitCamControl cameraControl;
 
-    Menu menu;
+    private UIHud hud;
+    private Menu menu;
 
     boolean showMenu = true;
 
@@ -128,7 +131,7 @@ public class Game {
 
     private Skybox createSkybox() {
 
-        skybox = new Skybox("skybox", 512, 512, 512);
+        skybox = new Skybox("skybox", 256, 256, 256);
         skybox.addController(new SpatialController<Skybox>() {
 
             @Override
@@ -231,7 +234,17 @@ public class Game {
         cameraControl.setZoomSpeed(0.001);
         cameraControl.setupMouseTriggers(inputEngine.getLogicalLayer(), true);
 
-        menu = new Menu(this);
+
+        hud = new UIHud();
+        hud.setupInput(getGraphicsEngine().getCanvas(), getInputEngine()
+                .getPhysicalLayer(), getInputEngine().getLogicalLayer());
+        hud.setMouseManager(getInputEngine().getMouseManager());
+
+        final RenderPass hudPass = new RenderPass();
+        hudPass.add(hud);
+        getGraphicsEngine().getPasses().add(hudPass);
+
+        menu = new Menu(this, hud);
 
         inputEngine.getLogicalLayer().registerTrigger(
                 new InputTrigger(new KeyPressedCondition(Key.ESCAPE),
@@ -241,7 +254,8 @@ public class Game {
                             public void perform(final Canvas source,
                                     final TwoInputStates inputStates,
                                     final double tpf) {
-                                showMenu = !showMenu;
+                                menu.getFrame().setVisible(
+                                        !menu.getFrame().isVisible());
                             }
                         }));
 
@@ -302,9 +316,9 @@ public class Game {
      */
     public void update(final ReadOnlyTimer timer) {
         boolean shouldContinue = true;
-        if (showMenu) {
-            menu.update(timer);
-        }
+
+        hud.getLogicalLayer().checkTriggers(timer.getTimePerFrame());
+        hud.updateGeometricState(timer.getTimePerFrame());
         cameraControl.update(timer.getTimePerFrame());
 
         for (final Engine<?> engine : engines) {
@@ -318,11 +332,8 @@ public class Game {
     public void render(final Renderer renderer) {
         getGraphicsEngine().getRootNode().acceptVisitor(
                 new PreparedDrawingVisitor(renderer), true);
-        getGraphicsEngine().getRootNode().onDraw(renderer);
-        renderer.renderBuckets();
-        if (showMenu) {
-            menu.render(renderer);
-        }
+
+        getGraphicsEngine().getPasses().renderPasses(renderer);
     }
 
     public RunState getRunState() {

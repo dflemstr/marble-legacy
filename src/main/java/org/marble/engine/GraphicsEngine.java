@@ -4,6 +4,8 @@ import java.util.Map;
 
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.image.Texture;
+import com.ardor3d.renderer.pass.BasicPassManager;
+import com.ardor3d.renderer.pass.RenderPass;
 import com.ardor3d.renderer.queue.RenderBucketType;
 import com.ardor3d.renderer.state.CullState;
 import com.ardor3d.renderer.state.LightState;
@@ -30,6 +32,13 @@ public class GraphicsEngine extends Engine<Graphical> {
     private LightState lighting;
     private CullState culling;
     private TextureState textures;
+
+    private BasicPassManager passes;
+
+    public BasicPassManager getPasses() {
+        return passes;
+    }
+
     private final Map<Graphical, EntityController> controllers = Maps
             .newIdentityHashMap();
 
@@ -108,6 +117,8 @@ public class GraphicsEngine extends Engine<Graphical> {
     @Override
     public void initialize() {
         canvas.setTitle("Marble");
+        canvas.getCanvasRenderer().getCamera().setFrustumFar(512.0);
+        canvas.getCanvasRenderer().getCamera().setFrustumNear(1.0);
 
         rootNode.getSceneHints().setRenderBucketType(RenderBucketType.Opaque);
 
@@ -137,12 +148,19 @@ public class GraphicsEngine extends Engine<Graphical> {
                 Texture.MinificationFilter.Trilinear, false));
         rootNode.setRenderState(textures);
 
+        passes = new BasicPassManager();
+
+        final RenderPass rootPass = new RenderPass();
+        rootPass.add(rootNode);
+        passes.add(rootPass);
+
         rootNode.updateGeometricState(0);
     }
 
     @Override
     public boolean update(final ReadOnlyTimer timer) {
         rootNode.updateGeometricState(timer.getTimePerFrame(), true);
+        passes.updatePasses(timer.getTimePerFrame());
         return !canvas.isClosing();
     }
 }

@@ -20,18 +20,17 @@ import com.ardor3d.extension.ui.layout.BorderLayout;
 import com.ardor3d.extension.ui.layout.BorderLayoutData;
 import com.ardor3d.extension.ui.model.DefaultComboBoxModel;
 import com.ardor3d.math.ColorRGBA;
-import com.ardor3d.renderer.Renderer;
-import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.util.ReadOnlyTimer;
 
 public class Menu {
-    private final UIHud hud;
     private final UIFrame frame;
 
-    Game game;
+    private final Game game;
 
-    public Menu(final Game game) {
+    public UIFrame getFrame() {
+        return frame;
+    }
 
+    public Menu(final Game game, final UIHud hud) {
         this.game = game;
         final UIPanel widget = makeWidgetPanel();
         final UIPanel settings = makeSettingsPanel();
@@ -49,17 +48,7 @@ public class Menu {
         frame.setName("sample");
         frame.setLocationRelativeTo(game.getGraphicsEngine().getCanvas()
                 .getCanvasRenderer().getCamera());
-
-        hud = new UIHud();
         hud.add(frame);
-        hud.setupInput(game.getGraphicsEngine().getCanvas(), game
-                .getInputEngine().getPhysicalLayer(), game.getInputEngine()
-                .getLogicalLayer());
-        hud.setMouseManager(game.getInputEngine().getMouseManager());
-    }
-
-    public final Spatial getSpatial() {
-        return hud;
     }
 
     private UIPanel makeWidgetPanel() {
@@ -131,15 +120,5 @@ public class Menu {
                 GraphicsEnvironment.getLocalGraphicsEnvironment()
                         .getDefaultScreenDevice().getDisplayModes();
         return modes;
-    }
-
-    public void update(final ReadOnlyTimer timer) {
-        hud.getLogicalLayer().checkTriggers(timer.getTimePerFrame());
-        hud.updateGeometricState(timer.getTimePerFrame());
-    }
-
-    public void render(final Renderer renderer) {
-        renderer.renderBuckets();
-        renderer.draw(hud);
     }
 }
