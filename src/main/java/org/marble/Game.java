@@ -83,7 +83,12 @@ public class Game {
     boolean showMenu = true;
 
     public enum RunState {
-        RUNNING, QUITTING, RESTARTING;
+        /** The game is running */
+        Running,
+        /** The game intends to quit */
+        Quitting,
+        /** The game intends to restart */
+        Restarting;
     }
 
     private RunState runState;
@@ -129,7 +134,7 @@ public class Game {
     }
 
     public void restart() {
-        runState = RunState.RESTARTING;
+        runState = RunState.Restarting;
     }
 
     private Skybox createSkybox() {
@@ -358,7 +363,7 @@ public class Game {
             shouldContinue &= engine.update(timer);
         }
         if (!shouldContinue) {
-            runState = RunState.QUITTING;
+            runState = RunState.Quitting;
         }
     }
 

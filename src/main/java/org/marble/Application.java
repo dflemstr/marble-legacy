@@ -192,10 +192,10 @@ public class Application implements Runnable, Scene, Updater {
         frameHandler.init();
         // If we've successfully gotten ourself a renderer, we're good to
         // go.
-        game.setRunState(Game.RunState.RUNNING);
+        game.setRunState(Game.RunState.Running);
 
         // Main game loop.
-        while (game.getRunState() == Game.RunState.RUNNING) {
+        while (game.getRunState() == Game.RunState.Running) {
             frameHandler.updateFrame();
             Thread.yield();
         }
@@ -213,7 +213,7 @@ public class Application implements Runnable, Scene, Updater {
         }
         // }
 
-        shouldRestart = game.getRunState() == Game.RunState.RESTARTING;
+        shouldRestart = game.getRunState() == Game.RunState.Restarting;
     }
 
     @Override

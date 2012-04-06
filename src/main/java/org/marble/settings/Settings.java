@@ -2,7 +2,7 @@ package org.marble.settings;
 
 import java.util.prefs.Preferences;
 
-import org.marble.RendererImpl;
+import org.marble.RendererFactory;
 
 /**
  * Controls the settings for the desktop version of the application.
@@ -31,9 +31,9 @@ public class Settings {
             "graphics/screen/vertical_sync", false);
     public final Entry<Integer> screenSamplesPerPixel = new IntegerEntry(prefs,
             "graphics/samples_per_pixel", 0);
-    public final Entry<RendererImpl> rendererImpl =
-            new EnumEntry<RendererImpl>(prefs, "graphics/renderer",
-                    RendererImpl.LWJGL, RendererImpl.class);
+    public final Entry<RendererFactory> rendererImpl =
+            new EnumEntry<RendererFactory>(prefs, "graphics/renderer",
+                    RendererFactory.LWJGL, RendererFactory.class);
     public final Entry<Integer> framerate = new IntegerEntry(prefs,
             "graphics/framerate", -1);
     public final Entry<Boolean> stereoscopic = new BooleanEntry(prefs,
