@@ -118,16 +118,19 @@ public class EnvironmentNode extends Node implements PreparedDrawing {
         renderer.setBackgroundColor(environmentColor);
         renderer.getCamera().setFrustum(0.0625, 1024, -0.0625, 0.0625, 0.0625,
                 -0.0625);
-        renderer.setupTexture(environment);
         return renderer;
+    }
+
+    private void ensureEnvironment(final Renderer r) {
+        if (envRenderer == null) {
+            envRenderer = createEnvironmentRenderer(r);
+            envRenderer.setupTexture(environment);
+        }
     }
 
     @Override
     public void draw(final Renderer r) {
-        if (envRenderer == null) {
-            envRenderer = createEnvironmentRenderer(r);
-        }
-
+        ensureEnvironment(r);
         super.draw(r);
     }
 
@@ -147,9 +150,7 @@ public class EnvironmentNode extends Node implements PreparedDrawing {
 
     @Override
     public void preDraw(final Renderer r) {
-        if (envRenderer == null) {
-            envRenderer = createEnvironmentRenderer(r);
-        }
+        ensureEnvironment(r);
 
         /*
          * We only allow one environment to be rendered at a time, because
