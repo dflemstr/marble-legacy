@@ -317,20 +317,20 @@ public final class LevelLoader {
             JSONException {
         final String input = Resources.toString(url, Charsets.UTF_8);
         final JSONObject packObject = new JSONObject(input);
-        return loadMetaLevelPack(packObject);
+        return loadMetaLevelPack(packObject, url);
     }
 
-    MetaLevelPack loadMetaLevelPack(final JSONObject object)
+    MetaLevelPack loadMetaLevelPack(final JSONObject object, final URL packURL)
             throws JSONException {
         return new MetaLevelPack(object.getString("name"),
                 Optional.fromNullable(object.optString("version")),
                 Optional.fromNullable(object.optString("description")),
                 Optional.fromNullable(object.optString("author")),
-                loadMetaLevels(object.getJSONArray("levels")));
+                loadMetaLevels(object.getJSONArray("levels"), packURL));
     }
 
-    ImmutableList<MetaLevel> loadMetaLevels(final JSONArray array)
-            throws JSONException {
+    ImmutableList<MetaLevel> loadMetaLevels(final JSONArray array,
+            final URL packURL) throws JSONException {
         final ImmutableList.Builder<MetaLevel> resultBuilder =
                 ImmutableList.builder();
         for (int i = 0; i < array.length(); i++) {
@@ -340,9 +340,11 @@ public final class LevelLoader {
                         levelObject.optString("previewURI");
                 final Optional<URL> previewURI =
                         previewURIString == null ? Optional.<URL> absent()
-                                : Optional.of(new URL(previewURIString));
+                                : Optional
+                                        .of(new URL(packURL, previewURIString));
+                final URL url = new URL(packURL, levelObject.getString("uri"));
                 resultBuilder.add(new MetaLevel(levelObject.getString("name"),
-                        new URL(levelObject.getString("uri")), previewURI));
+                        url, previewURI));
             } catch (final MalformedURLException e) {
                 throw new RuntimeException("Invalid URI", e);
             }
