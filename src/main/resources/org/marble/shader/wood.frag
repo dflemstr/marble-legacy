@@ -2,7 +2,7 @@
 const float distanceWeight = 4.0;
 const float noiseScale     = 0.6;
 const float noiseWeight    = 1.5;
-const float roughness      = 1.0;
+const float roughness      = 0.3;
 
 uniform vec3 trunkCenter1;
 uniform vec3 trunkCenter2;
