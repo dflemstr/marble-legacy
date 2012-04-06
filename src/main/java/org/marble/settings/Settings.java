@@ -43,6 +43,8 @@ public class Settings {
             Quality.class);
     public final Entry<Boolean> bloom = new BooleanEntry(prefs,
             "graphics/bloom", true);
+    public final Entry<Boolean> ssao = new BooleanEntry(prefs, "graphics/ssao",
+            true);
     public final Entry<Boolean> musicEnabled = new BooleanEntry(prefs,
             "audio/music/enabled", true);
     public final Entry<Boolean> soundEffectsEnabled = new BooleanEntry(prefs,

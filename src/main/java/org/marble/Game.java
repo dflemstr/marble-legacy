@@ -46,6 +46,7 @@ import org.marble.engine.InputEngine;
 import org.marble.engine.PhysicsEngine;
 import org.marble.entity.Entity;
 import org.marble.graphics.PreparedDrawingVisitor;
+import org.marble.graphics.SSAOPass;
 import org.marble.graphics.SmoothOrbitCamControl;
 import org.marble.level.LevelLoadException;
 import org.marble.level.LevelLoader;
@@ -242,6 +243,13 @@ public class Game {
             bloomRenderPass.setBlurSize(0.005f);
             bloomRenderPass.setUseCurrentScene(true);
             getGraphicsEngine().getPasses().add(bloomRenderPass);
+        }
+
+        if (settings.ssao.getValue()) {
+            final SSAOPass ssaoRenderPass =
+                    new SSAOPass(getGraphicsEngine().getRootNode(), 1.0, 8,
+                            1.0, 0.1);
+            getGraphicsEngine().getPasses().add(ssaoRenderPass);
         }
 
         hud = new UIHud();
