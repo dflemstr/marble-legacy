@@ -123,12 +123,8 @@ void main(void) {
         float beta  = max(idotn, ldotn);
 
         float bTerm;
-        if (angleDifference >= 0.0) {
-            float b = 0.45 * r2 / (r2 + 0.09);
-            bTerm = b * sqrt((1.0 - alpha * alpha) * (1.0 - beta * beta)) / beta * angleDifference;
-        } else {
-            bTerm = 0.0;
-        }
+        float b = 0.45 * r2 / (r2 + 0.09);
+        bTerm = max(0.0, b * sqrt((1.0 - alpha * alpha) * (1.0 - beta * beta)) / beta * angleDifference);
 
         float diffuse = ldotn * (a + bTerm);
 
