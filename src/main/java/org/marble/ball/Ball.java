@@ -220,12 +220,10 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
 
     @Override
     public void handleContactAdded(final Physical other) {
-        log.info("Connected " + this + " to " + other);
     }
 
     @Override
     public void handleContactRemoved(final Physical other) {
-        log.info("Disconnected " + this + " from " + other);
     }
 
     @Override

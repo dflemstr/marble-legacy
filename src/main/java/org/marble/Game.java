@@ -282,18 +282,14 @@ public class Game {
 
         // XXX Test entities
         try {
-            for (final Entity entity : new LevelLoader().loadLevel(Game.class
-                    .getResource("level/core/1.level"))) {
-                addEntity(entity);
-            }
-        } catch (final ParserException e) {
-            e.printStackTrace();
-        } catch (final LevelLoadException e) {
-            e.printStackTrace();
-        } catch (final IOException e) {
+            load(new LevelLoader().loadLevel(Game.class
+                    .getResource("level/core/1.level")));
+        } catch (final Exception e) {
             e.printStackTrace();
         }
+    }
 
+    private void start() {
         final Matrix4d ballTransform = new Matrix4d();
         ballTransform.set(new Vector3d(0, 0, 8));
         final PlayerBall ball =
@@ -301,6 +297,22 @@ public class Game {
         ball.setTransform(ballTransform);
         addEntity(ball);
         track(ball.getSpatial());
+    }
+
+    public void load(final ImmutableSet<Entity> level) throws ParserException,
+            LevelLoadException, IOException {
+        clear();
+        for (final Entity entity : level) {
+            addEntity(entity);
+        }
+        start();
+    }
+
+    private void clear() {
+        for (final Entity entity : ImmutableSet.copyOf(entities)) {
+            removeEntity(entity);
+        }
+        entities.clear();
     }
 
     /**
