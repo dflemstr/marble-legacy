@@ -75,7 +75,7 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
         light.setDiffuse(color);
         light.setSpecular(saturatedColor);
         light.setEnabled(true);
-        light.setLocation(0, 0, 1);
+        light.setLocation(0, 0, 0.5f);
         graphicalLantern.setListener(new DirtyEventListener() {
             private final Vector3 lightPos = new Vector3();
 
@@ -90,7 +90,7 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
                     final DirtyType dirtyType) {
                 if (dirtyType == DirtyType.Transform) {
                     lightPos.set(graphicalLantern.getWorldTranslation());
-                    lightPos.addLocal(0, 0, 1);
+                    lightPos.addLocal(0, 0, 0.5f);
                     light.setLocation(lightPos);
                 }
                 return false;
