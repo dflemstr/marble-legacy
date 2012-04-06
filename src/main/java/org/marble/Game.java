@@ -50,6 +50,7 @@ import org.marble.graphics.SSAOPass;
 import org.marble.graphics.SmoothOrbitCamControl;
 import org.marble.level.LevelLoadException;
 import org.marble.level.LevelLoader;
+import org.marble.settings.Quality;
 import org.marble.settings.Settings;
 
 /**
@@ -236,6 +237,16 @@ public class Game {
         cameraControl.setZoomSpeed(0.001);
         cameraControl.setupMouseTriggers(inputEngine.getLogicalLayer(), true);
 
+        if (settings.ssao.getValue()) {
+            final SSAOPass ssaoRenderPass =
+                    new SSAOPass(
+                            getGraphicsEngine().getRootNode(),
+                            Quality.values().length
+                                    - settings.ssaoQuality.getValue().ordinal(),
+                            1.0, 8, 1.0, 0.1);
+            getGraphicsEngine().getPasses().add(ssaoRenderPass);
+        }
+
         if (settings.bloom.getValue()) {
             final BloomRenderPass bloomRenderPass =
                     new BloomRenderPass(getGraphicsEngine().getCanvas()
@@ -243,13 +254,6 @@ public class Game {
             bloomRenderPass.setBlurSize(0.005f);
             bloomRenderPass.setUseCurrentScene(true);
             getGraphicsEngine().getPasses().add(bloomRenderPass);
-        }
-
-        if (settings.ssao.getValue()) {
-            final SSAOPass ssaoRenderPass =
-                    new SSAOPass(getGraphicsEngine().getRootNode(), 1.0, 8,
-                            1.0, 0.1);
-            getGraphicsEngine().getPasses().add(ssaoRenderPass);
         }
 
         hud = new UIHud();
