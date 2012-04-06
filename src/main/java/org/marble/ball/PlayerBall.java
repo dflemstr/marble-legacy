@@ -50,6 +50,8 @@ public class PlayerBall extends Ball implements Interactive {
      * An action that applies the {@code inputImpulse} impulse every tick.
      */
     private class PushBallAction extends ActionInterface {
+        private final Vector3f scaledImpulse = new Vector3f();
+
         @Override
         public void debugDraw(final IDebugDraw debugDrawer) {
             // Do nothing
@@ -58,11 +60,14 @@ public class PlayerBall extends Ball implements Interactive {
         @Override
         public void updateAction(final CollisionWorld collisionWorld,
                 final float deltaTimeStep) {
+            scaledImpulse.set(inputImpulse);
+            scaledImpulse.scale(deltaTimeStep);
             PlayerBall.this.physicalSphere.activate();
-            PlayerBall.this.physicalSphere.applyCentralImpulse(inputImpulse);
+            PlayerBall.this.physicalSphere.applyCentralImpulse(scaledImpulse);
         }
-
     }
+
+    private static final double IMPULSE_MAGNITUDE = 10.0;
 
     private final ImmutableSet<InputTrigger> triggers;
 
@@ -82,10 +87,10 @@ public class PlayerBall extends Ball implements Interactive {
             final Optional<Double> mass) {
         super(kind, radius, mass);
 
-        forceNorth = new AddInputImpulse(Direction.NORTH, 1);
-        forceEast = new AddInputImpulse(Direction.EAST, 1);
-        forceSouth = new AddInputImpulse(Direction.SOUTH, 1);
-        forceWest = new AddInputImpulse(Direction.WEST, 1);
+        forceNorth = new AddInputImpulse(Direction.NORTH, IMPULSE_MAGNITUDE);
+        forceEast = new AddInputImpulse(Direction.EAST, IMPULSE_MAGNITUDE);
+        forceSouth = new AddInputImpulse(Direction.SOUTH, IMPULSE_MAGNITUDE);
+        forceWest = new AddInputImpulse(Direction.WEST, IMPULSE_MAGNITUDE);
 
         final InputTrigger upPressTrigger =
                 new InputTrigger(new KeyPressedCondition(Key.UP), forceNorth);

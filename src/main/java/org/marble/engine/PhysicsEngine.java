@@ -109,7 +109,7 @@ public class PhysicsEngine extends Engine<Physical> {
             body.setWorldTransform(worldTransform);
         }
 
-        world.stepSimulation((float) timer.getTimePerFrame());
+        world.stepSimulation((float) timer.getTimePerFrame(), 16, 1 / 60f);
         return true;
     }
 }
