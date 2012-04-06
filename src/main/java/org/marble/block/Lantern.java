@@ -46,6 +46,27 @@ import org.marble.entity.Physical;
 
 public class Lantern extends AbstractEntity implements Connected, Graphical,
         Physical, Emitter {
+    private final class LightTracker implements DirtyEventListener {
+        private final Vector3 lightPos = new Vector3();
+
+        @Override
+        public boolean spatialDirty(final Spatial spatial,
+                final DirtyType dirtyType) {
+            return false;
+        }
+
+        @Override
+        public boolean spatialClean(final Spatial spatial,
+                final DirtyType dirtyType) {
+            if (dirtyType == DirtyType.Transform) {
+                lightPos.set(graphicalLantern.getWorldTranslation());
+                lightPos.addLocal(0, 0, 0.5f);
+                light.setLocation(lightPos);
+            }
+            return false;
+        }
+    }
+
     private final Node graphicalLantern;
     private final RigidBody physicalLantern;
     private final ParticleSystem particles;
@@ -71,32 +92,12 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
         alphaColor.setAlpha(0);
 
         light = new PointLight();
-        light.setAmbient(new ColorRGBA(0.1f, 0.1f, 0.1f, 1.0f));
+        light.setAmbient(new ColorRGBA(0, 0, 0, 1));
         light.setDiffuse(color);
         light.setSpecular(saturatedColor);
         light.setEnabled(true);
         light.setLocation(0, 0, 0.5f);
-        graphicalLantern.setListener(new DirtyEventListener() {
-            private final Vector3 lightPos = new Vector3();
-
-            @Override
-            public boolean spatialDirty(final Spatial spatial,
-                    final DirtyType dirtyType) {
-                return false;
-            }
-
-            @Override
-            public boolean spatialClean(final Spatial spatial,
-                    final DirtyType dirtyType) {
-                if (dirtyType == DirtyType.Transform) {
-                    lightPos.set(graphicalLantern.getWorldTranslation());
-                    lightPos.addLocal(0, 0, 0.5f);
-                    light.setLocation(lightPos);
-                }
-                return false;
-            }
-
-        });
+        graphicalLantern.setListener(new LightTracker());
 
         particles = ParticleFactory.buildParticles("flame", 8);
         particles.setEmissionDirection(new Vector3(0, 0, 1));

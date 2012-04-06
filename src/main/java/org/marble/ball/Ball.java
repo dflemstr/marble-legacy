@@ -1,7 +1,6 @@
 package org.marble.ball;
 
 import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.vecmath.Vector3f;
 
@@ -44,7 +43,6 @@ import org.marble.util.Shaders;
  */
 public class Ball extends AbstractEntity implements Graphical, Physical,
         Collidable {
-    private static final Logger log = Logger.getLogger(Ball.class.getName());
     protected BallKind kind;
     protected final double radius;
 

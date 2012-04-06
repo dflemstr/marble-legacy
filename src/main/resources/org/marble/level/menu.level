@@ -23,9 +23,9 @@ let glassTrans  be Transformer([Glass]),
     woodTrans   be Transformer([Wood])
 
 // Create a lantern
-let lanternRed   be Lantern((1, 0, 0)),
-    lanternGreen be Lantern((0, 1, 0)),
-    lanternBlue  be Lantern((0, 0, 1))
+let lanternRed   be Lantern((0.3, 0.2, 0.1)),
+    lanternGreen be Lantern((0.3, 0.2, 0.1)),
+    lanternBlue  be Lantern((0.3, 0.2, 0.1))
 
 position slab1 at (0, 0, 0)
 connect slab2.south_middle to slab1.north_1_0,

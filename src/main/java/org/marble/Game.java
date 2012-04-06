@@ -52,6 +52,7 @@ import org.marble.level.LevelLoadException;
 import org.marble.level.LevelLoader;
 import org.marble.settings.Quality;
 import org.marble.settings.Settings;
+import org.marble.ui.Menu;
 
 /**
  * An abstracted game instance that handles a game session.
@@ -77,11 +78,27 @@ public class Game {
     // Simple tracking camera system.
     private OrbitCamControl cameraControl;
 
+    // The 2D input layer
     private UIHud hud;
+
+    // The main menu
     private Menu menu;
 
-    boolean showMenu = true;
+    /**
+     * An action that toggles the visibility of the main menu.
+     */
+    private final class ToggleMenu implements TriggerAction {
+        @Override
+        public void perform(final Canvas source,
+                final TwoInputStates inputStates, final double tpf) {
+            menu.setVisible(!menu.isVisible());
+            menu.setDirty(true);
+        }
+    }
 
+    /**
+     * The run states that the game can be in.
+     */
     public enum RunState {
         /** The game is running */
         Running,
@@ -133,54 +150,11 @@ public class Game {
         entities.add(entity);
     }
 
+    /**
+     * Tells the game to restart on the next update cycle.
+     */
     public void restart() {
         runState = RunState.Restarting;
-    }
-
-    private Skybox createSkybox() {
-
-        skybox = new Skybox("skybox", 256, 256, 256);
-        skybox.addController(new SpatialController<Skybox>() {
-
-            @Override
-            public void update(final double time, final Skybox caller) {
-                caller.setTranslation(graphicsEngine.getCanvas()
-                        .getCanvasRenderer().getCamera().getLocation());
-            }
-
-        });
-        final Quaternion rot = Quaternion.fetchTempInstance();
-        rot.fromEulerAngles(0, 0, Math.PI / 2);
-        skybox.setRotation(rot);
-        Quaternion.releaseTempInstance(rot);
-
-        final String dir = "skybox/";
-        final Texture north =
-                TextureManager.load(dir + "north.jpg",
-                        Texture.MinificationFilter.BilinearNearestMipMap, true);
-        final Texture south =
-                TextureManager.load(dir + "south.jpg",
-                        Texture.MinificationFilter.BilinearNearestMipMap, true);
-        final Texture east =
-                TextureManager.load(dir + "east.jpg",
-                        Texture.MinificationFilter.BilinearNearestMipMap, true);
-        final Texture west =
-                TextureManager.load(dir + "west.jpg",
-                        Texture.MinificationFilter.BilinearNearestMipMap, true);
-        final Texture up =
-                TextureManager.load(dir + "up.jpg",
-                        Texture.MinificationFilter.BilinearNearestMipMap, true);
-        final Texture down =
-                TextureManager.load(dir + "down.jpg",
-                        Texture.MinificationFilter.BilinearNearestMipMap, true);
-
-        skybox.setTexture(Skybox.Face.North, north);
-        skybox.setTexture(Skybox.Face.West, west);
-        skybox.setTexture(Skybox.Face.South, south);
-        skybox.setTexture(Skybox.Face.East, east);
-        skybox.setTexture(Skybox.Face.Up, up);
-        skybox.setTexture(Skybox.Face.Down, down);
-        return skybox;
     }
 
     /**
@@ -227,21 +201,84 @@ public class Game {
             engine.initialize();
         }
 
-        skybox = createSkybox();
+        setupSkybox();
+        setupCamera();
+        setupEffects();
+        setupUI();
+
+        try {
+            load(new LevelLoader().loadLevel(Game.class
+                    .getResource("level/menu.level")));
+        } catch (final Exception e) {
+            e.printStackTrace(); // TODO better error handling
+        }
+    }
+
+    private void setupSkybox() {
+        skybox = new Skybox("skybox", 256, 256, 256);
+        skybox.addController(new SpatialController<Skybox>() {
+
+            @Override
+            public void update(final double time, final Skybox caller) {
+                caller.setTranslation(graphicsEngine.getCanvas()
+                        .getCanvasRenderer().getCamera().getLocation());
+            }
+
+        });
+        final Quaternion rot = Quaternion.fetchTempInstance();
+        rot.fromEulerAngles(0, 0, Math.PI / 2);
+        skybox.setRotation(rot);
+        Quaternion.releaseTempInstance(rot);
+
+        final String dir = "skybox/";
+        final Texture north =
+                TextureManager.load(dir + "north.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture south =
+                TextureManager.load(dir + "south.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture east =
+                TextureManager.load(dir + "east.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture west =
+                TextureManager.load(dir + "west.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture up =
+                TextureManager.load(dir + "up.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture down =
+                TextureManager.load(dir + "down.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+
+        skybox.setTexture(Skybox.Face.North, north);
+        skybox.setTexture(Skybox.Face.West, west);
+        skybox.setTexture(Skybox.Face.South, south);
+        skybox.setTexture(Skybox.Face.East, east);
+        skybox.setTexture(Skybox.Face.Up, up);
+        skybox.setTexture(Skybox.Face.Down, down);
         graphicsEngine.getRootNode().attachChild(skybox);
+    }
 
+    private void setupUI() {
         UIComponent.setUseTransparency(true);
+        hud = new UIHud();
+        hud.setupInput(getGraphicsEngine().getCanvas(), getInputEngine()
+                .getPhysicalLayer(), getInputEngine().getLogicalLayer());
+        hud.setMouseManager(getInputEngine().getMouseManager());
 
-        cameraControl =
-                new SmoothOrbitCamControl(graphicsEngine.getCanvas()
-                        .getCanvasRenderer().getCamera(),
-                        graphicsEngine.getRootNode(), 8);
-        cameraControl.setWorldUpVec(new Vector3(0, 0, 1));
-        cameraControl.setSphereCoords(10, -90 * MathUtils.DEG_TO_RAD,
-                30 * MathUtils.DEG_TO_RAD);
-        cameraControl.setZoomSpeed(0.001);
-        cameraControl.setupMouseTriggers(inputEngine.getLogicalLayer(), true);
+        final RenderPass hudPass = new RenderPass();
+        hudPass.add(hud);
+        getGraphicsEngine().getPasses().add(hudPass);
 
+        menu = new Menu(this);
+        hud.add(menu);
+
+        inputEngine.getLogicalLayer().registerTrigger(
+                new InputTrigger(new KeyPressedCondition(Key.ESCAPE),
+                        new ToggleMenu()));
+    }
+
+    private void setupEffects() {
         if (settings.ssao.getValue()) {
             final SSAOPass ssaoRenderPass =
                     new SSAOPass(
@@ -260,38 +297,18 @@ public class Game {
             bloomRenderPass.setUseCurrentScene(true);
             getGraphicsEngine().getPasses().add(bloomRenderPass);
         }
+    }
 
-        hud = new UIHud();
-        hud.setupInput(getGraphicsEngine().getCanvas(), getInputEngine()
-                .getPhysicalLayer(), getInputEngine().getLogicalLayer());
-        hud.setMouseManager(getInputEngine().getMouseManager());
-
-        final RenderPass hudPass = new RenderPass();
-        hudPass.add(hud);
-        getGraphicsEngine().getPasses().add(hudPass);
-
-        menu = new Menu(this, hud);
-
-        inputEngine.getLogicalLayer().registerTrigger(
-                new InputTrigger(new KeyPressedCondition(Key.ESCAPE),
-                        new TriggerAction() {
-
-                            @Override
-                            public void perform(final Canvas source,
-                                    final TwoInputStates inputStates,
-                                    final double tpf) {
-                                menu.getFrame().setVisible(
-                                        !menu.getFrame().isVisible());
-                            }
-                        }));
-
-        // XXX Test entities
-        try {
-            load(new LevelLoader().loadLevel(Game.class
-                    .getResource("level/core/1.level")));
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }
+    private void setupCamera() {
+        cameraControl =
+                new SmoothOrbitCamControl(graphicsEngine.getCanvas()
+                        .getCanvasRenderer().getCamera(),
+                        graphicsEngine.getRootNode(), 8);
+        cameraControl.setWorldUpVec(new Vector3(0, 0, 1));
+        cameraControl.setSphereCoords(10, -90 * MathUtils.DEG_TO_RAD,
+                30 * MathUtils.DEG_TO_RAD);
+        cameraControl.setZoomSpeed(0.001);
+        cameraControl.setupMouseTriggers(inputEngine.getLogicalLayer(), true);
     }
 
     private void start() {

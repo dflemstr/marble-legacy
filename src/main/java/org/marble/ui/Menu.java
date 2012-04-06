@@ -1,4 +1,4 @@
-package org.marble;
+package org.marble.ui;
 
 import java.awt.DisplayMode;
 import java.awt.GraphicsEnvironment;
@@ -11,7 +11,6 @@ import java.util.StringTokenizer;
 import com.ardor3d.extension.ui.UIButton;
 import com.ardor3d.extension.ui.UIComboBox;
 import com.ardor3d.extension.ui.UIFrame;
-import com.ardor3d.extension.ui.UIHud;
 import com.ardor3d.extension.ui.UILabel;
 import com.ardor3d.extension.ui.UIPanel;
 import com.ardor3d.extension.ui.UITabbedPane;
@@ -31,40 +30,43 @@ import com.google.common.collect.ImmutableSet;
 
 import org.json.JSONException;
 
+import org.marble.Game;
 import org.marble.entity.Entity;
 import org.marble.level.LevelLoader;
 import org.marble.level.MetaLevel;
 import org.marble.level.MetaLevelPack;
 
-public class Menu {
-    private final UIFrame frame;
+public class Menu extends UIFrame {
+    private final class RestartGame implements ActionListener {
+        @Override
+        public void actionPerformed(final ActionEvent arg0) {
+            game.restart();
+        }
+    }
 
     private final Game game;
 
-    public UIFrame getFrame() {
-        return frame;
-    }
-
-    public Menu(final Game game, final UIHud hud) {
+    public Menu(final Game game) {
+        super("Main menu");
         this.game = game;
         final UIPanel widget = makeWidgetPanel();
         final UIPanel settings = makeSettingsPanel();
         final UIPanel levels = makeLevelsPanel();
+
         final UITabbedPane pane = new UITabbedPane(TabPlacement.NORTH);
         pane.add(widget, "widget");
         pane.add(levels, "levels");
         pane.add(settings, "settings");
-        frame = new UIFrame("Main menu");
-        frame.setContentPanel(pane);
-        frame.updateMinimumSizeFromContents();
-        frame.layout();
-        frame.pack();
-        frame.setUseStandin(true);
-        frame.setOpacity(1f);
-        frame.setName("sample");
-        frame.setLocationRelativeTo(game.getGraphicsEngine().getCanvas()
+
+        setContentPanel(pane);
+        updateMinimumSizeFromContents();
+        layout();
+        pack();
+        setUseStandin(true);
+        setOpacity(1f);
+        setName("sample");
+        setLocationRelativeTo(game.getGraphicsEngine().getCanvas()
                 .getCanvasRenderer().getCamera());
-        hud.add(frame);
     }
 
     private UIPanel makeWidgetPanel() {
@@ -74,14 +76,7 @@ public class Menu {
         panel.setLayout(new BorderLayout());
 
         final UIButton button = new UIButton("Restart");
-        button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent arg0) {
-                game.restart();
-
-            }
-        });
+        button.addActionListener(new RestartGame());
         button.setGap(10);
         button.setLayoutData(BorderLayoutData.NORTH);
         button.setTooltipText("Restart the game");
