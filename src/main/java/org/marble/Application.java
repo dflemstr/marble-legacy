@@ -88,8 +88,8 @@ public class Application implements Runnable, Scene, Updater {
         // We can support multiple renderers via this mechanism.
         // Currently, we only support LWJGL, but new renderers can easily be
         // added via this enum.
-        final RendererImpl rendererImpl = settings.rendererImpl.getValue();
-        final RendererImpl.Factory rendererFactory = rendererImpl.getFactory();
+        final RendererFactory rendererFactory =
+                settings.rendererImpl.getValue();
 
         // Use the factory to create all of the renderer-provided classes that
         // we need.
