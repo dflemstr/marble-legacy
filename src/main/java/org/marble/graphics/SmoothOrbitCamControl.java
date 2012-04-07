@@ -6,12 +6,15 @@ import com.ardor3d.math.type.ReadOnlyVector3;
 import com.ardor3d.renderer.Camera;
 import com.ardor3d.scenegraph.Spatial;
 
+import org.marble.util.DoubleRingBuffer;
+
 /**
  * An orbiting camera control that performs linear smoothing to make eased
  * transitions.
  */
 public class SmoothOrbitCamControl extends OrbitCamControl {
     private final double trackSpeed;
+    private final DoubleRingBuffer timeBuffer = new DoubleRingBuffer(64);
 
     public SmoothOrbitCamControl(final Camera cam,
             final ReadOnlyVector3 target, final double trackSpeed) {
@@ -26,8 +29,10 @@ public class SmoothOrbitCamControl extends OrbitCamControl {
     }
 
     @Override
-    public void update(final double time) {
+    public void update(final double varyingTime) {
         updateTargetPos();
+        timeBuffer.insert(varyingTime);
+        final double time = timeBuffer.getAverage();
 
         if (!_dirty)
             return;
@@ -48,7 +53,7 @@ public class SmoothOrbitCamControl extends OrbitCamControl {
          */
 
         _camPosition.subtractLocal(_camera.getLocation());
-        _camPosition.multiplyLocal(MathUtils.clamp(trackSpeed * time, 0, 1));
+        _camPosition.multiplyLocal(trackSpeed * time);
         _camPosition.addLocal(_camera.getLocation());
         _camera.setLocation(_camPosition);
 
