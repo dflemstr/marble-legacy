@@ -65,6 +65,7 @@ public class Game {
     // Handles physics simulations.
     private final PhysicsEngine physicsEngine;
 
+    // Stores settings that are immediately persisted when changed
     private final Settings settings;
 
     // Entities that are present in our world.
@@ -73,6 +74,7 @@ public class Game {
     // Engines to handle.
     private final ImmutableSet<Engine<?>> engines;
 
+    // The skybox
     private Skybox skybox;
 
     // Simple tracking camera system.
@@ -130,8 +132,8 @@ public class Game {
         physicsEngine = new PhysicsEngine();
 
         engines =
-                ImmutableSet.of((Engine<?>) graphicsEngine,
-                        (Engine<?>) inputEngine, (Engine<?>) physicsEngine);
+                ImmutableSet.<Engine<?>> of(graphicsEngine, inputEngine,
+                        physicsEngine);
     }
 
     /**

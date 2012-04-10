@@ -46,10 +46,20 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     protected BallKind kind;
     protected final double radius;
 
+    // The actual node that is transformed with our entity and body
     protected final Node centerNode;
+
+    // A node whose sub-nodes should make out the actual ball part of the
+    // geometrical nodes. The sub-nodes will be changed and/or added/removed
+    // when the ball material changes.
     protected final Node ballNode;
+
     protected final RigidBody physicalSphere;
+
+    // Our scene's root node
     private Spatial rootNode;
+
+    // How large (2^n) we will let our generated textures be.
     private int textureSizeMagnitude;
 
     private final TextureState ts = new TextureState();
@@ -125,6 +135,9 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     @Override
     public void initialize(final Game game) {
         rootNode = game.getGraphicsEngine().getRootNode();
+
+        // The lowest texture setting makes textures be 16x16; the size is
+        // doubled for each step
         textureSizeMagnitude =
                 game.getSettings().environmentQuality.getValue().ordinal() + 4;
 
@@ -149,16 +162,25 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
             wood.setUniform("woodGradient", 0);
 
             final Vector3 vec = Vector3.fetchTempInstance();
+
+            // The trunkCenter vectors define a line that is the center of the
+            // trunk that our wood was cut from - all the "rings" will be around
+            // this axis.
             randomize(vec);
             wood.setUniform("trunkCenter1", vec);
 
             randomize(vec);
             wood.setUniform("trunkCenter2", vec);
 
+            // The noiseSeed vector seeds the random noise generator. The
+            // generator has a period of 289.
             randomize(vec);
             vec.multiplyLocal(289);
             wood.setUniform("noiseSeed", vec);
 
+            // The variation is a value between 0.0 and 1.0 that determines
+            // which column of the wood gradient texture that is used for
+            // tinting the material.
             wood.setUniform("variation", (float) Math.random());
 
             Vector3.releaseTempInstance(vec);

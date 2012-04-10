@@ -10,7 +10,7 @@ import org.marble.entity.Entity;
  * @param <E>
  *            The entity trait to handle.
  */
-public abstract class Engine<E> {
+public abstract class Engine<E extends Entity> {
     private final Class<E> entityType;
 
     protected Engine(final Class<E> entityType) {

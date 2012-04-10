@@ -28,7 +28,7 @@ import org.marble.util.Direction;
  */
 public class PlayerBall extends Ball implements Interactive {
     /**
-     * Alters the {@code inputImpulse} on activation.
+     * Alters the {@code inputForce} on activation.
      */
     private class AddInputForce implements TriggerAction {
         private final Vector3f addedForce = new Vector3f();
@@ -47,7 +47,7 @@ public class PlayerBall extends Ball implements Interactive {
     }
 
     /**
-     * An action that applies the {@code inputImpulse} impulse every tick.
+     * An action that applies the {@code inputForce} force every tick.
      */
     private class PushBallAction extends ActionInterface {
 

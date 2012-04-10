@@ -34,6 +34,7 @@ import org.marble.settings.Settings;
  */
 public class Application implements Runnable, Scene, Updater {
 
+    // Should we restart the application the next time we exit?
     private static boolean shouldRestart;
 
     /**
