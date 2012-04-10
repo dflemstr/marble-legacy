@@ -20,7 +20,7 @@ import com.google.common.collect.Maps;
 
 import org.marble.entity.Emitter;
 import org.marble.entity.Graphical;
-import org.marble.graphics.EntityController;
+import org.marble.graphics.scene.EntityController;
 
 /**
  * The Ardor3D-based graphics engine.

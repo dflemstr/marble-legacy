@@ -1,10 +1,8 @@
-package org.marble.graphics;
+package org.marble.graphics.pass;
 
 import com.ardor3d.framework.DisplaySettings;
 import com.ardor3d.image.Texture;
-import com.ardor3d.image.Texture.WrapMode;
 import com.ardor3d.image.Texture2D;
-import com.ardor3d.image.TextureStoreFormat;
 import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.Vector2;
 import com.ardor3d.math.Vector3;
@@ -16,24 +14,18 @@ import com.ardor3d.renderer.TextureRendererFactory;
 import com.ardor3d.renderer.pass.Pass;
 import com.ardor3d.renderer.queue.RenderBucketType;
 import com.ardor3d.renderer.state.BlendState;
-import com.ardor3d.renderer.state.ClipState;
-import com.ardor3d.renderer.state.CullState;
 import com.ardor3d.renderer.state.GLSLShaderObjectsState;
-import com.ardor3d.renderer.state.LightState;
 import com.ardor3d.renderer.state.RenderState.StateType;
 import com.ardor3d.renderer.state.TextureState;
 import com.ardor3d.scenegraph.Renderable;
-import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.hint.CullHint;
 import com.ardor3d.scenegraph.shape.Quad;
-import com.ardor3d.util.TextureManager;
 
 import org.marble.util.Shaders;
 
 public class SSAOPass extends Pass {
     private static final long serialVersionUID = -2297868571357545271L;
 
-    private final Spatial rootNode;
     private final int downsamples;
     private final double sampleRadius;
     private final double intensity;
@@ -41,16 +33,12 @@ public class SSAOPass extends Pass {
     private final double bias;
 
     private TextureRenderer ssaoRenderer;
-    private TextureRenderer normalRenderer;
     private Quad fullScreenQuad;
 
-    private final Texture2D normalTexture;
-    private final Texture randomTexture;
     private final Texture2D ssaoTexture;
     private final TextureState ssaoTextureState;
     private final TextureState blurTextureState;
     private final BlendState blurBlendState;
-    private final GLSLShaderObjectsState normalShader;
     private final GLSLShaderObjectsState ssaoShader;
     private final GLSLShaderObjectsState blurShader;
 
@@ -61,31 +49,14 @@ public class SSAOPass extends Pass {
     private final Vector2 resolution = new Vector2();
     private final Vector2 blurScale = new Vector2();
 
-    private final TextureState emptyTexture;
-    private final ClipState emptyClip;
-    private final CullState cullBackFace;
-    private final LightState emptyLights;
-
-    public SSAOPass(final Spatial rootNode, final int downsamples,
+    public SSAOPass(final Texture2D normalDepthTexture, final int downsamples,
             final double sampleRadius, final double intensity,
             final double scale, final double bias) {
-        this.rootNode = rootNode;
         this.downsamples = downsamples;
         this.sampleRadius = sampleRadius;
         this.intensity = intensity;
         this.scale = scale;
         this.bias = bias;
-
-        normalTexture = new Texture2D();
-        normalTexture.setTextureStoreFormat(TextureStoreFormat.RGBA16);
-        normalTexture.setWrap(Texture.WrapMode.Clamp);
-        normalTexture
-                .setMagnificationFilter(Texture.MagnificationFilter.Bilinear);
-
-        randomTexture =
-                TextureManager.load("random.png",
-                        Texture.MinificationFilter.BilinearNoMipMaps, false);
-        randomTexture.setWrap(WrapMode.Repeat);
 
         ssaoTexture = new Texture2D();
         ssaoTexture.setWrap(Texture.WrapMode.Clamp);
@@ -93,27 +64,13 @@ public class SSAOPass extends Pass {
                 .setMagnificationFilter(Texture.MagnificationFilter.Bilinear);
 
         ssaoTextureState = new TextureState();
-        ssaoTextureState.setTexture(normalTexture, 0);
-        ssaoTextureState.setTexture(randomTexture, 1);
+        ssaoTextureState.setTexture(normalDepthTexture, 0);
         ssaoTextureState.setEnabled(true);
 
         blurTextureState = new TextureState();
         blurTextureState.setTexture(ssaoTexture, 0);
-        blurTextureState.setTexture(normalTexture, 1);
+        blurTextureState.setTexture(normalDepthTexture, 1);
         blurTextureState.setEnabled(true);
-
-        emptyClip = new ClipState();
-        emptyClip.setEnabled(false);
-
-        emptyTexture = new TextureState();
-        emptyTexture.setEnabled(false);
-
-        cullBackFace = new CullState();
-        cullBackFace.setCullFace(CullState.Face.Back);
-        cullBackFace.setEnabled(true);
-
-        emptyLights = new LightState();
-        emptyLights.setEnabled(false);
 
         blurBlendState = new BlendState();
         blurBlendState.setBlendEnabled(true);
@@ -122,15 +79,12 @@ public class SSAOPass extends Pass {
                 .setDestinationFunction(BlendState.DestinationFunction.SourceColor);
         blurBlendState.setEnabled(true);
 
-        normalShader = Shaders.loadShader("normal");
-
         ssaoShader = Shaders.loadShader("ssao");
-        ssaoShader.setUniform("normals", 0);
-        ssaoShader.setUniform("randoms", 1);
+        ssaoShader.setUniform("normalDepths", 0);
 
         blurShader = Shaders.loadShader("ssao-blur");
         blurShader.setUniform("ssao", 0);
-        blurShader.setUniform("normals", 1);
+        blurShader.setUniform("normalDepths", 1);
     }
 
     private void ensurePassRenderer(final Renderer r) {
@@ -147,20 +101,6 @@ public class SSAOPass extends Pass {
             ssaoRenderer.setBackgroundColor(new ColorRGBA(0.0f, 0.0f, 0.0f,
                     0.0f));
             ssaoRenderer.setupTexture(ssaoTexture);
-        }
-        if (normalRenderer == null) {
-            final Camera cam = Camera.getCurrentCamera();
-            normalRenderer =
-                    TextureRendererFactory.INSTANCE.createTextureRenderer(cam
-                            .getWidth(), cam.getHeight(), r, ContextManager
-                            .getCurrentContext().getCapabilities());
-            normalRenderer.setBackgroundColor(new ColorRGBA(0.0f, 0.0f, 0.0f,
-                    0.0f));
-            normalRenderer.getCamera().setFrustum(cam.getFrustumNear(),
-                    cam.getFrustumFar(), cam.getFrustumLeft(),
-                    cam.getFrustumRight(), cam.getFrustumTop(),
-                    cam.getFrustumBottom());
-            normalRenderer.setupTexture(normalTexture);
         }
         if (fullScreenQuad == null) {
             final Camera cam = Camera.getCurrentCamera();
@@ -184,20 +124,12 @@ public class SSAOPass extends Pass {
         if (ssaoRenderer != null) {
             ssaoRenderer.cleanup();
         }
-        if (normalRenderer != null) {
-            normalRenderer.cleanup();
-        }
     }
 
     @Override
     protected void doRender(final Renderer r) {
         ensurePassRenderer(r);
         final Camera cam = Camera.getCurrentCamera();
-
-        normalRenderer.getCamera().setLocation(cam.getLocation());
-        normalRenderer.getCamera().setDirection(cam.getDirection());
-        normalRenderer.getCamera().setUp(cam.getUp());
-        normalRenderer.getCamera().setLeft(cam.getLeft());
 
         final double farY =
                 (cam.getFrustumTop() / cam.getFrustumNear())
@@ -209,15 +141,6 @@ public class SSAOPass extends Pass {
         resolution.set(cam.getWidth(), cam.getHeight());
 
         blurScale.set(1.5 / cam.getWidth(), 1.5 / cam.getHeight());
-
-        normalRenderer.enforceState(emptyTexture);
-        normalRenderer.enforceState(emptyClip);
-        normalRenderer.enforceState(cullBackFace);
-        normalRenderer.enforceState(emptyLights);
-        normalRenderer.enforceState(normalShader);
-        normalRenderer.render(rootNode, normalTexture,
-                Renderer.BUFFER_COLOR_AND_DEPTH);
-        normalRenderer.clearEnforcedStates();
 
         ssaoShader.setUniform("resolution", resolution);
         ssaoShader.setUniform("frustumCorner", frustumCorner);
@@ -250,6 +173,5 @@ public class SSAOPass extends Pass {
         fullScreenQuad.updateWorldRenderStates(false);
 
         r.draw((Renderable) fullScreenQuad);
-
     }
 }

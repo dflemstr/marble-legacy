@@ -1,5 +1,5 @@
-uniform sampler2D normals;
-uniform sampler2D randoms;
+#version 120
+uniform sampler2D normalDepths;
 uniform vec2 resolution;
 uniform float frustumNear;
 uniform float frustumFar;
@@ -16,7 +16,7 @@ varying vec2 coord;
 float depthv;
 
 vec3 getPosition(vec2 uv) {
-    depthv = texture2D(normals, uv).a;
+    depthv = texture2D(normalDepths, uv).a;
     float depth = (2.0 * frustumNear) / (frustumFar + frustumNear - depthv * (frustumFar - frustumNear));
     float x = mix(-frustumCorner.x, frustumCorner.x, uv.x);
     float y = mix(-frustumCorner.y, frustumCorner.y, uv.y);
@@ -24,11 +24,17 @@ vec3 getPosition(vec2 uv) {
 }
 
 vec3 getNormal(vec2 uv) {
-    return normalize(texture2D(normals, uv).xyz * 2.0 - 1.0);
+    return normalize(texture2D(normalDepths, uv).xyz * 2.0 - 1.0);
+}
+
+vec2 rand(vec2 coord) {
+    float noiseX = clamp(fract(sin(dot(coord, vec2(12.9898, 78.233)      )) * 43758.5453), 0.0, 1.0) * 2.0 - 1.0;
+    float noiseY = clamp(fract(sin(dot(coord, vec2(12.9898, 78.233) * 2.0)) * 43758.5453), 0.0, 1.0) * 2.0 - 1.0;
+    return vec2(noiseX, noiseY);
 }
 
 vec2 getRandom(vec2 uv) {
-    return normalize(texture2D(randoms, uv * resolution / 128.0).xy * 2.0 - 1.0);
+    return normalize(rand(uv));
 }
 
 float doAmbientOcclusion(vec2 uv, vec3 pos, vec3 norm) {

@@ -34,8 +34,8 @@ import org.marble.entity.Collidable;
 import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
 import org.marble.graphics.ChromaticAberrationNode;
-import org.marble.graphics.LightDataLogic;
 import org.marble.graphics.ReflectionNode;
+import org.marble.graphics.shader.LightDataLogic;
 import org.marble.util.Shaders;
 
 /**

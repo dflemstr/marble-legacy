@@ -1,4 +1,6 @@
 
+uniform bool blendEnabled;
+
 varying vec3 normal;
 
 void main(void) {

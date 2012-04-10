@@ -21,6 +21,9 @@ import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.hint.CullHint;
 
+import org.marble.graphics.scene.PreparedDrawing;
+import org.marble.graphics.shader.WorldSpaceDataLogic;
+
 /**
  * A graphical node that manages a shader, which applies a material dependent on
  * a cube map environment. This node takes care of rendering that cube map

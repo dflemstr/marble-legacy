@@ -1,4 +1,4 @@
-package org.marble.graphics;
+package org.marble.graphics.scene;
 
 import javax.vecmath.Matrix4d;
 

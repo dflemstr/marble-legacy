@@ -1,4 +1,4 @@
-package org.marble.graphics;
+package org.marble.graphics.shader;
 
 import com.ardor3d.renderer.ContextManager;
 import com.ardor3d.renderer.RenderContext;

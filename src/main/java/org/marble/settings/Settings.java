@@ -47,6 +47,8 @@ public class Settings {
             true);
     public final Entry<Quality> ssaoQuality = new EnumEntry<Quality>(prefs,
             "graphics/ssao_quality", Quality.High, Quality.class);
+    public final Entry<Boolean> dof = new BooleanEntry(prefs, "graphics/dof",
+            true);
     public final Entry<Boolean> musicEnabled = new BooleanEntry(prefs,
             "audio/music/enabled", true);
     public final Entry<Boolean> soundEffectsEnabled = new BooleanEntry(prefs,

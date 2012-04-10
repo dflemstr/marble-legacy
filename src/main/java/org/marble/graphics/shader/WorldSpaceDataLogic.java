@@ -1,4 +1,4 @@
-package org.marble.graphics;
+package org.marble.graphics.shader;
 
 import com.ardor3d.math.Matrix4;
 import com.ardor3d.renderer.Camera;
@@ -10,7 +10,7 @@ import com.ardor3d.scenegraph.Mesh;
  * Data logic that provides a shader with information about the current camera
  * position, and the model matrix that is being used for rendering.
  */
-final class WorldSpaceDataLogic extends LightDataLogic {
+public final class WorldSpaceDataLogic extends LightDataLogic {
     @Override
     public void applyData(final GLSLShaderObjectsState shader, final Mesh mesh,
             final Renderer renderer) {

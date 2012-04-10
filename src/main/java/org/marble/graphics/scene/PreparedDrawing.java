@@ -1,4 +1,4 @@
-package org.marble.graphics;
+package org.marble.graphics.scene;
 
 import com.ardor3d.renderer.Renderer;
 

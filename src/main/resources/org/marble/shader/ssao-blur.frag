@@ -1,7 +1,7 @@
 const float epsilon = 0.005;
 
 uniform sampler2D ssao;
-uniform sampler2D normals;
+uniform sampler2D normalDepths;
 uniform float frustumNear;
 uniform float frustumFar;
 uniform vec2 scale;
@@ -9,7 +9,7 @@ uniform vec2 scale;
 varying vec2 coord;
 
 float readDepth(vec2 uv) {
-    float depthv = texture2D(normals, uv).a;
+    float depthv = texture2D(normalDepths, uv).a;
     return (2.0 * frustumNear) / (frustumFar + frustumNear - depthv * (frustumFar - frustumNear));
 }
 

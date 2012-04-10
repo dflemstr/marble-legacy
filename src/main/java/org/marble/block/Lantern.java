@@ -22,8 +22,6 @@ import com.ardor3d.renderer.state.TextureState;
 import com.ardor3d.renderer.state.ZBufferState;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.scenegraph.event.DirtyEventListener;
-import com.ardor3d.scenegraph.event.DirtyType;
 import com.ardor3d.util.TextureManager;
 
 import com.bulletphysics.collision.shapes.BoxShape;
@@ -43,30 +41,10 @@ import org.marble.entity.Connector;
 import org.marble.entity.Emitter;
 import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
+import org.marble.graphics.scene.LightMover;
 
 public class Lantern extends AbstractEntity implements Connected, Graphical,
         Physical, Emitter {
-    private final class LightTracker implements DirtyEventListener {
-        private final Vector3 lightPos = new Vector3();
-
-        @Override
-        public boolean spatialDirty(final Spatial spatial,
-                final DirtyType dirtyType) {
-            return false;
-        }
-
-        @Override
-        public boolean spatialClean(final Spatial spatial,
-                final DirtyType dirtyType) {
-            if (dirtyType == DirtyType.Transform) {
-                lightPos.set(graphicalLantern.getWorldTranslation());
-                lightPos.addLocal(0, 0, 0.5f);
-                light.setLocation(lightPos);
-            }
-            return false;
-        }
-    }
-
     private final Node graphicalLantern;
     private final RigidBody physicalLantern;
     private final ParticleSystem particles;
@@ -92,12 +70,18 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
         alphaColor.setAlpha(0);
 
         light = new PointLight();
-        light.setAmbient(new ColorRGBA(0, 0, 0, 1));
+        light.setAmbient(ColorRGBA.BLACK);
         light.setDiffuse(color);
         light.setSpecular(saturatedColor);
         light.setEnabled(true);
         light.setLocation(0, 0, 0.5f);
-        graphicalLantern.setListener(new LightTracker());
+
+        final LightMover mover = new LightMover(graphicalLantern, light);
+        final Vector3 offset = Vector3.fetchTempInstance();
+        offset.set(0, 0, 0.5);
+        mover.setLightOffset(offset);
+        Vector3.releaseTempInstance(offset);
+        graphicalLantern.setListener(mover);
 
         particles = ParticleFactory.buildParticles("flame", 8);
         particles.setEmissionDirection(new Vector3(0, 0, 1));

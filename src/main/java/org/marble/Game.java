@@ -12,6 +12,7 @@ import com.ardor3d.extension.ui.UIHud;
 import com.ardor3d.framework.Canvas;
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.image.Texture;
+import com.ardor3d.image.Texture2D;
 import com.ardor3d.input.Key;
 import com.ardor3d.input.MouseManager;
 import com.ardor3d.input.PhysicalLayer;
@@ -45,9 +46,11 @@ import org.marble.engine.GraphicsEngine;
 import org.marble.engine.InputEngine;
 import org.marble.engine.PhysicsEngine;
 import org.marble.entity.Entity;
-import org.marble.graphics.PreparedDrawingVisitor;
-import org.marble.graphics.SSAOPass;
 import org.marble.graphics.SmoothOrbitCamControl;
+import org.marble.graphics.pass.DepthOfFieldPass;
+import org.marble.graphics.pass.NormalDepthPass;
+import org.marble.graphics.pass.SSAOPass;
+import org.marble.graphics.scene.PreparedDrawingVisitor;
 import org.marble.level.LevelLoadException;
 import org.marble.level.LevelLoader;
 import org.marble.settings.Quality;
@@ -281,14 +284,26 @@ public class Game {
     }
 
     private void setupEffects() {
+        Texture2D normalDepthTexture = null;
+        if (settings.ssao.getValue() || settings.dof.getValue()) {
+            final NormalDepthPass normalDepthPass =
+                    new NormalDepthPass(getGraphicsEngine().getRootNode());
+            normalDepthTexture = normalDepthPass.getNormalDepthTexture();
+            getGraphicsEngine().getPasses().add(normalDepthPass);
+        }
+
         if (settings.ssao.getValue()) {
             final SSAOPass ssaoRenderPass =
-                    new SSAOPass(
-                            getGraphicsEngine().getRootNode(),
-                            Quality.values().length
-                                    - settings.ssaoQuality.getValue().ordinal(),
-                            1.0, 8, 1.0, 0.1);
+                    new SSAOPass(normalDepthTexture, Quality.values().length
+                            - settings.ssaoQuality.getValue().ordinal(), 1.0,
+                            8, 1.0, 0.1);
             getGraphicsEngine().getPasses().add(ssaoRenderPass);
+        }
+
+        if (settings.dof.getValue()) {
+            final DepthOfFieldPass depthOfFieldPass =
+                    new DepthOfFieldPass(normalDepthTexture, 30, 1.4);
+            getGraphicsEngine().getPasses().add(depthOfFieldPass);
         }
 
         if (settings.bloom.getValue()) {

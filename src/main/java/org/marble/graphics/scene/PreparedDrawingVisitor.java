@@ -1,8 +1,9 @@
-package org.marble.graphics;
+package org.marble.graphics.scene;
 
 import com.ardor3d.renderer.Renderer;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.visitor.Visitor;
+
 
 public class PreparedDrawingVisitor implements Visitor {
     private final Renderer renderer;
