@@ -113,8 +113,6 @@ public class Game {
     }
 
     private RunState runState;
-    private double counter;
-    private int frames;
 
     /**
      * Creates a new game instance.
@@ -393,15 +391,8 @@ public class Game {
         hud.updateGeometricState(timer.getTimePerFrame());
         cameraControl.update(timer.getTimePerFrame());
 
-        counter += timer.getTimePerFrame();
-        frames++;
-        if (counter > 1) {
-            final double spf = counter / frames;
-            final double fps = frames / counter;
-            counter -= 1;
-            frames = 0;
-            System.out.printf("%9.3f SPF%9.3f FPS%n", spf, fps);
-        }
+        System.out.printf("%9.3f SPF%9.3f FPS%n", timer.getTimePerFrame(),
+                timer.getFrameRate());
 
         for (final Engine<?> engine : engines) {
             shouldContinue &= engine.update(timer);
