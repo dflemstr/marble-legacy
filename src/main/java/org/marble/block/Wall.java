@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.marble.block;
 
 import java.util.Map;
@@ -27,9 +24,6 @@ import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
 import org.marble.util.Connectors;
 
-/**
- * 
- */
 public class Wall extends AbstractEntity implements Connected, Graphical,
         Physical {
 
@@ -58,11 +52,6 @@ public class Wall extends AbstractEntity implements Connected, Graphical,
         physicalBox = new RigidBody(info);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.marble.entity.Graphical#getSpatial()
-     */
     @Override
     public Spatial getSpatial() {
         return graphicalBox;
@@ -73,11 +62,6 @@ public class Wall extends AbstractEntity implements Connected, Graphical,
         return physicalBox;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.marble.entity.Connected#getConnectors()
-     */
     @Override
     public Map<String, Connector> getConnectors() {
         return Connectors.fromBox(width, height, depth);
