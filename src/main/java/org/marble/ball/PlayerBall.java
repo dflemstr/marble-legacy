@@ -16,7 +16,6 @@ import com.bulletphysics.collision.dispatch.CollisionWorld;
 import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.linearmath.IDebugDraw;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
@@ -80,9 +79,8 @@ public class PlayerBall extends Ball implements Interactive {
      * @param mass
      *            The base mass of the ball.
      */
-    public PlayerBall(final BallKind kind, final double radius,
-            final Optional<Double> mass) {
-        super(kind, radius, mass);
+    public PlayerBall(final BallKind kind, final double radius) {
+        super(kind, radius);
 
         forceNorth = new AddInputForce(Direction.NORTH, FORCE_MAGNITUDE);
         forceEast = new AddInputForce(Direction.EAST, FORCE_MAGNITUDE);
@@ -120,19 +118,7 @@ public class PlayerBall extends Ball implements Interactive {
      *            The radius of the ball.
      */
     public PlayerBall(final String kind, final double radius) {
-        this(BallKind.valueOf(kind), radius, Optional.<Double> absent());
-    }
-
-    /**
-     * Creates a new player-controlled ball.
-     * 
-     * @param radius
-     *            The radius of the ball.
-     * @param mass
-     *            The base mass of the ball.
-     */
-    public PlayerBall(final String kind, final double radius, final double mass) {
-        this(BallKind.valueOf(kind), radius, Optional.of(mass));
+        this(BallKind.valueOf(kind), radius);
     }
 
     @Override

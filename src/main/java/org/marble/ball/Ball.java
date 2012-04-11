@@ -25,7 +25,6 @@ import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.DefaultMotionState;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
 import org.marble.Game;
@@ -64,17 +63,23 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
 
     private final TextureState ts = new TextureState();
     private final BlendState bs = new BlendState();
+    private final CollisionShape geometricalSphere;
+    private final Vector3f inertia;
+
+    /**
+     * Creates a new ball.
+     */
+    public Ball(final BallKind kind) {
+        this(kind, 0.5);
+    }
 
     /**
      * Creates a new ball.
      * 
      * @param radius
      *            The radius.
-     * @param mass
-     *            The base mass.
      */
-    public Ball(final BallKind kind, final double radius,
-            final Optional<Double> mass) {
+    public Ball(final BallKind kind, final double radius) {
         this.kind = kind;
         this.radius = radius;
 
@@ -88,14 +93,13 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         bs.setEnabled(true);
         bs.setBlendEnabled(true);
 
-        final CollisionShape geometricalSphere =
-                new SphereShape((float) radius);
-        final Vector3f inertia = new Vector3f(0, 0, 0);
-        geometricalSphere.calculateLocalInertia((float) (double) mass.or(0.0),
-                inertia);
+        geometricalSphere = new SphereShape((float) radius);
+        inertia = new Vector3f(0, 0, 0);
+        geometricalSphere
+                .calculateLocalInertia((float) kind.getMass(), inertia);
 
         final RigidBodyConstructionInfo info =
-                new RigidBodyConstructionInfo((float) (double) mass.or(0.0),
+                new RigidBodyConstructionInfo((float) kind.getMass(),
                         new DefaultMotionState(), geometricalSphere, inertia);
         physicalSphere = new RigidBody(info);
     }
@@ -107,19 +111,14 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
      *            The radius.
      */
     public Ball(final String kind, final double radius) {
-        this(BallKind.valueOf(kind), radius, Optional.<Double> absent());
+        this(BallKind.valueOf(kind), radius);
     }
 
     /**
      * Creates a new ball.
-     * 
-     * @param radius
-     *            The radius.
-     * @param mass
-     *            The base mass.
      */
-    public Ball(final String kind, final double radius, final double mass) {
-        this(BallKind.valueOf(kind), radius, Optional.of(mass));
+    public Ball(final String kind) {
+        this(BallKind.valueOf(kind));
     }
 
     @Override
@@ -220,6 +219,11 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
             break;
         }
         ballNode.updateGeometricState(0);
+
+        geometricalSphere
+                .calculateLocalInertia((float) kind.getMass(), inertia);
+        physicalSphere.setMassProps((float) kind.getMass(), inertia);
+
         this.kind = kind;
     }
 

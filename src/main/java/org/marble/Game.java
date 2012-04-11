@@ -33,7 +33,6 @@ import com.ardor3d.scenegraph.extension.Skybox;
 import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.TextureManager;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
@@ -331,8 +330,7 @@ public class Game {
     private void start() {
         final Matrix4d ballTransform = new Matrix4d();
         ballTransform.set(new Vector3d(0, 0, 8));
-        final PlayerBall ball =
-                new PlayerBall(BallKind.Wood, 0.5, Optional.of(5.0));
+        final PlayerBall ball = new PlayerBall(BallKind.Wood, 0.5);
         ball.setTransform(ballTransform);
         addEntity(ball);
         track(ball.getSpatial());
