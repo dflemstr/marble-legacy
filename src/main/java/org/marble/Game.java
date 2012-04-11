@@ -396,10 +396,11 @@ public class Game {
         counter += timer.getTimePerFrame();
         frames++;
         if (counter > 1) {
-            final double spf = (counter / frames);
+            final double spf = counter / frames;
+            final double fps = frames / counter;
             counter -= 1;
             frames = 0;
-            System.out.printf("%9.3f SPF\n", spf);
+            System.out.printf("%9.3f SPF%9.3f FPS%n", spf, fps);
         }
 
         for (final Engine<?> engine : engines) {
