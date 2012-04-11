@@ -173,9 +173,9 @@ public class LevelParser {
     final Parser<ImmutableList<Declaration>> entityDeclarations = let
             .next(Mapper
                     .curry(Declaration.class)
-                    .sequence(INDEX, identifier.or(className),
-                            be.next(identifier), constrArgs).sepBy(comma)
-                    .map(new ListImmutabilizer<Declaration>()));
+                    .sequence(INDEX, identifier,
+                            be.next(identifier.or(className)), constrArgs)
+                    .sepBy(comma).map(new ListImmutabilizer<Declaration>()));
     // Parses "connect foo.bar to baz.shizz, bar.baz to bla.gee"
     final Parser<ImmutableList<Connection>> entityLinks = connect.next(Mapper
             .curry(Connection.class)
