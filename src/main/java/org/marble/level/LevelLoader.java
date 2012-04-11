@@ -337,7 +337,7 @@ public final class LevelLoader {
             final JSONObject levelObject = array.getJSONObject(i);
             try {
                 final String previewURIString =
-                        levelObject.optString("previewURI");
+                        levelObject.optString("previewUri");
                 final Optional<URL> previewURI =
                         previewURIString == null ? Optional.<URL> absent()
                                 : Optional
