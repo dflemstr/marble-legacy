@@ -1,7 +1,6 @@
 package org.marble.block;
 
 import java.util.Map;
-import java.util.Set;
 
 import javax.vecmath.Vector3f;
 
@@ -11,14 +10,12 @@ import com.ardor3d.scenegraph.shape.Box;
 
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.DefaultMotionState;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSet;
 
 import org.marble.entity.AbstractEntity;
 import org.marble.entity.Connected;
@@ -117,11 +114,6 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
     @Override
     public Spatial getSpatial() {
         return graphicalBox;
-    }
-
-    @Override
-    public Set<ActionInterface> getActions() {
-        return ImmutableSet.of();
     }
 
     @Override

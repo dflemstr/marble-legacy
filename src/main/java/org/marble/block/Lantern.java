@@ -26,13 +26,11 @@ import com.ardor3d.util.TextureManager;
 
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.DefaultMotionState;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 import org.marble.Game;
 import org.marble.entity.AbstractEntity;
@@ -134,11 +132,6 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
         particles.getParticleController().setViewCamera(
                 game.getGraphicsEngine().getCanvas().getCanvasRenderer()
                         .getCamera());
-    }
-
-    @Override
-    public Iterable<ActionInterface> getActions() {
-        return ImmutableSet.of();
     }
 
     @Override

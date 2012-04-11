@@ -1,7 +1,5 @@
 package org.marble.ball;
 
-import java.util.Set;
-
 import javax.vecmath.Vector3f;
 
 import com.ardor3d.image.Texture;
@@ -19,13 +17,11 @@ import com.ardor3d.util.TextureManager;
 
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.SphereShape;
-import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.DefaultMotionState;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableSet;
 
 import org.marble.Game;
 import org.marble.entity.AbstractEntity;
@@ -235,11 +231,6 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         vec.setX(Math.random());
         vec.setY(Math.random());
         vec.setZ(Math.random());
-    }
-
-    @Override
-    public Set<ActionInterface> getActions() {
-        return ImmutableSet.of();
     }
 
     @Override

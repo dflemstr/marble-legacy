@@ -12,7 +12,6 @@ import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
-import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
@@ -20,15 +19,19 @@ import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.Transform;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import org.marble.entity.Active;
 import org.marble.entity.Collidable;
 import org.marble.entity.Physical;
 import org.marble.physics.CollContactAdded;
 import org.marble.physics.CollContactDestroyed;
 import org.marble.physics.EntityMotionState;
+import org.marble.physics.Force;
 
 /**
  * The JBullet-based physics engine.
@@ -37,8 +40,10 @@ public class PhysicsEngine extends Engine<Physical> {
     private final DynamicsWorld world;
     private final Set<Physical> entities = Sets.newHashSet();
     private final Set<Pair<Physical, Physical>> contacts = Sets.newHashSet();
+    private final Multimap<RigidBody, Force> forces = HashMultimap.create();
 
     private final Transform worldTransform = new Transform();
+    private final Vector3f forceMagnitude = new Vector3f();
 
     public PhysicsEngine() {
         super(Physical.class);
@@ -77,18 +82,22 @@ public class PhysicsEngine extends Engine<Physical> {
             body.setCollisionFlags(CollisionFlags.CUSTOM_MATERIAL_CALLBACK);
         }
 
-        world.addRigidBody(body);
-        for (final ActionInterface action : entity.getActions()) {
-            world.addAction(action);
+        if (entity instanceof Active) {
+            for (final Force force : ((Active) entity).getForces()) {
+                forces.put(body, force);
+            }
         }
+
+        world.addRigidBody(body);
         entities.add(entity);
     }
 
     @Override
     protected void entityRemoved(final Physical entity) {
-        world.removeRigidBody(entity.getBody());
-        for (final ActionInterface action : entity.getActions()) {
-            world.removeAction(action);
+        final RigidBody body = entity.getBody();
+        world.removeRigidBody(body);
+        if (entity instanceof Active) {
+            forces.removeAll(body);
         }
         entities.remove(entity);
     }
@@ -107,9 +116,16 @@ public class PhysicsEngine extends Engine<Physical> {
             final RigidBody body = entity.getBody();
             body.getMotionState().getWorldTransform(worldTransform);
             body.setWorldTransform(worldTransform);
+            for (final Force force : forces.get(body)) {
+                force.calculateForce(forceMagnitude);
+                body.activate();
+                body.applyCentralForce(forceMagnitude);
+            }
         }
 
+        System.out.println("begin step");
         world.stepSimulation((float) timer.getTimePerFrame(), 8);
+        System.out.println("end step");
         return true;
     }
 }

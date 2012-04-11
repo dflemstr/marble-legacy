@@ -10,12 +10,9 @@ import com.ardor3d.scenegraph.shape.Box;
 
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.DefaultMotionState;
-
-import com.google.common.collect.ImmutableSet;
 
 import org.marble.entity.AbstractEntity;
 import org.marble.entity.Connected;
@@ -66,10 +63,4 @@ public class Wall extends AbstractEntity implements Connected, Graphical,
     public Map<String, Connector> getConnectors() {
         return Connectors.fromBox(width, height, depth);
     }
-
-    @Override
-    public Iterable<ActionInterface> getActions() {
-        return ImmutableSet.of();
-    }
-
 }

@@ -12,20 +12,17 @@ import com.ardor3d.input.logical.KeyReleasedCondition;
 import com.ardor3d.input.logical.TriggerAction;
 import com.ardor3d.input.logical.TwoInputStates;
 
-import com.bulletphysics.collision.dispatch.CollisionWorld;
-import com.bulletphysics.dynamics.ActionInterface;
-import com.bulletphysics.linearmath.IDebugDraw;
-
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
+import org.marble.entity.Active;
 import org.marble.entity.Interactive;
+import org.marble.physics.Force;
 import org.marble.util.Direction;
 
 /**
  * A player-controlled ball.
  */
-public class PlayerBall extends Ball implements Interactive {
+public class PlayerBall extends Ball implements Interactive, Active {
     /**
      * Alters the {@code inputForce} on activation.
      */
@@ -40,7 +37,7 @@ public class PlayerBall extends Ball implements Interactive {
         @Override
         public void perform(final Canvas source,
                 final TwoInputStates inputStates, final double tpf) {
-            inputForce.add(addedForce);
+            inputBaseForce.add(addedForce);
         }
 
     }
@@ -48,23 +45,12 @@ public class PlayerBall extends Ball implements Interactive {
     /**
      * An action that applies the {@code inputForce} force every tick.
      */
-    private class PushBallAction extends ActionInterface {
-
-        private final Vector3f appliedForce = new Vector3f();
-
+    private class InputForce implements Force {
         @Override
-        public void debugDraw(final IDebugDraw debugDrawer) {
-            // Do nothing
-        }
-
-        @Override
-        public void updateAction(final CollisionWorld collisionWorld,
-                final float deltaTimeStep) {
-            PlayerBall.this.physicalSphere.activate();
-            appliedForce.set(inputForce);
-            appliedForce.scale((float) (kind.getMass() / kind
-                    .getStability()));
-            PlayerBall.this.physicalSphere.applyCentralForce(appliedForce);
+        public void calculateForce(final Vector3f out) {
+            out.set(inputBaseForce);
+            out.scale((float) (kind.getMass() / kind.getStability()));
+            System.out.println("applied force: " + out);
         }
     }
 
@@ -73,8 +59,8 @@ public class PlayerBall extends Ball implements Interactive {
     private final ImmutableSet<InputTrigger> triggers;
 
     private final AddInputForce forceNorth, forceEast, forceSouth, forceWest;
-    private final PushBallAction pushBallAction = new PushBallAction();
-    private final Vector3f inputForce = new Vector3f();
+    private final Vector3f inputBaseForce = new Vector3f();
+    private final InputForce inputForce = new InputForce();
 
     /**
      * Creates a new player-controlled ball.
@@ -127,12 +113,12 @@ public class PlayerBall extends Ball implements Interactive {
     }
 
     @Override
-    public Set<ActionInterface> getActions() {
-        return Sets.union(ImmutableSet.of(pushBallAction), super.getActions());
+    public Set<InputTrigger> getTriggers() {
+        return triggers;
     }
 
     @Override
-    public Set<InputTrigger> getTriggers() {
-        return triggers;
+    public Set<Force> getForces() {
+        return ImmutableSet.<Force> of(inputForce);
     }
 }
