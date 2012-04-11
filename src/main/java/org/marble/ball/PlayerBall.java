@@ -50,6 +50,8 @@ public class PlayerBall extends Ball implements Interactive {
      */
     private class PushBallAction extends ActionInterface {
 
+        private final Vector3f appliedForce = new Vector3f();
+
         @Override
         public void debugDraw(final IDebugDraw debugDrawer) {
             // Do nothing
@@ -59,7 +61,10 @@ public class PlayerBall extends Ball implements Interactive {
         public void updateAction(final CollisionWorld collisionWorld,
                 final float deltaTimeStep) {
             PlayerBall.this.physicalSphere.activate();
-            PlayerBall.this.physicalSphere.applyCentralForce(inputForce);
+            appliedForce.set(inputForce);
+            appliedForce.scale((float) (kind.getMass() / kind
+                    .getStability()));
+            PlayerBall.this.physicalSphere.applyCentralForce(appliedForce);
         }
     }
 
