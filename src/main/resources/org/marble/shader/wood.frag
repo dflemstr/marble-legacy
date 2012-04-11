@@ -1,3 +1,4 @@
+#version 120
 
 uniform float distanceWeight = 4.0;
 uniform float noiseScale     = 0.6;
