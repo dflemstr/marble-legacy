@@ -50,7 +50,6 @@ public class PlayerBall extends Ball implements Interactive, Active {
         public void calculateForce(final Vector3f out) {
             out.set(inputBaseForce);
             out.scale((float) (kind.getMass() / kind.getStability()));
-            System.out.println("applied force: " + out);
         }
     }
 

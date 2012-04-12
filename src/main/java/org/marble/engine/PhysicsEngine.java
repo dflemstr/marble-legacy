@@ -123,9 +123,7 @@ public class PhysicsEngine extends Engine<Physical> {
             }
         }
 
-        System.out.println("begin step");
         world.stepSimulation((float) timer.getTimePerFrame(), 8);
-        System.out.println("end step");
         return true;
     }
 }
