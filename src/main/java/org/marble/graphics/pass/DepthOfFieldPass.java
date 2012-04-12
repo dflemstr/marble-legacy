@@ -23,9 +23,6 @@ import org.marble.util.Shaders;
 public class DepthOfFieldPass extends Pass {
     private static final long serialVersionUID = 161203858061648402L;
 
-    private final double focalLength;
-    private final double fstop;
-
     private TextureRenderer dofRenderer;
     private Quad fullScreenQuad;
 
@@ -79,11 +76,8 @@ public class DepthOfFieldPass extends Pass {
         }
     }
 
-    public DepthOfFieldPass(final Texture2D normalDepthTexture,
+    public DepthOfFieldPass(final Texture2D depthTexture,
             final double focalLength, final double fstop) {
-        this.focalLength = focalLength;
-        this.fstop = fstop;
-
         screenTexture = new Texture2D();
         screenTexture.setWrap(Texture.WrapMode.Clamp);
         screenTexture
@@ -91,11 +85,11 @@ public class DepthOfFieldPass extends Pass {
 
         dofTextureState = new TextureState();
         dofTextureState.setTexture(screenTexture, 0);
-        dofTextureState.setTexture(normalDepthTexture, 1);
+        dofTextureState.setTexture(depthTexture, 1);
 
         dofShader = Shaders.loadShader("depth-of-field");
         dofShader.setUniform("screen", 0);
-        dofShader.setUniform("normalDepths", 1);
+        dofShader.setUniform("depth", 1);
     }
 
     @Override
@@ -108,11 +102,10 @@ public class DepthOfFieldPass extends Pass {
         dofRenderer.copyToTexture(screenTexture, 0, 0, cam.getWidth(),
                 cam.getHeight(), 0, 0);
 
-        dofShader.setUniform("focalLength", (float) focalLength);
-        dofShader.setUniform("fstop", (float) fstop);
         dofShader.setUniform("resolution", resolution);
         dofShader.setUniform("znear", (float) cam.getFrustumNear());
         dofShader.setUniform("zfar", (float) cam.getFrustumFar());
+
         r.draw((Renderable) fullScreenQuad);
     }
 

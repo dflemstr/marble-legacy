@@ -17,18 +17,16 @@ import com.ardor3d.renderer.state.LightState;
 import com.ardor3d.renderer.state.TextureState;
 import com.ardor3d.scenegraph.Spatial;
 
-import org.marble.util.Shaders;
-
-public class NormalDepthPass extends Pass {
+public class DepthPass extends Pass {
     private static final long serialVersionUID = 6442769845341890013L;
 
     private final Spatial rootNode;
-    private final GLSLShaderObjectsState normalDepthShader;
-    private TextureRenderer normalDepthRenderer;
-    private final Texture2D normalDepthTexture;
+    private final GLSLShaderObjectsState emptyShader;
+    private TextureRenderer depthRenderer;
+    private final Texture2D depthTexture;
 
-    public Texture2D getNormalDepthTexture() {
-        return normalDepthTexture;
+    public Texture2D getDepthTexture() {
+        return depthTexture;
     }
 
     private final TextureState emptyTexture;
@@ -36,15 +34,16 @@ public class NormalDepthPass extends Pass {
     private final CullState cullBackFace;
     private final LightState emptyLights;
 
-    public NormalDepthPass(final Spatial rootNode) {
+    public DepthPass(final Spatial rootNode) {
         this.rootNode = rootNode;
 
-        normalDepthTexture = new Texture2D();
-        normalDepthTexture.setTextureStoreFormat(TextureStoreFormat.RGBA16);
-        normalDepthTexture.setWrap(Texture.WrapMode.Clamp);
-        normalDepthTexture
+        depthTexture = new Texture2D();
+        depthTexture.setTextureStoreFormat(TextureStoreFormat.Depth32);
+        depthTexture.setWrap(Texture.WrapMode.Clamp);
+        depthTexture
                 .setMagnificationFilter(Texture.MagnificationFilter.Bilinear);
-        normalDepthShader = Shaders.loadShader("normal-depth");
+        emptyShader = new GLSLShaderObjectsState();
+        emptyShader.setEnabled(false);
 
         emptyClip = new ClipState();
         emptyClip.setEnabled(false);
@@ -61,32 +60,28 @@ public class NormalDepthPass extends Pass {
     }
 
     private void ensurePassRenderer(final Renderer r) {
-        if (normalDepthRenderer == null) {
+        if (depthRenderer == null) {
             final Camera cam = Camera.getCurrentCamera();
-            normalDepthRenderer =
+            depthRenderer =
                     TextureRendererFactory.INSTANCE.createTextureRenderer(cam
                             .getWidth(), cam.getHeight(), r, ContextManager
                             .getCurrentContext().getCapabilities());
-            normalDepthRenderer.setBackgroundColor(new ColorRGBA(0.0f, 0.0f,
-                    0.0f, 0.0f));
-            normalDepthRenderer.getCamera().setFrustum(cam.getFrustumNear(),
-                    cam.getFrustumFar(), cam.getFrustumLeft(),
-                    cam.getFrustumRight(), cam.getFrustumTop(),
-                    cam.getFrustumBottom());
-            normalDepthRenderer.setupTexture(normalDepthTexture);
-            normalDepthRenderer.enforceState(emptyTexture);
-            normalDepthRenderer.enforceState(emptyClip);
-            normalDepthRenderer.enforceState(cullBackFace);
-            normalDepthRenderer.enforceState(emptyLights);
-            normalDepthRenderer.enforceState(normalDepthShader);
+            depthRenderer.setBackgroundColor(new ColorRGBA(0.0f, 0.0f, 0.0f,
+                    0.0f));
+            depthRenderer.setupTexture(depthTexture);
+            depthRenderer.enforceState(emptyTexture);
+            depthRenderer.enforceState(emptyClip);
+            depthRenderer.enforceState(cullBackFace);
+            depthRenderer.enforceState(emptyLights);
+            depthRenderer.enforceState(emptyShader);
         }
     }
 
     @Override
     public void cleanUp() {
         super.cleanUp();
-        if (normalDepthRenderer != null) {
-            normalDepthRenderer.cleanup();
+        if (depthRenderer != null) {
+            depthRenderer.cleanup();
         }
     }
 
@@ -96,12 +91,16 @@ public class NormalDepthPass extends Pass {
 
         final Camera cam = Camera.getCurrentCamera();
 
-        normalDepthRenderer.getCamera().setLocation(cam.getLocation());
-        normalDepthRenderer.getCamera().setDirection(cam.getDirection());
-        normalDepthRenderer.getCamera().setUp(cam.getUp());
-        normalDepthRenderer.getCamera().setLeft(cam.getLeft());
+        depthRenderer.getCamera().setFrustum(cam.getFrustumNear(),
+                cam.getFrustumFar(), cam.getFrustumLeft(),
+                cam.getFrustumRight(), cam.getFrustumTop(),
+                cam.getFrustumBottom());
+        depthRenderer.getCamera().setLocation(cam.getLocation());
+        depthRenderer.getCamera().setDirection(cam.getDirection());
+        depthRenderer.getCamera().setUp(cam.getUp());
+        depthRenderer.getCamera().setLeft(cam.getLeft());
 
-        normalDepthRenderer.render(rootNode, normalDepthTexture,
+        depthRenderer.render(rootNode, depthTexture,
                 Renderer.BUFFER_COLOR_AND_DEPTH);
     }
 

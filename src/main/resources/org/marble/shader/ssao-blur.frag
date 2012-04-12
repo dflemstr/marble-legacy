@@ -1,16 +1,17 @@
 const float epsilon = 0.005;
 
+uniform sampler2D screen;
 uniform sampler2D ssao;
-uniform sampler2D normalDepths;
-uniform float frustumNear;
-uniform float frustumFar;
-uniform vec2 scale;
+uniform sampler2D depth;
+uniform vec2 resolution;
+uniform float znear;
+uniform float zfar;
 
 varying vec2 coord;
 
 float readDepth(vec2 uv) {
-    float depthv = texture2D(normalDepths, uv).a;
-    return (2.0 * frustumNear) / (frustumFar + frustumNear - depthv * (frustumFar - frustumNear));
+    float depthv = texture2D(depth, uv).r;
+    return (2.0 * znear) / (zfar + znear - depthv * (zfar - znear));
 }
 
 void main(void) {
@@ -19,8 +20,8 @@ void main(void) {
     float x = coord.x;
     float y = coord.y;
 
-    float xScale = scale.x;
-    float yScale = scale.y;
+    float xScale = 2.0 / resolution.x;
+    float yScale = 2.0 / resolution.y;
 
     float zsum = 1.0;
     float Zp = readDepth(coord);
@@ -97,5 +98,5 @@ void main(void) {
     zsum += coefZ;
     sum += coefZ * texture2D(ssao, sample);
 
-    gl_FragColor = sum / zsum;
+    gl_FragColor = texture2D(screen, coord) * (sum / zsum);
 }
