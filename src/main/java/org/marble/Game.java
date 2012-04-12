@@ -26,6 +26,7 @@ import com.ardor3d.math.MathUtils;
 import com.ardor3d.math.Quaternion;
 import com.ardor3d.math.Vector3;
 import com.ardor3d.renderer.Renderer;
+import com.ardor3d.renderer.pass.BasicPassManager;
 import com.ardor3d.renderer.pass.RenderPass;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.controller.SpatialController;
@@ -49,8 +50,10 @@ import org.marble.graphics.SmoothOrbitCamControl;
 import org.marble.graphics.pass.DepthOfFieldPass;
 import org.marble.graphics.pass.DepthPass;
 import org.marble.graphics.pass.NormalPass;
+import org.marble.graphics.pass.RenderVisitorPass;
 import org.marble.graphics.pass.SSAOPass;
-import org.marble.graphics.scene.PreparedDrawingVisitor;
+import org.marble.graphics.scene.PostIlluminationVisitor;
+import org.marble.graphics.scene.PreDrawingVisitor;
 import org.marble.level.LevelLoadException;
 import org.marble.level.LevelLoader;
 import org.marble.settings.Quality;
@@ -208,7 +211,7 @@ public class Game {
 
         setupSkybox();
         setupCamera();
-        setupEffects();
+        setupPasses();
         setupUI();
 
         try {
@@ -283,14 +286,28 @@ public class Game {
                         new ToggleMenu()));
     }
 
-    private void setupEffects() {
+    private void setupPasses() {
+        final BasicPassManager manager = getGraphicsEngine().getPasses();
+
+        {
+            final RenderVisitorPass preDrawingPass =
+                    new RenderVisitorPass(new PreDrawingVisitor(), true);
+            preDrawingPass.add(getGraphicsEngine().getRootNode());
+            manager.add(preDrawingPass);
+        }
+
+        {
+            final RenderPass rootPass = new RenderPass();
+            rootPass.add(getGraphicsEngine().getRootNode());
+            manager.add(rootPass);
+        }
 
         Texture2D depthTexture = null;
         if (settings.ssao.getValue() || settings.dof.getValue()) {
             final DepthPass depthPass =
                     new DepthPass(getGraphicsEngine().getRootNode());
             depthTexture = depthPass.getDepthTexture();
-            getGraphicsEngine().getPasses().add(depthPass);
+            manager.add(depthPass);
         }
 
         Texture2D normalTexture = null;
@@ -298,7 +315,7 @@ public class Game {
             final NormalPass normalPass =
                     new NormalPass(getGraphicsEngine().getRootNode());
             normalTexture = normalPass.getNormalTexture();
-            getGraphicsEngine().getPasses().add(normalPass);
+            manager.add(normalPass);
         }
 
         if (settings.ssao.getValue()) {
@@ -306,13 +323,20 @@ public class Game {
                     new SSAOPass(depthTexture, normalTexture,
                             Quality.values().length
                                     - settings.ssaoQuality.getValue().ordinal());
-            getGraphicsEngine().getPasses().add(ssaoRenderPass);
+            manager.add(ssaoRenderPass);
+        }
+
+        {
+            final RenderVisitorPass postIlluminationPass =
+                    new RenderVisitorPass(new PostIlluminationVisitor(), true);
+            postIlluminationPass.add(getGraphicsEngine().getRootNode());
+            manager.add(postIlluminationPass);
         }
 
         if (settings.dof.getValue()) {
             final DepthOfFieldPass depthOfFieldPass =
                     new DepthOfFieldPass(depthTexture, 30, 1.4);
-            getGraphicsEngine().getPasses().add(depthOfFieldPass);
+            manager.add(depthOfFieldPass);
         }
 
         if (settings.bloom.getValue()) {
@@ -321,7 +345,7 @@ public class Game {
                             .getCanvasRenderer().getCamera(), 1);
             bloomRenderPass.setBlurSize(0.005f);
             bloomRenderPass.setUseCurrentScene(true);
-            getGraphicsEngine().getPasses().add(bloomRenderPass);
+            manager.add(bloomRenderPass);
         }
     }
 
@@ -413,9 +437,6 @@ public class Game {
     }
 
     public void render(final Renderer renderer) {
-        getGraphicsEngine().getRootNode().acceptVisitor(
-                new PreparedDrawingVisitor(renderer), true);
-
         getGraphicsEngine().getPasses().renderPasses(renderer);
     }
 

@@ -6,7 +6,7 @@ import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
 import com.ardor3d.bounding.BoundingBox;
-import com.ardor3d.extension.effect.particle.ParticleFactory;
+import com.ardor3d.extension.effect.particle.ParticleController;
 import com.ardor3d.extension.effect.particle.ParticleSystem;
 import com.ardor3d.extension.model.obj.ObjImporter;
 import com.ardor3d.image.Texture;
@@ -39,6 +39,7 @@ import org.marble.entity.Connector;
 import org.marble.entity.Emitter;
 import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
+import org.marble.graphics.PostIlluminationParticleMesh;
 import org.marble.graphics.scene.LightMover;
 
 public class Lantern extends AbstractEntity implements Connected, Graphical,
@@ -81,7 +82,7 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
         Vector3.releaseTempInstance(offset);
         graphicalLantern.setListener(mover);
 
-        particles = ParticleFactory.buildParticles("flame", 8);
+        particles = new PostIlluminationParticleMesh("flame", 8);
         particles.setEmissionDirection(new Vector3(0, 0, 1));
         particles.setInitialVelocity(0.006);
         particles.setStartSize(0.5);
@@ -92,6 +93,9 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
         particles.setEndColor(alphaColor);
         particles.setMaximumAngle(15 * MathUtils.DEG_TO_RAD);
         particles.setTranslation(0, 0, 0.5);
+
+        final ParticleController particleController = new ParticleController();
+        particles.addController(particleController);
 
         final BlendState blend = new BlendState();
         blend.setBlendEnabled(true);

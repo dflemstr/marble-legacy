@@ -21,7 +21,7 @@ import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.hint.CullHint;
 
-import org.marble.graphics.scene.PreparedDrawing;
+import org.marble.graphics.scene.PreDrawing;
 import org.marble.graphics.shader.WorldSpaceDataLogic;
 
 /**
@@ -33,7 +33,7 @@ import org.marble.graphics.shader.WorldSpaceDataLogic;
  * environment will be adjusted accordingly to match the location of each
  * sub-node.
  */
-public class EnvironmentNode extends Node implements PreparedDrawing {
+public class EnvironmentNode extends Node implements PreDrawing {
     // Marks whether we are rendering an environment
     private static final AtomicBoolean renderingToEnv =
             new AtomicBoolean(false);
