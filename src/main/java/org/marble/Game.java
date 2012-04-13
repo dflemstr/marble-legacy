@@ -93,86 +93,21 @@ public class Game {
     // The main menu
     private Menu menu;
 
-    private final class ToggleDOFDebugFocus implements TriggerAction {
-        @Override
-        public void perform(final Canvas source,
-                final TwoInputStates inputStates, final double tpf) {
-            depthOfFieldPass.setShowFocus(!depthOfFieldPass.doesShowFocus());
-        }
-    }
-
-    private final class ToggleSSAOOnlyAO implements TriggerAction {
-        @Override
-        public void perform(final Canvas source,
-                final TwoInputStates inputStates, final double tpf) {
-            ssaoRenderPass.setShowOnlyAO(!ssaoRenderPass.shouldShowOnlyAO());
-
-            final boolean reducedMode =
-                    ssaoRenderPass.shouldShowOnlyAO()
-                            || ssaoRenderPass.shouldDisableBlur();
-            ssaoRenderPass.setIntensity(reducedMode ? 4.0f : 8.0f);
-            if (depthOfFieldPass != null) {
-                depthOfFieldPass.setEnabled(!reducedMode);
-            }
-            if (bloomRenderPass != null) {
-                bloomRenderPass.setEnabled(!reducedMode);
-            }
-        }
-    }
-
-    private final class ToggleSSAOBlur implements TriggerAction {
-        @Override
-        public void perform(final Canvas source,
-                final TwoInputStates inputStates, final double tpf) {
-            ssaoRenderPass.setDisableBlur(!ssaoRenderPass.shouldDisableBlur());
-
-            final boolean reducedMode =
-                    ssaoRenderPass.shouldShowOnlyAO()
-                            || ssaoRenderPass.shouldDisableBlur();
-            ssaoRenderPass.setIntensity(reducedMode ? 4.0f : 8.0f);
-            if (depthOfFieldPass != null) {
-                depthOfFieldPass.setEnabled(!reducedMode);
-            }
-            if (bloomRenderPass != null) {
-                bloomRenderPass.setEnabled(!reducedMode);
-            }
-        }
-    }
-
-    /**
-     * An action that toggles the visibility of the main menu.
-     */
-    private final class ToggleMenu implements TriggerAction {
-        @Override
-        public void perform(final Canvas source,
-                final TwoInputStates inputStates, final double tpf) {
-            menu.setVisible(!menu.isVisible());
-            menu.setDirty(true);
-        }
-    }
-
-    /**
-     * The run states that the game can be in.
-     */
-    public enum RunState {
-        /** The game is running */
-        Running,
-        /** The game intends to quit */
-        Quitting,
-        /** The game intends to restart */
-        Restarting;
-    }
-
     private RunState runState;
+
     private SSAOPass ssaoRenderPass;
+
     private DepthOfFieldPass depthOfFieldPass;
+
     private BloomRenderPass bloomRenderPass;
+
     private NormalPass normalPass;
+
     private DepthPass depthPass;
     private RenderPass renderPass;
     private RenderVisitorPass preDrawingPass;
     private RenderVisitorPass postIlluminationPass;
-
+    long seconds = 0;
     /**
      * Creates a new game instance.
      * 
@@ -196,7 +131,6 @@ public class Game {
                 ImmutableSet.<Engine<?>> of(graphicsEngine, inputEngine,
                         physicsEngine);
     }
-
     /**
      * Starts managing an entity.
      * 
@@ -212,14 +146,6 @@ public class Game {
 
         entities.add(entity);
     }
-
-    /**
-     * Tells the game to restart on the next update cycle.
-     */
-    public void restart() {
-        runState = RunState.Restarting;
-    }
-
     /**
      * Performs deferred destruction of all subsystems.
      */
@@ -234,7 +160,6 @@ public class Game {
             engine.destroy();
         }
     }
-
     /**
      * The graphics engine that is in use.
      */
@@ -254,6 +179,14 @@ public class Game {
      */
     public PhysicsEngine getPhysicsEngine() {
         return physicsEngine;
+    }
+
+    public RunState getRunState() {
+        return runState;
+    }
+
+    public Settings getSettings() {
+        return settings;
     }
 
     /**
@@ -277,64 +210,101 @@ public class Game {
         }
     }
 
-    private void setupSkybox() {
-        skybox = new Skybox("skybox", 256, 256, 256);
-        skybox.addController(new SpatialController<Skybox>() {
-
-            @Override
-            public void update(final double time, final Skybox caller) {
-                caller.setTranslation(graphicsEngine.getCanvas()
-                        .getCanvasRenderer().getCamera().getLocation());
-            }
-
-        });
-        final Quaternion rot = Quaternion.fetchTempInstance();
-        rot.fromEulerAngles(0, 0, Math.PI / 2);
-        skybox.setRotation(rot);
-        Quaternion.releaseTempInstance(rot);
-
-        final String dir = "skybox/";
-        final Texture north =
-                TextureManager.load(dir + "north.jpg",
-                        Texture.MinificationFilter.BilinearNearestMipMap, true);
-        final Texture south =
-                TextureManager.load(dir + "south.jpg",
-                        Texture.MinificationFilter.BilinearNearestMipMap, true);
-        final Texture east =
-                TextureManager.load(dir + "east.jpg",
-                        Texture.MinificationFilter.BilinearNearestMipMap, true);
-        final Texture west =
-                TextureManager.load(dir + "west.jpg",
-                        Texture.MinificationFilter.BilinearNearestMipMap, true);
-        final Texture up =
-                TextureManager.load(dir + "up.jpg",
-                        Texture.MinificationFilter.BilinearNearestMipMap, true);
-        final Texture down =
-                TextureManager.load(dir + "down.jpg",
-                        Texture.MinificationFilter.BilinearNearestMipMap, true);
-
-        skybox.setTexture(Skybox.Face.North, north);
-        skybox.setTexture(Skybox.Face.West, west);
-        skybox.setTexture(Skybox.Face.South, south);
-        skybox.setTexture(Skybox.Face.East, east);
-        skybox.setTexture(Skybox.Face.Up, up);
-        skybox.setTexture(Skybox.Face.Down, down);
-        graphicsEngine.getRootNode().attachChild(skybox);
+    public void load(final ImmutableSet<Entity> level) throws ParserException,
+            LevelLoadException, IOException {
+        clear();
+        for (final Entity entity : level) {
+            addEntity(entity);
+        }
+        start();
     }
 
-    private void setupUI() {
-        UIComponent.setUseTransparency(true);
-        hud = new UIHud();
-        hud.setupInput(getGraphicsEngine().getCanvas(), getInputEngine()
-                .getPhysicalLayer(), getInputEngine().getLogicalLayer());
-        hud.setMouseManager(getInputEngine().getMouseManager());
+    /**
+     * Stops managing an entity.
+     * 
+     * @param entity
+     *            The entity to stop managing.
+     */
+    public void removeEntity(final Entity entity) {
+        for (final Engine<?> engine : engines)
+            if (engine.shouldHandle(entity)) {
+                engine.removeEntity(entity);
+            }
 
-        menu = new Menu(this);
-        hud.add(menu);
+        entities.remove(entity);
+        entity.destroy();
+    }
 
-        inputEngine.getLogicalLayer().registerTrigger(
-                new InputTrigger(new KeyPressedCondition(Key.ESCAPE),
-                        new ToggleMenu()));
+    public void render(final Renderer renderer) {
+        getGraphicsEngine().getPasses().renderPasses(renderer);
+    }
+
+    /**
+     * Tells the game to restart on the next update cycle.
+     */
+    public void restart() {
+        runState = RunState.Restarting;
+    }
+
+    public void setRunState(final RunState runState) {
+        this.runState = runState;
+    }
+
+    /**
+     * Makes the camera follow a graphical spatial.
+     * 
+     * @param spatial
+     *            The spatial to follow.
+     */
+    public void track(final Spatial spatial) {
+        cameraControl.setLookAtSpatial(spatial);
+    }
+
+    /**
+     * Advances the simulation one step.
+     * 
+     * @param timer
+     *            The timer specifying how much time that has elapsed.
+     */
+    public void update(final ReadOnlyTimer timer) {
+        boolean shouldContinue = true;
+
+        hud.getLogicalLayer().checkTriggers(timer.getTimePerFrame());
+        hud.updateGeometricState(timer.getTimePerFrame());
+        cameraControl.update(timer.getTimePerFrame());
+
+        final long newSeconds = (int) Math.floor(timer.getTimeInSeconds());
+        if (newSeconds != seconds) {
+            System.out.printf("%9.3f SPF%9.3f FPS%n", timer.getTimePerFrame(),
+                    timer.getFrameRate());
+            seconds = newSeconds;
+        }
+
+        for (final Engine<?> engine : engines) {
+            shouldContinue &= engine.update(timer);
+        }
+        if (!shouldContinue) {
+            runState = RunState.Quitting;
+        }
+    }
+
+    private void clear() {
+        for (final Entity entity : ImmutableSet.copyOf(entities)) {
+            removeEntity(entity);
+        }
+        entities.clear();
+    }
+
+    private void setupCamera() {
+        cameraControl =
+                new SmoothOrbitCamControl(graphicsEngine.getCanvas()
+                        .getCanvasRenderer().getCamera(),
+                        graphicsEngine.getRootNode(), 8);
+        cameraControl.setWorldUpVec(new Vector3(0, 0, 1));
+        cameraControl.setSphereCoords(10, -90 * MathUtils.DEG_TO_RAD,
+                30 * MathUtils.DEG_TO_RAD);
+        cameraControl.setZoomSpeed(0.001);
+        cameraControl.setupMouseTriggers(inputEngine.getLogicalLayer(), true);
     }
 
     private void setupPasses() {
@@ -418,16 +388,64 @@ public class Game {
         }
     }
 
-    private void setupCamera() {
-        cameraControl =
-                new SmoothOrbitCamControl(graphicsEngine.getCanvas()
-                        .getCanvasRenderer().getCamera(),
-                        graphicsEngine.getRootNode(), 8);
-        cameraControl.setWorldUpVec(new Vector3(0, 0, 1));
-        cameraControl.setSphereCoords(10, -90 * MathUtils.DEG_TO_RAD,
-                30 * MathUtils.DEG_TO_RAD);
-        cameraControl.setZoomSpeed(0.001);
-        cameraControl.setupMouseTriggers(inputEngine.getLogicalLayer(), true);
+    private void setupSkybox() {
+        skybox = new Skybox("skybox", 256, 256, 256);
+        skybox.addController(new SpatialController<Skybox>() {
+
+            @Override
+            public void update(final double time, final Skybox caller) {
+                caller.setTranslation(graphicsEngine.getCanvas()
+                        .getCanvasRenderer().getCamera().getLocation());
+            }
+
+        });
+        final Quaternion rot = Quaternion.fetchTempInstance();
+        rot.fromEulerAngles(0, 0, Math.PI / 2);
+        skybox.setRotation(rot);
+        Quaternion.releaseTempInstance(rot);
+
+        final String dir = "skybox/";
+        final Texture north =
+                TextureManager.load(dir + "north.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture south =
+                TextureManager.load(dir + "south.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture east =
+                TextureManager.load(dir + "east.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture west =
+                TextureManager.load(dir + "west.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture up =
+                TextureManager.load(dir + "up.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+        final Texture down =
+                TextureManager.load(dir + "down.jpg",
+                        Texture.MinificationFilter.BilinearNearestMipMap, true);
+
+        skybox.setTexture(Skybox.Face.North, north);
+        skybox.setTexture(Skybox.Face.West, west);
+        skybox.setTexture(Skybox.Face.South, south);
+        skybox.setTexture(Skybox.Face.East, east);
+        skybox.setTexture(Skybox.Face.Up, up);
+        skybox.setTexture(Skybox.Face.Down, down);
+        graphicsEngine.getRootNode().attachChild(skybox);
+    }
+
+    private void setupUI() {
+        UIComponent.setUseTransparency(true);
+        hud = new UIHud();
+        hud.setupInput(getGraphicsEngine().getCanvas(), getInputEngine()
+                .getPhysicalLayer(), getInputEngine().getLogicalLayer());
+        hud.setMouseManager(getInputEngine().getMouseManager());
+
+        menu = new Menu(this);
+        hud.add(menu);
+
+        inputEngine.getLogicalLayer().registerTrigger(
+                new InputTrigger(new KeyPressedCondition(Key.ESCAPE),
+                        new ToggleMenu()));
     }
 
     private void start() {
@@ -439,91 +457,73 @@ public class Game {
         track(ball.getSpatial());
     }
 
-    public void load(final ImmutableSet<Entity> level) throws ParserException,
-            LevelLoadException, IOException {
-        clear();
-        for (final Entity entity : level) {
-            addEntity(entity);
-        }
-        start();
+    /**
+     * The run states that the game can be in.
+     */
+    public enum RunState {
+        /** The game is running */
+        Running,
+        /** The game intends to quit */
+        Quitting,
+        /** The game intends to restart */
+        Restarting;
     }
 
-    private void clear() {
-        for (final Entity entity : ImmutableSet.copyOf(entities)) {
-            removeEntity(entity);
+    private final class ToggleDOFDebugFocus implements TriggerAction {
+        @Override
+        public void perform(final Canvas source,
+                final TwoInputStates inputStates, final double tpf) {
+            depthOfFieldPass.setShowFocus(!depthOfFieldPass.doesShowFocus());
         }
-        entities.clear();
     }
 
     /**
-     * Stops managing an entity.
-     * 
-     * @param entity
-     *            The entity to stop managing.
+     * An action that toggles the visibility of the main menu.
      */
-    public void removeEntity(final Entity entity) {
-        for (final Engine<?> engine : engines)
-            if (engine.shouldHandle(entity)) {
-                engine.removeEntity(entity);
+    private final class ToggleMenu implements TriggerAction {
+        @Override
+        public void perform(final Canvas source,
+                final TwoInputStates inputStates, final double tpf) {
+            menu.setVisible(!menu.isVisible());
+            menu.setDirty(true);
+        }
+    }
+
+    private final class ToggleSSAOBlur implements TriggerAction {
+        @Override
+        public void perform(final Canvas source,
+                final TwoInputStates inputStates, final double tpf) {
+            ssaoRenderPass.setDisableBlur(!ssaoRenderPass.shouldDisableBlur());
+
+            final boolean reducedMode =
+                    ssaoRenderPass.shouldShowOnlyAO()
+                            || ssaoRenderPass.shouldDisableBlur();
+            ssaoRenderPass.setIntensity(reducedMode ? 4.0f : 8.0f);
+            if (depthOfFieldPass != null) {
+                depthOfFieldPass.setEnabled(!reducedMode);
             }
-
-        entities.remove(entity);
-        entity.destroy();
-    }
-
-    /**
-     * Makes the camera follow a graphical spatial.
-     * 
-     * @param spatial
-     *            The spatial to follow.
-     */
-    public void track(final Spatial spatial) {
-        cameraControl.setLookAtSpatial(spatial);
-    }
-
-    long seconds = 0;
-
-    /**
-     * Advances the simulation one step.
-     * 
-     * @param timer
-     *            The timer specifying how much time that has elapsed.
-     */
-    public void update(final ReadOnlyTimer timer) {
-        boolean shouldContinue = true;
-
-        hud.getLogicalLayer().checkTriggers(timer.getTimePerFrame());
-        hud.updateGeometricState(timer.getTimePerFrame());
-        cameraControl.update(timer.getTimePerFrame());
-
-        final long newSeconds = (int) Math.floor(timer.getTimeInSeconds());
-        if (newSeconds != seconds) {
-            System.out.printf("%9.3f SPF%9.3f FPS%n", timer.getTimePerFrame(),
-                    timer.getFrameRate());
-            seconds = newSeconds;
-        }
-
-        for (final Engine<?> engine : engines) {
-            shouldContinue &= engine.update(timer);
-        }
-        if (!shouldContinue) {
-            runState = RunState.Quitting;
+            if (bloomRenderPass != null) {
+                bloomRenderPass.setEnabled(!reducedMode);
+            }
         }
     }
 
-    public void render(final Renderer renderer) {
-        getGraphicsEngine().getPasses().renderPasses(renderer);
-    }
+    private final class ToggleSSAOOnlyAO implements TriggerAction {
+        @Override
+        public void perform(final Canvas source,
+                final TwoInputStates inputStates, final double tpf) {
+            ssaoRenderPass.setShowOnlyAO(!ssaoRenderPass.shouldShowOnlyAO());
 
-    public RunState getRunState() {
-        return runState;
-    }
-
-    public void setRunState(final RunState runState) {
-        this.runState = runState;
-    }
-
-    public Settings getSettings() {
-        return settings;
+            final boolean reducedMode =
+                    ssaoRenderPass.shouldShowOnlyAO()
+                            || ssaoRenderPass.shouldDisableBlur();
+            ssaoRenderPass.setIntensity(reducedMode ? 4.0f : 8.0f);
+            if (depthOfFieldPass != null) {
+                depthOfFieldPass.setEnabled(!reducedMode);
+            }
+            if (bloomRenderPass != null) {
+                bloomRenderPass.setEnabled(!reducedMode);
+            }
+        }
     }
 }

@@ -37,13 +37,6 @@ import org.marble.level.MetaLevel;
 import org.marble.level.MetaLevelPack;
 
 public class Menu extends UIFrame {
-    private final class RestartGame implements ActionListener {
-        @Override
-        public void actionPerformed(final ActionEvent arg0) {
-            game.restart();
-        }
-    }
-
     private final Game game;
 
     public Menu(final Game game) {
@@ -69,19 +62,11 @@ public class Menu extends UIFrame {
                 .getCanvasRenderer().getCamera());
     }
 
-    private UIPanel makeWidgetPanel() {
-
-        final UIPanel panel = new UIPanel();
-        panel.setForegroundColor(ColorRGBA.DARK_GRAY);
-        panel.setLayout(new BorderLayout());
-
-        final UIButton button = new UIButton("Restart");
-        button.addActionListener(new RestartGame());
-        button.setGap(10);
-        button.setLayoutData(BorderLayoutData.NORTH);
-        button.setTooltipText("Restart the game");
-        panel.add(button);
-        return panel;
+    private DisplayMode[] getResolutions() {
+        final DisplayMode[] modes =
+                GraphicsEnvironment.getLocalGraphicsEnvironment()
+                        .getDefaultScreenDevice().getDisplayModes();
+        return modes;
     }
 
     private UIPanel makeLevelsPanel() {
@@ -210,10 +195,25 @@ public class Menu extends UIFrame {
         return panel;
     }
 
-    private DisplayMode[] getResolutions() {
-        final DisplayMode[] modes =
-                GraphicsEnvironment.getLocalGraphicsEnvironment()
-                        .getDefaultScreenDevice().getDisplayModes();
-        return modes;
+    private UIPanel makeWidgetPanel() {
+
+        final UIPanel panel = new UIPanel();
+        panel.setForegroundColor(ColorRGBA.DARK_GRAY);
+        panel.setLayout(new BorderLayout());
+
+        final UIButton button = new UIButton("Restart");
+        button.addActionListener(new RestartGame());
+        button.setGap(10);
+        button.setLayoutData(BorderLayoutData.NORTH);
+        button.setTooltipText("Restart the game");
+        panel.add(button);
+        return panel;
+    }
+
+    private final class RestartGame implements ActionListener {
+        @Override
+        public void actionPerformed(final ActionEvent arg0) {
+            game.restart();
+        }
     }
 }

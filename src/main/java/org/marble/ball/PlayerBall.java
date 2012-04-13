@@ -23,44 +23,15 @@ import org.marble.util.Direction;
  * A player-controlled ball.
  */
 public class PlayerBall extends Ball implements Interactive, Active {
-    /**
-     * Alters the {@code inputForce} on activation.
-     */
-    private class AddInputForce implements TriggerAction {
-        private final Vector3f addedForce = new Vector3f();
-
-        public AddInputForce(final Direction direction, final double magnitude) {
-            addedForce.set(direction.getPhysicalDirection());
-            addedForce.scale((float) magnitude);
-        }
-
-        @Override
-        public void perform(final Canvas source,
-                final TwoInputStates inputStates, final double tpf) {
-            inputBaseForce.add(addedForce);
-        }
-
-    }
-
-    /**
-     * An action that applies the {@code inputForce} force every tick.
-     */
-    private class InputForce implements Force {
-        @Override
-        public void calculateForce(final Vector3f out) {
-            out.set(inputBaseForce);
-            out.scale((float) (kind.getMass() / kind.getStability()));
-        }
-    }
-
     private static final double FORCE_MAGNITUDE = 20.0;
 
     private final ImmutableSet<InputTrigger> triggers;
 
     private final AddInputForce forceNorth, forceEast, forceSouth, forceWest;
-    private final Vector3f inputBaseForce = new Vector3f();
-    private final InputForce inputForce = new InputForce();
 
+    private final Vector3f inputBaseForce = new Vector3f();
+
+    private final InputForce inputForce = new InputForce();
     /**
      * Creates a new player-controlled ball.
      * 
@@ -100,7 +71,6 @@ public class PlayerBall extends Ball implements Interactive, Active {
                         rightReleaseTrigger, downReleaseTrigger,
                         upReleaseTrigger);
     }
-
     /**
      * Creates a new player-controlled ball.
      * 
@@ -112,12 +82,42 @@ public class PlayerBall extends Ball implements Interactive, Active {
     }
 
     @Override
+    public Set<Force> getForces() {
+        return ImmutableSet.<Force> of(inputForce);
+    }
+
+    @Override
     public Set<InputTrigger> getTriggers() {
         return triggers;
     }
 
-    @Override
-    public Set<Force> getForces() {
-        return ImmutableSet.<Force> of(inputForce);
+    /**
+     * Alters the {@code inputForce} on activation.
+     */
+    private class AddInputForce implements TriggerAction {
+        private final Vector3f addedForce = new Vector3f();
+
+        public AddInputForce(final Direction direction, final double magnitude) {
+            addedForce.set(direction.getPhysicalDirection());
+            addedForce.scale((float) magnitude);
+        }
+
+        @Override
+        public void perform(final Canvas source,
+                final TwoInputStates inputStates, final double tpf) {
+            inputBaseForce.add(addedForce);
+        }
+
+    }
+
+    /**
+     * An action that applies the {@code inputForce} force every tick.
+     */
+    private class InputForce implements Force {
+        @Override
+        public void calculateForce(final Vector3f out) {
+            out.set(inputBaseForce);
+            out.scale((float) (kind.getMass() / kind.getStability()));
+        }
     }
 }

@@ -111,41 +111,10 @@ public class EnvironmentNode extends Node implements PreDrawing {
         setRenderState(shader);
     }
 
-    private TextureRenderer createEnvironmentRenderer(final Renderer r) {
-        final ContextCapabilities caps =
-                ContextManager.getCurrentContext().getCapabilities();
-
-        final DisplaySettings settings =
-                new DisplaySettings(1 << textureSizeMagnitude,
-                        1 << textureSizeMagnitude, 24, 0, 0, 24, 0, 0, false,
-                        false);
-        final TextureRenderer renderer =
-                TextureRendererFactory.INSTANCE.createTextureRenderer(settings,
-                        false, r, caps);
-        renderer.setBackgroundColor(environmentColor);
-        renderer.getCamera().setFrustum(0.0625, 1024, -0.0625, 0.0625, 0.0625,
-                -0.0625);
-        return renderer;
-    }
-
-    private void ensureEnvironment(final Renderer r) {
-        if (envRenderer == null) {
-            envRenderer = createEnvironmentRenderer(r);
-            envRenderer.setupTexture(environment);
-        }
-    }
-
     @Override
     public void draw(final Renderer r) {
         ensureEnvironment(r);
         super.draw(r);
-    }
-
-    @Override
-    protected void finalize() {
-        // XXX This might be called too late/never, but it's better than
-        // nothing.
-        envRenderer.cleanup();
     }
 
     /**
@@ -225,5 +194,36 @@ public class EnvironmentNode extends Node implements PreDrawing {
         // hint, so we'll inform the frustum solver that we might be visible
         // again, by saying that we are at the edge of the view frustum
         setLastFrustumIntersection(FrustumIntersect.Intersects);
+    }
+
+    private TextureRenderer createEnvironmentRenderer(final Renderer r) {
+        final ContextCapabilities caps =
+                ContextManager.getCurrentContext().getCapabilities();
+
+        final DisplaySettings settings =
+                new DisplaySettings(1 << textureSizeMagnitude,
+                        1 << textureSizeMagnitude, 24, 0, 0, 24, 0, 0, false,
+                        false);
+        final TextureRenderer renderer =
+                TextureRendererFactory.INSTANCE.createTextureRenderer(settings,
+                        false, r, caps);
+        renderer.setBackgroundColor(environmentColor);
+        renderer.getCamera().setFrustum(0.0625, 1024, -0.0625, 0.0625, 0.0625,
+                -0.0625);
+        return renderer;
+    }
+
+    private void ensureEnvironment(final Renderer r) {
+        if (envRenderer == null) {
+            envRenderer = createEnvironmentRenderer(r);
+            envRenderer.setupTexture(environment);
+        }
+    }
+
+    @Override
+    protected void finalize() {
+        // XXX This might be called too late/never, but it's better than
+        // nothing.
+        envRenderer.cleanup();
     }
 }

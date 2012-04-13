@@ -13,6 +13,9 @@ import com.ardor3d.math.type.ReadOnlyVector3;
  * Ardor3D helper conversion methods.
  */
 public final class ArdorConversion {
+    private ArdorConversion() {
+    }
+
     /**
      * Converts a vecmath 4D matrix into an Ardor3D 4D matrix.
      * 
@@ -86,8 +89,5 @@ public final class ArdorConversion {
         to.x = from.getXf();
         to.y = from.getYf();
         to.z = from.getZf();
-    }
-
-    private ArdorConversion() {
     }
 }

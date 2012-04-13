@@ -7,6 +7,9 @@ import com.google.common.collect.ImmutableMap;
 import org.marble.entity.Connector;
 
 public final class Connectors {
+    private Connectors() {
+    }
+
     public static ImmutableMap<String, Connector> fromBox(final double width,
             final double height, final double depth) {
 
@@ -66,11 +69,6 @@ public final class Connectors {
         return connectorBuilder.build();
     }
 
-    private static String makeAnchorName(final String base, final int coord1,
-            final int coord2) {
-        return base + "_" + coord1 + "_" + coord2;
-    }
-
     public static Connector offsetBy(final double x, final double y,
             final double z, final double yaw, final double pitch,
             final double roll) {
@@ -95,6 +93,8 @@ public final class Connectors {
         return new Connector(transform);
     }
 
-    private Connectors() {
+    private static String makeAnchorName(final String base, final int coord1,
+            final int coord2) {
+        return base + "_" + coord1 + "_" + coord2;
     }
 }

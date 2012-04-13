@@ -13,23 +13,17 @@ public final class LightMover implements DirtyEventListener {
     private final Spatial spatial;
     private final PointLight light;
 
+    public LightMover(final Spatial spatial, final PointLight light) {
+        this.spatial = spatial;
+        this.light = light;
+    }
+
     public ReadOnlyVector3 getLightOffset() {
         return lightOffset;
     }
 
     public void setLightOffset(final ReadOnlyVector3 lightOffset) {
         this.lightOffset.set(lightOffset);
-    }
-
-    public LightMover(final Spatial spatial, final PointLight light) {
-        this.spatial = spatial;
-        this.light = light;
-    }
-
-    @Override
-    public boolean
-            spatialDirty(final Spatial spatial, final DirtyType dirtyType) {
-        return false;
     }
 
     @Override
@@ -40,6 +34,12 @@ public final class LightMover implements DirtyEventListener {
             tempPos.addLocal(lightOffset);
             light.setLocation(tempPos);
         }
+        return false;
+    }
+
+    @Override
+    public boolean
+            spatialDirty(final Spatial spatial, final DirtyType dirtyType) {
         return false;
     }
 }

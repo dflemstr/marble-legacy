@@ -10,6 +10,19 @@ import com.google.common.collect.ImmutableList;
  * Expresses a statement in the abstract language that describes a level.
  */
 public abstract class LevelStatement {
+    private final Integer location;
+
+    protected LevelStatement(final Integer location) {
+        this.location = location;
+    }
+
+    /**
+     * The location (index) in the source code that this statement occurs at.
+     */
+    public Integer getLocation() {
+        return location;
+    }
+
     /**
      * A class alias definition.
      */
@@ -252,18 +265,5 @@ public abstract class LevelStatement {
                     .add("position", position).add("relativeTo", relativeTo)
                     .toString();
         }
-    }
-
-    private final Integer location;
-
-    protected LevelStatement(final Integer location) {
-        this.location = location;
-    }
-
-    /**
-     * The location (index) in the source code that this statement occurs at.
-     */
-    public Integer getLocation() {
-        return location;
     }
 }

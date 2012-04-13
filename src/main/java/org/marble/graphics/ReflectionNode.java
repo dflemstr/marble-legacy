@@ -8,15 +8,15 @@ import org.marble.util.Shaders;
 
 public class ReflectionNode extends EnvironmentNode {
 
-    private static GLSLShaderObjectsState createReflectionShader() {
-        return Shaders.loadShader("reflection");
-    }
-
     public ReflectionNode(final Spatial root,
             final ReadOnlyColorRGBA environmentColor,
             final int textureSizeMagnitude) {
         super(root, environmentColor, createReflectionShader(),
                 textureSizeMagnitude);
+    }
+
+    private static GLSLShaderObjectsState createReflectionShader() {
+        return Shaders.loadShader("reflection");
     }
 
 }

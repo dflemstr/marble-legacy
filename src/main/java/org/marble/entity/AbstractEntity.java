@@ -21,6 +21,16 @@ public class AbstractEntity implements Entity {
     }
 
     @Override
+    public void destroy() {
+        // Do nothing
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
     public Matrix4d getTransform() {
         return transform;
     }
@@ -31,27 +41,17 @@ public class AbstractEntity implements Entity {
     }
 
     @Override
-    public void setTransform(final Matrix4d transform) {
-        this.transform.set(transform);
-    }
-
-    @Override
     public void setName(final String name) {
         this.name = name;
     }
 
     @Override
-    public String getName() {
-        return name;
+    public void setTransform(final Matrix4d transform) {
+        this.transform.set(transform);
     }
 
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("name", name).toString();
-    }
-
-    @Override
-    public void destroy() {
-        // Do nothing
     }
 }

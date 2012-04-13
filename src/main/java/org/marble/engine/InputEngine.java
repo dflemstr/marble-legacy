@@ -38,26 +38,16 @@ public class InputEngine extends Engine<Interactive> {
         // Do nothing
     }
 
-    @Override
-    protected void entityAdded(final Interactive entity) {
-        for (final InputTrigger trigger : entity.getTriggers()) {
-            logicalLayer.registerTrigger(trigger);
-        }
-    }
-
-    @Override
-    protected void entityRemoved(final Interactive entity) {
-        for (final InputTrigger trigger : entity.getTriggers()) {
-            logicalLayer.deregisterTrigger(trigger);
-        }
-    }
-
     public LogicalLayer getLogicalLayer() {
         return logicalLayer;
     }
 
     public MouseManager getMouseManager() {
         return mouseManager;
+    }
+
+    public PhysicalLayer getPhysicalLayer() {
+        return physicalLayer;
     }
 
     @Override
@@ -71,8 +61,18 @@ public class InputEngine extends Engine<Interactive> {
         return true;
     }
 
-    public PhysicalLayer getPhysicalLayer() {
-        return physicalLayer;
+    @Override
+    protected void entityAdded(final Interactive entity) {
+        for (final InputTrigger trigger : entity.getTriggers()) {
+            logicalLayer.registerTrigger(trigger);
+        }
+    }
+
+    @Override
+    protected void entityRemoved(final Interactive entity) {
+        for (final InputTrigger trigger : entity.getTriggers()) {
+            logicalLayer.deregisterTrigger(trigger);
+        }
     }
 
 }

@@ -12,6 +12,9 @@ public final class Shaders {
     private static final Map<String, Integer> shaderLoadCount = Maps
             .newHashMap();
 
+    private Shaders() {
+    }
+
     public static GLSLShaderObjectsState loadShader(final String name) {
         final GLSLShaderObjectsState shader = new GLSLShaderObjectsState();
 
@@ -37,8 +40,5 @@ public final class Shaders {
         shaderLoadCount.put(name, loadCount);
 
         return shader;
-    }
-
-    private Shaders() {
     }
 }

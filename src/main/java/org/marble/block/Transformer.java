@@ -35,10 +35,6 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
     private final Box graphicalBox;
     private final RigidBody physicalBox;
 
-    public Transformer(final String targetKind) {
-        this(BallKind.valueOf(targetKind));
-    }
-
     public Transformer(final BallKind targetKind) {
         this.targetKind = targetKind;
 
@@ -56,6 +52,25 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
         physicalBox = new RigidBody(info);
     }
 
+    public Transformer(final String targetKind) {
+        this(BallKind.valueOf(targetKind));
+    }
+
+    @Override
+    public RigidBody getBody() {
+        return physicalBox;
+    }
+
+    @Override
+    public Map<String, Connector> getConnectors() {
+        return ImmutableMap.of();
+    }
+
+    @Override
+    public Spatial getSpatial() {
+        return graphicalBox;
+    }
+
     @Override
     public void handleContactAdded(final Physical other) {
         if (other instanceof Ball) {
@@ -70,21 +85,6 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
     @Override
     public void handleContactRemoved(final Physical other) {
         // Do nothing
-    }
-
-    @Override
-    public Map<String, Connector> getConnectors() {
-        return ImmutableMap.of();
-    }
-
-    @Override
-    public Spatial getSpatial() {
-        return graphicalBox;
-    }
-
-    @Override
-    public RigidBody getBody() {
-        return physicalBox;
     }
 
     @Override

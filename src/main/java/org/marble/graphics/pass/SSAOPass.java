@@ -48,96 +48,6 @@ public class SSAOPass extends Pass {
     private boolean showOnlyAO = false;
     private boolean disableBlur = false;
 
-    /**
-     * @return the sample radius
-     */
-    public float getSampleRadius() {
-        return sampleRadius;
-    }
-
-    /**
-     * @param sampleRadius
-     *            the sample radius to set
-     */
-    public void setSampleRadius(final float sampleRadius) {
-        this.sampleRadius = sampleRadius;
-        ssaoShader.setUniform("sampleRadius", sampleRadius);
-    }
-
-    /**
-     * @return the intensity
-     */
-    public float getIntensity() {
-        return intensity;
-    }
-
-    /**
-     * @param intensity
-     *            the intensity to set
-     */
-    public void setIntensity(final float intensity) {
-        this.intensity = intensity;
-        ssaoShader.setUniform("intensity", intensity);
-    }
-
-    /**
-     * @return the scale
-     */
-    public float getScale() {
-        return scale;
-    }
-
-    /**
-     * @param scale
-     *            the scale to set
-     */
-    public void setScale(final float scale) {
-        this.scale = scale;
-        ssaoShader.setUniform("scale", scale);
-    }
-
-    /**
-     * @return the bias
-     */
-    public float getBias() {
-        return bias;
-    }
-
-    /**
-     * @param bias
-     *            the bias to set
-     */
-    public void setBias(final float bias) {
-        this.bias = bias;
-        ssaoShader.setUniform("bias", bias);
-    }
-
-    /**
-     * @return the cutoff
-     */
-    public float getCutoff() {
-        return cutoff;
-    }
-
-    /**
-     * @param cutoff
-     *            the cutoff to set
-     */
-    public void setCutoff(final float cutoff) {
-        this.cutoff = cutoff;
-        ssaoShader.setUniform("cutoff", cutoff);
-    }
-
-    private void writeUniforms() {
-        ssaoShader.setUniform("sampleRadius", sampleRadius);
-        ssaoShader.setUniform("intensity", intensity);
-        ssaoShader.setUniform("scale", scale);
-        ssaoShader.setUniform("bias", bias);
-        ssaoShader.setUniform("cutoff", cutoff);
-
-        blurShader.setUniform("showOnlyAO", showOnlyAO);
-    }
-
     public SSAOPass(final DisplaySettings displaySettings,
             final Texture2D depthTexture, final Texture2D normalTexture,
             final int downsamples) {
@@ -179,6 +89,129 @@ public class SSAOPass extends Pass {
         blurShader.setShaderDataLogic(new ScreenSpaceDataLogic());
 
         writeUniforms();
+    }
+
+    @Override
+    public void cleanUp() {
+        super.cleanUp();
+        if (screenRenderer != null) {
+            screenRenderer.cleanup();
+        }
+        if (ssaoRenderer != null) {
+            ssaoRenderer.cleanup();
+        }
+    }
+
+    /**
+     * @return the bias
+     */
+    public float getBias() {
+        return bias;
+    }
+
+    /**
+     * @return the cutoff
+     */
+    public float getCutoff() {
+        return cutoff;
+    }
+
+    /**
+     * @return the intensity
+     */
+    public float getIntensity() {
+        return intensity;
+    }
+
+    /**
+     * @return the sample radius
+     */
+    public float getSampleRadius() {
+        return sampleRadius;
+    }
+
+    /**
+     * @return the scale
+     */
+    public float getScale() {
+        return scale;
+    }
+
+    /**
+     * @param bias
+     *            the bias to set
+     */
+    public void setBias(final float bias) {
+        this.bias = bias;
+        ssaoShader.setUniform("bias", bias);
+    }
+
+    /**
+     * @param cutoff
+     *            the cutoff to set
+     */
+    public void setCutoff(final float cutoff) {
+        this.cutoff = cutoff;
+        ssaoShader.setUniform("cutoff", cutoff);
+    }
+
+    /**
+     * @param disableBlur
+     *            whether blur should be disabled
+     */
+    public void setDisableBlur(final boolean disableBlur) {
+        this.disableBlur = disableBlur;
+        blurShader.setUniform("disableBlur", disableBlur);
+    }
+
+    /**
+     * @param intensity
+     *            the intensity to set
+     */
+    public void setIntensity(final float intensity) {
+        this.intensity = intensity;
+        ssaoShader.setUniform("intensity", intensity);
+    }
+
+    /**
+     * @param sampleRadius
+     *            the sample radius to set
+     */
+    public void setSampleRadius(final float sampleRadius) {
+        this.sampleRadius = sampleRadius;
+        ssaoShader.setUniform("sampleRadius", sampleRadius);
+    }
+
+    /**
+     * @param scale
+     *            the scale to set
+     */
+    public void setScale(final float scale) {
+        this.scale = scale;
+        ssaoShader.setUniform("scale", scale);
+    }
+
+    /**
+     * @param showOnlyAO
+     *            whether to only render the ambient occlusion without tinting
+     */
+    public void setShowOnlyAO(final boolean showOnlyAO) {
+        this.showOnlyAO = showOnlyAO;
+        blurShader.setUniform("showOnlyAO", showOnlyAO);
+    }
+
+    /**
+     * @return whether blur should be disabled
+     */
+    public boolean shouldDisableBlur() {
+        return disableBlur;
+    }
+
+    /**
+     * @return whether to only render the ambient occlusion without tinting
+     */
+    public boolean shouldShowOnlyAO() {
+        return showOnlyAO;
     }
 
     private void ensurePassRenderer(final Renderer r) {
@@ -227,15 +260,14 @@ public class SSAOPass extends Pass {
         }
     }
 
-    @Override
-    public void cleanUp() {
-        super.cleanUp();
-        if (screenRenderer != null) {
-            screenRenderer.cleanup();
-        }
-        if (ssaoRenderer != null) {
-            ssaoRenderer.cleanup();
-        }
+    private void writeUniforms() {
+        ssaoShader.setUniform("sampleRadius", sampleRadius);
+        ssaoShader.setUniform("intensity", intensity);
+        ssaoShader.setUniform("scale", scale);
+        ssaoShader.setUniform("bias", bias);
+        ssaoShader.setUniform("cutoff", cutoff);
+
+        blurShader.setUniform("showOnlyAO", showOnlyAO);
     }
 
     @Override
@@ -258,37 +290,5 @@ public class SSAOPass extends Pass {
         fullScreenQuad.updateWorldRenderStates(false);
 
         r.draw((Renderable) fullScreenQuad);
-    }
-
-    /**
-     * @return whether to only render the ambient occlusion without tinting
-     */
-    public boolean shouldShowOnlyAO() {
-        return showOnlyAO;
-    }
-
-    /**
-     * @param showOnlyAO
-     *            whether to only render the ambient occlusion without tinting
-     */
-    public void setShowOnlyAO(final boolean showOnlyAO) {
-        this.showOnlyAO = showOnlyAO;
-        blurShader.setUniform("showOnlyAO", showOnlyAO);
-    }
-
-    /**
-     * @return whether blur should be disabled
-     */
-    public boolean shouldDisableBlur() {
-        return disableBlur;
-    }
-
-    /**
-     * @param disableBlur
-     *            whether blur should be disabled
-     */
-    public void setDisableBlur(final boolean disableBlur) {
-        this.disableBlur = disableBlur;
-        blurShader.setUniform("disableBlur", disableBlur);
     }
 }

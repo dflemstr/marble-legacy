@@ -131,21 +131,8 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
     }
 
     @Override
-    public void initialize(final Game game) {
-        particles.getParticleController().setUpdateOnlyInView(true);
-        particles.getParticleController().setViewCamera(
-                game.getGraphicsEngine().getCanvas().getCanvasRenderer()
-                        .getCamera());
-    }
-
-    @Override
     public RigidBody getBody() {
         return physicalLantern;
-    }
-
-    @Override
-    public Spatial getSpatial() {
-        return graphicalLantern;
     }
 
     @Override
@@ -157,6 +144,19 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
     @Override
     public Light getLight() {
         return light;
+    }
+
+    @Override
+    public Spatial getSpatial() {
+        return graphicalLantern;
+    }
+
+    @Override
+    public void initialize(final Game game) {
+        particles.getParticleController().setUpdateOnlyInView(true);
+        particles.getParticleController().setViewCamera(
+                game.getGraphicsEngine().getCanvas().getCanvasRenderer()
+                        .getCamera());
     }
 
 }

@@ -35,77 +35,6 @@ public final class LevelLoader {
     private final LevelParser parser = new LevelParser();
 
     /**
-     * Creates a new instance of the specified class of entity.
-     * 
-     * @param entityClass
-     *            The class of entity to instantiate.
-     * @param className
-     *            The name in the level data for the entity class.
-     * @param args
-     *            The construction arguments for the class.
-     * @param loc
-     *            The current source code location.
-     * @return A constructed entity instance of the specified class.
-     * @throws LevelLoadException
-     *             if it was impossible to instantiate the specified class.
-     */
-    Entity createEntity(final Class<? extends Entity> entityClass,
-            final ImmutableList<Object> args, final String className,
-            final int loc) throws LevelLoadException {
-
-        try {
-            return ConstructorUtils.invokeConstructor(entityClass,
-                    args.toArray());
-        } catch (final InstantiationException e) {
-            throw new LevelLoadException("Could not create a new `" + className
-                    + "': Class doesn't have an exposed constructor",
-                    LevelLoadException.Kind.INCOMPATIBLE_CLASS, loc, e);
-        } catch (final IllegalAccessException e) {
-            throw new LevelLoadException("Could not create a new `" + className
-                    + "': We are not allowed to load that class",
-                    LevelLoadException.Kind.INVALID_CLASS, loc, e);
-        } catch (final NoSuchMethodException e) {
-            throw new LevelLoadException("Could not create a new `" + className
-                    + "': Class doesn't have a constructor with " + args.size()
-                    + " arguments of the correct type(s)",
-                    LevelLoadException.Kind.INCOMPATIBLE_INITIALIZER, loc, e);
-        } catch (final InvocationTargetException e) {
-            throw new LevelLoadException("Error while initializing a `"
-                    + className + "': " + e.getCause().getMessage(),
-                    LevelLoadException.Kind.INITIALIZATION_ERROR, loc,
-                    e.getCause());
-        }
-    }
-
-    /**
-     * Locates the class file for a specified entity class.
-     * 
-     * @param className
-     *            The name of the entity class to locate.
-     * @param loc
-     *            The current source code location.
-     * @return The found class.
-     * @throws LevelLoadException
-     *             if the class could not be found or if it does not implement
-     *             the {@link Entity} interface.
-     */
-    Class<? extends Entity> loadEntityClass(final String className,
-            final int loc) throws LevelLoadException {
-
-        try {
-            return Class.forName(className).asSubclass(Entity.class);
-        } catch (final ClassNotFoundException e) {
-            throw new LevelLoadException("Could not load entity class `"
-                    + className + "': Class not found",
-                    LevelLoadException.Kind.INVALID_CLASS, loc, e);
-        } catch (final ClassCastException e) {
-            throw new LevelLoadException("Could not load entity class `"
-                    + className + "': Class is not an Entity",
-                    LevelLoadException.Kind.INCOMPATIBLE_CLASS, loc, e);
-        }
-    }
-
-    /**
      * Loads a level from the specified URL.
      * 
      * @param url
@@ -153,6 +82,13 @@ public final class LevelLoader {
             }
         }
         return statements;
+    }
+
+    public MetaLevelPack loadMetaLevelPack(final URL url) throws IOException,
+            JSONException {
+        final String input = Resources.toString(url, Charsets.UTF_8);
+        final JSONObject packObject = new JSONObject(input);
+        return loadMetaLevelPack(packObject, url);
     }
 
     /**
@@ -275,6 +211,109 @@ public final class LevelLoader {
     }
 
     /**
+     * Creates a new instance of the specified class of entity.
+     * 
+     * @param entityClass
+     *            The class of entity to instantiate.
+     * @param className
+     *            The name in the level data for the entity class.
+     * @param args
+     *            The construction arguments for the class.
+     * @param loc
+     *            The current source code location.
+     * @return A constructed entity instance of the specified class.
+     * @throws LevelLoadException
+     *             if it was impossible to instantiate the specified class.
+     */
+    Entity createEntity(final Class<? extends Entity> entityClass,
+            final ImmutableList<Object> args, final String className,
+            final int loc) throws LevelLoadException {
+
+        try {
+            return ConstructorUtils.invokeConstructor(entityClass,
+                    args.toArray());
+        } catch (final InstantiationException e) {
+            throw new LevelLoadException("Could not create a new `" + className
+                    + "': Class doesn't have an exposed constructor",
+                    LevelLoadException.Kind.INCOMPATIBLE_CLASS, loc, e);
+        } catch (final IllegalAccessException e) {
+            throw new LevelLoadException("Could not create a new `" + className
+                    + "': We are not allowed to load that class",
+                    LevelLoadException.Kind.INVALID_CLASS, loc, e);
+        } catch (final NoSuchMethodException e) {
+            throw new LevelLoadException("Could not create a new `" + className
+                    + "': Class doesn't have a constructor with " + args.size()
+                    + " arguments of the correct type(s)",
+                    LevelLoadException.Kind.INCOMPATIBLE_INITIALIZER, loc, e);
+        } catch (final InvocationTargetException e) {
+            throw new LevelLoadException("Error while initializing a `"
+                    + className + "': " + e.getCause().getMessage(),
+                    LevelLoadException.Kind.INITIALIZATION_ERROR, loc,
+                    e.getCause());
+        }
+    }
+
+    /**
+     * Locates the class file for a specified entity class.
+     * 
+     * @param className
+     *            The name of the entity class to locate.
+     * @param loc
+     *            The current source code location.
+     * @return The found class.
+     * @throws LevelLoadException
+     *             if the class could not be found or if it does not implement
+     *             the {@link Entity} interface.
+     */
+    Class<? extends Entity> loadEntityClass(final String className,
+            final int loc) throws LevelLoadException {
+
+        try {
+            return Class.forName(className).asSubclass(Entity.class);
+        } catch (final ClassNotFoundException e) {
+            throw new LevelLoadException("Could not load entity class `"
+                    + className + "': Class not found",
+                    LevelLoadException.Kind.INVALID_CLASS, loc, e);
+        } catch (final ClassCastException e) {
+            throw new LevelLoadException("Could not load entity class `"
+                    + className + "': Class is not an Entity",
+                    LevelLoadException.Kind.INCOMPATIBLE_CLASS, loc, e);
+        }
+    }
+
+    MetaLevelPack loadMetaLevelPack(final JSONObject object, final URL packURL)
+            throws JSONException {
+        return new MetaLevelPack(object.getString("name"),
+                Optional.fromNullable(object.optString("version")),
+                Optional.fromNullable(object.optString("description")),
+                Optional.fromNullable(object.optString("author")),
+                loadMetaLevels(object.getJSONArray("levels"), packURL));
+    }
+
+    ImmutableList<MetaLevel> loadMetaLevels(final JSONArray array,
+            final URL packURL) throws JSONException {
+        final ImmutableList.Builder<MetaLevel> resultBuilder =
+                ImmutableList.builder();
+        for (int i = 0; i < array.length(); i++) {
+            final JSONObject levelObject = array.getJSONObject(i);
+            try {
+                final String previewURIString =
+                        levelObject.optString("previewUri");
+                final Optional<URL> previewURI =
+                        previewURIString == null ? Optional.<URL> absent()
+                                : Optional
+                                        .of(new URL(packURL, previewURIString));
+                final URL url = new URL(packURL, levelObject.getString("uri"));
+                resultBuilder.add(new MetaLevel(levelObject.getString("name"),
+                        url, previewURI));
+            } catch (final MalformedURLException e) {
+                throw new RuntimeException("Invalid URI", e);
+            }
+        }
+        return resultBuilder.build();
+    }
+
+    /**
      * Checks to see that a connector is valid; throws an exception otherwise.
      */
     void validateConnector(final Connector connector,
@@ -311,44 +350,5 @@ public final class LevelLoader {
             throw new LevelLoadException("Entity `" + entityName
                     + "' does not support connectivity",
                     LevelLoadException.Kind.INCOMPATIBLE_ENTITY, loc);
-    }
-
-    public MetaLevelPack loadMetaLevelPack(final URL url) throws IOException,
-            JSONException {
-        final String input = Resources.toString(url, Charsets.UTF_8);
-        final JSONObject packObject = new JSONObject(input);
-        return loadMetaLevelPack(packObject, url);
-    }
-
-    MetaLevelPack loadMetaLevelPack(final JSONObject object, final URL packURL)
-            throws JSONException {
-        return new MetaLevelPack(object.getString("name"),
-                Optional.fromNullable(object.optString("version")),
-                Optional.fromNullable(object.optString("description")),
-                Optional.fromNullable(object.optString("author")),
-                loadMetaLevels(object.getJSONArray("levels"), packURL));
-    }
-
-    ImmutableList<MetaLevel> loadMetaLevels(final JSONArray array,
-            final URL packURL) throws JSONException {
-        final ImmutableList.Builder<MetaLevel> resultBuilder =
-                ImmutableList.builder();
-        for (int i = 0; i < array.length(); i++) {
-            final JSONObject levelObject = array.getJSONObject(i);
-            try {
-                final String previewURIString =
-                        levelObject.optString("previewUri");
-                final Optional<URL> previewURI =
-                        previewURIString == null ? Optional.<URL> absent()
-                                : Optional
-                                        .of(new URL(packURL, previewURIString));
-                final URL url = new URL(packURL, levelObject.getString("uri"));
-                resultBuilder.add(new MetaLevel(levelObject.getString("name"),
-                        url, previewURI));
-            } catch (final MalformedURLException e) {
-                throw new RuntimeException("Invalid URI", e);
-            }
-        }
-        return resultBuilder.build();
     }
 }

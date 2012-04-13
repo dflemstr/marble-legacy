@@ -102,6 +102,13 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
 
     /**
      * Creates a new ball.
+     */
+    public Ball(final String kind) {
+        this(BallKind.valueOf(kind));
+    }
+
+    /**
+     * Creates a new ball.
      * 
      * @param radius
      *            The radius.
@@ -110,11 +117,8 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         this(BallKind.valueOf(kind), radius);
     }
 
-    /**
-     * Creates a new ball.
-     */
-    public Ball(final String kind) {
-        this(BallKind.valueOf(kind));
+    public BallKind getBallKind() {
+        return kind;
     }
 
     @Override
@@ -125,6 +129,14 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     @Override
     public Spatial getSpatial() {
         return centerNode;
+    }
+
+    @Override
+    public void handleContactAdded(final Physical other) {
+    }
+
+    @Override
+    public void handleContactRemoved(final Physical other) {
     }
 
     @Override
@@ -223,27 +235,15 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         this.kind = kind;
     }
 
-    public BallKind getBallKind() {
-        return kind;
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("name", name).add("kind", kind)
+                .add("radius", radius).toString();
     }
 
     private void randomize(final Vector3 vec) {
         vec.setX(Math.random());
         vec.setY(Math.random());
         vec.setZ(Math.random());
-    }
-
-    @Override
-    public void handleContactAdded(final Physical other) {
-    }
-
-    @Override
-    public void handleContactRemoved(final Physical other) {
-    }
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).add("name", name).add("kind", kind)
-                .add("radius", radius).toString();
     }
 }

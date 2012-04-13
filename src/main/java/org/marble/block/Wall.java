@@ -50,11 +50,6 @@ public class Wall extends AbstractEntity implements Connected, Graphical,
     }
 
     @Override
-    public Spatial getSpatial() {
-        return graphicalBox;
-    }
-
-    @Override
     public RigidBody getBody() {
         return physicalBox;
     }
@@ -62,5 +57,10 @@ public class Wall extends AbstractEntity implements Connected, Graphical,
     @Override
     public Map<String, Connector> getConnectors() {
         return Connectors.fromBox(width, height, depth);
+    }
+
+    @Override
+    public Spatial getSpatial() {
+        return graphicalBox;
     }
 }

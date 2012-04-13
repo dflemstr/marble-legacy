@@ -24,15 +24,11 @@ public class DepthPass extends Pass {
     private TextureRenderer depthRenderer;
     private final Texture2D depthTexture;
 
-    public Texture2D getDepthTexture() {
-        return depthTexture;
-    }
-
     private final TextureState emptyTexture;
+
     private final ClipState emptyClip;
     private final CullState cullBackFace;
     private final LightState emptyLights;
-
     private final DisplaySettings displaySettings;
 
     public DepthPass(final DisplaySettings displaySettings) {
@@ -60,6 +56,18 @@ public class DepthPass extends Pass {
         emptyLights.setEnabled(false);
     }
 
+    @Override
+    public void cleanUp() {
+        super.cleanUp();
+        if (depthRenderer != null) {
+            depthRenderer.cleanup();
+        }
+    }
+
+    public Texture2D getDepthTexture() {
+        return depthTexture;
+    }
+
     private void ensurePassRenderer(final Renderer r) {
         if (depthRenderer == null) {
             depthRenderer =
@@ -74,14 +82,6 @@ public class DepthPass extends Pass {
             depthRenderer.enforceState(cullBackFace);
             depthRenderer.enforceState(emptyLights);
             depthRenderer.enforceState(emptyShader);
-        }
-    }
-
-    @Override
-    public void cleanUp() {
-        super.cleanUp();
-        if (depthRenderer != null) {
-            depthRenderer.cleanup();
         }
     }
 

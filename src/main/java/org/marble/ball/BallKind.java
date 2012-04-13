@@ -29,24 +29,24 @@ public enum BallKind {
     private final double angularDamping;
     private final double stability;
 
-    public double getMass() {
-        return mass;
-    }
-
-    public double getLinearDamping() {
-        return linearDamping;
-    }
-
-    public double getAngularDamping() {
-        return angularDamping;
-    }
-
     private BallKind(final double mass, final double linearDamping,
             final double angularDamping, final double stability) {
         this.mass = mass * MASS_SCALE;
         this.linearDamping = linearDamping;
         this.angularDamping = angularDamping;
         this.stability = stability * STABILITY_SCALE;
+    }
+
+    public double getAngularDamping() {
+        return angularDamping;
+    }
+
+    public double getLinearDamping() {
+        return linearDamping;
+    }
+
+    public double getMass() {
+        return mass;
     }
 
     public double getStability() {

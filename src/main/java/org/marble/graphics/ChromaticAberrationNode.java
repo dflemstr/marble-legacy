@@ -7,6 +7,13 @@ import com.ardor3d.scenegraph.Spatial;
 import org.marble.util.Shaders;
 
 public class ChromaticAberrationNode extends EnvironmentNode {
+    public ChromaticAberrationNode(final Spatial root,
+            final ReadOnlyColorRGBA environmentColor,
+            final int textureSizeMagnitude) {
+        super(root, environmentColor, createChromaticAberrationShader(),
+                textureSizeMagnitude);
+    }
+
     private static GLSLShaderObjectsState createChromaticAberrationShader() {
         final GLSLShaderObjectsState shader =
                 Shaders.loadShader("chromatic-aberration");
@@ -24,13 +31,6 @@ public class ChromaticAberrationNode extends EnvironmentNode {
         shader.setUniform("fresnelPower", 2.0f);
 
         return shader;
-    }
-
-    public ChromaticAberrationNode(final Spatial root,
-            final ReadOnlyColorRGBA environmentColor,
-            final int textureSizeMagnitude) {
-        super(root, environmentColor, createChromaticAberrationShader(),
-                textureSizeMagnitude);
     }
 
 }

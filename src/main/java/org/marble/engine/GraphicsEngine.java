@@ -36,10 +36,6 @@ public class GraphicsEngine extends Engine<Graphical> {
 
     private BasicPassManager passes;
 
-    public BasicPassManager getPasses() {
-        return passes;
-    }
-
     private final Map<Graphical, EntityController> controllers = Maps
             .newIdentityHashMap();
 
@@ -61,33 +57,6 @@ public class GraphicsEngine extends Engine<Graphical> {
         // Do nothing
     }
 
-    @Override
-    protected void entityAdded(final Graphical entity) {
-        final Spatial spatial = entity.getSpatial();
-        final EntityController controller = new EntityController(entity);
-
-        if (entity instanceof Emitter) {
-            lighting.attach(((Emitter) entity).getLight());
-        }
-
-        spatial.addController(controller);
-        controllers.put(entity, controller);
-        rootNode.attachChild(spatial);
-    }
-
-    @Override
-    protected void entityRemoved(final Graphical entity) {
-        final Spatial spatial = entity.getSpatial();
-        final EntityController controller = controllers.remove(entity);
-
-        if (entity instanceof Emitter) {
-            lighting.detach(((Emitter) entity).getLight());
-        }
-
-        spatial.removeController(controller);
-        rootNode.detachChild(spatial);
-    }
-
     /**
      * The canvas that is being rendered to.
      */
@@ -95,11 +64,19 @@ public class GraphicsEngine extends Engine<Graphical> {
         return canvas;
     }
 
+    public DisplaySettings getDisplaySettings() {
+        return displaySettings;
+    }
+
     /**
      * The lighting system in use.
      */
     public LightState getLighting() {
         return lighting;
+    }
+
+    public BasicPassManager getPasses() {
+        return passes;
     }
 
     /**
@@ -163,7 +140,30 @@ public class GraphicsEngine extends Engine<Graphical> {
         return !canvas.isClosing();
     }
 
-    public DisplaySettings getDisplaySettings() {
-        return displaySettings;
+    @Override
+    protected void entityAdded(final Graphical entity) {
+        final Spatial spatial = entity.getSpatial();
+        final EntityController controller = new EntityController(entity);
+
+        if (entity instanceof Emitter) {
+            lighting.attach(((Emitter) entity).getLight());
+        }
+
+        spatial.addController(controller);
+        controllers.put(entity, controller);
+        rootNode.attachChild(spatial);
+    }
+
+    @Override
+    protected void entityRemoved(final Graphical entity) {
+        final Spatial spatial = entity.getSpatial();
+        final EntityController controller = controllers.remove(entity);
+
+        if (entity instanceof Emitter) {
+            lighting.detach(((Emitter) entity).getLight());
+        }
+
+        spatial.removeController(controller);
+        rootNode.detachChild(spatial);
     }
 }

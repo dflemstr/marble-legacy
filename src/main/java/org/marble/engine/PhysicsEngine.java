@@ -51,6 +51,36 @@ public class PhysicsEngine extends Engine<Physical> {
         world.setGravity(new Vector3f(0, 0, -10));
     }
 
+    @Override
+    public void destroy() {
+        // Do nothing
+    }
+
+    @Override
+    public void initialize() {
+        BulletGlobals.setContactBreakingThreshold(0.1f);
+        BulletGlobals.setContactAddedCallback(new CollContactAdded(contacts));
+        BulletGlobals.setContactDestroyedCallback(new CollContactDestroyed(
+                contacts));
+    }
+
+    @Override
+    public boolean update(final ReadOnlyTimer timer) {
+        for (final Physical entity : entities) {
+            final RigidBody body = entity.getBody();
+            body.getMotionState().getWorldTransform(worldTransform);
+            body.setWorldTransform(worldTransform);
+            for (final Force force : forces.get(body)) {
+                force.calculateForce(forceMagnitude);
+                body.activate();
+                body.applyCentralForce(forceMagnitude);
+            }
+        }
+
+        world.stepSimulation((float) timer.getTimePerFrame(), 8);
+        return true;
+    }
+
     private DynamicsWorld createDynamicsWorld() {
         final DefaultCollisionConfiguration collisionConfiguration =
                 new DefaultCollisionConfiguration();
@@ -66,11 +96,6 @@ public class PhysicsEngine extends Engine<Physical> {
 
         return new DiscreteDynamicsWorld(dispatcher, broadphase, solver,
                 collisionConfiguration);
-    }
-
-    @Override
-    public void destroy() {
-        // Do nothing
     }
 
     @Override
@@ -100,30 +125,5 @@ public class PhysicsEngine extends Engine<Physical> {
             forces.removeAll(body);
         }
         entities.remove(entity);
-    }
-
-    @Override
-    public void initialize() {
-        BulletGlobals.setContactBreakingThreshold(0.1f);
-        BulletGlobals.setContactAddedCallback(new CollContactAdded(contacts));
-        BulletGlobals.setContactDestroyedCallback(new CollContactDestroyed(
-                contacts));
-    }
-
-    @Override
-    public boolean update(final ReadOnlyTimer timer) {
-        for (final Physical entity : entities) {
-            final RigidBody body = entity.getBody();
-            body.getMotionState().getWorldTransform(worldTransform);
-            body.setWorldTransform(worldTransform);
-            for (final Force force : forces.get(body)) {
-                force.calculateForce(forceMagnitude);
-                body.activate();
-                body.applyCentralForce(forceMagnitude);
-            }
-        }
-
-        world.stepSimulation((float) timer.getTimePerFrame(), 8);
-        return true;
     }
 }

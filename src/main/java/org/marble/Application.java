@@ -37,19 +37,6 @@ public class Application implements Runnable, Scene, Updater {
     // Should we restart the application the next time we exit?
     private static boolean shouldRestart;
 
-    /**
-     * Runs this application.
-     * 
-     * @param args
-     *            Command-line arguments specified when launching the
-     *            application.
-     */
-    public static void main(final String[] args) {
-        do {
-            new Application().run();
-        } while (shouldRestart);
-    }
-
     // Measures time between updates.
     private final Timer timer;
 
@@ -225,5 +212,18 @@ public class Application implements Runnable, Scene, Updater {
                 .getQueue(GameTaskQueue.UPDATE).execute();
 
         game.update(timer);
+    }
+
+    /**
+     * Runs this application.
+     * 
+     * @param args
+     *            Command-line arguments specified when launching the
+     *            application.
+     */
+    public static void main(final String[] args) {
+        do {
+            new Application().run();
+        } while (shouldRestart);
     }
 }

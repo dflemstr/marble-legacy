@@ -21,23 +21,23 @@ public class MetaLevelPack {
         this.levels = levels;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Optional<String> getVersion() {
-        return version;
-    }
-
-    public ImmutableList<MetaLevel> getLevels() {
-        return levels;
+    public Optional<String> getAuthor() {
+        return author;
     }
 
     public Optional<String> getDescription() {
         return description;
     }
 
-    public Optional<String> getAuthor() {
-        return author;
+    public ImmutableList<MetaLevel> getLevels() {
+        return levels;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Optional<String> getVersion() {
+        return version;
     }
 }

@@ -10,11 +10,6 @@ public class DoubleRingBuffer {
         buffer = new double[size];
     }
 
-    public void insert(final double value) {
-        final int index = cursor.getAndIncrement() % buffer.length;
-        buffer[index] = value;
-    }
-
     public double getAverage() {
         double result = 0.0;
 
@@ -23,5 +18,10 @@ public class DoubleRingBuffer {
         }
 
         return result / buffer.length;
+    }
+
+    public void insert(final double value) {
+        final int index = cursor.getAndIncrement() % buffer.length;
+        buffer[index] = value;
     }
 }

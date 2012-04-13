@@ -20,12 +20,12 @@ public class MetaLevel {
         return name;
     }
 
-    public URL getUri() {
-        return uri;
-    }
-
     public Optional<URL> getPreviewURI() {
         return previewURI;
+    }
+
+    public URL getUri() {
+        return uri;
     }
 
 }

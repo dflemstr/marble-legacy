@@ -15,7 +15,7 @@ public class FrustumSpaceDataLogic extends ScreenSpaceDataLogic {
         final Camera cam = Camera.getCurrentCamera();
 
         final double farY =
-                (cam.getFrustumTop() / cam.getFrustumNear())
+                cam.getFrustumTop() / cam.getFrustumNear()
                         * cam.getFrustumFar();
         final double farX =
                 farY * ((double) cam.getWidth() / (double) cam.getHeight());

@@ -38,22 +38,6 @@ public abstract class Engine<E extends Entity> {
     public abstract void destroy();
 
     /**
-     * Notifies the core of the engine that an entity has been added.
-     * 
-     * @param entity
-     *            The entity that was added.
-     */
-    protected abstract void entityAdded(E entity);
-
-    /**
-     * Notifies the core of the engine that an entity has been removed.
-     * 
-     * @param entity
-     *            The entity that has been removed.
-     */
-    protected abstract void entityRemoved(E entity);
-
-    /**
      * Initialization routine called before any entities are added.
      */
     public abstract void initialize();
@@ -93,4 +77,20 @@ public abstract class Engine<E extends Entity> {
      * @return Whether the engine is still usable.
      */
     public abstract boolean update(ReadOnlyTimer timer);
+
+    /**
+     * Notifies the core of the engine that an entity has been added.
+     * 
+     * @param entity
+     *            The entity that was added.
+     */
+    protected abstract void entityAdded(E entity);
+
+    /**
+     * Notifies the core of the engine that an entity has been removed.
+     * 
+     * @param entity
+     *            The entity that has been removed.
+     */
+    protected abstract void entityRemoved(E entity);
 }

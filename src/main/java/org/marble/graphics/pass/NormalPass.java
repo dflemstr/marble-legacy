@@ -26,15 +26,11 @@ public class NormalPass extends Pass {
     private TextureRenderer normalRenderer;
     private final Texture2D normalTexture;
 
-    public Texture2D getNormalTexture() {
-        return normalTexture;
-    }
-
     private final TextureState emptyTexture;
+
     private final ClipState emptyClip;
     private final CullState cullBackFace;
     private final LightState emptyLights;
-
     private final DisplaySettings displaySettings;
 
     public NormalPass(final DisplaySettings displaySettings) {
@@ -62,6 +58,18 @@ public class NormalPass extends Pass {
         emptyLights.setEnabled(false);
     }
 
+    @Override
+    public void cleanUp() {
+        super.cleanUp();
+        if (normalRenderer != null) {
+            normalRenderer.cleanup();
+        }
+    }
+
+    public Texture2D getNormalTexture() {
+        return normalTexture;
+    }
+
     private void ensurePassRenderer(final Renderer r) {
         if (normalRenderer == null) {
             normalRenderer =
@@ -76,14 +84,6 @@ public class NormalPass extends Pass {
             normalRenderer.enforceState(cullBackFace);
             normalRenderer.enforceState(emptyLights);
             normalRenderer.enforceState(normalShader);
-        }
-    }
-
-    @Override
-    public void cleanUp() {
-        super.cleanUp();
-        if (normalRenderer != null) {
-            normalRenderer.cleanup();
         }
     }
 
