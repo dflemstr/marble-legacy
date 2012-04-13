@@ -121,6 +121,7 @@ public class LevelParser {
             or(entityAliases, entityDeclarations, entityLinks, entityPositions)
                     .many().map(new ListFlattener<LevelStatement>()))
             .followedBy(Parsers.EOF);
+
     public Parser<ImmutableList<LevelStatement>> getParser() {
         return parser;
     }
@@ -145,6 +146,7 @@ public class LevelParser {
         }
 
     }
+
     /**
      * Converts something that might be null into the equivalent
      * {@link Optional} instance.
@@ -160,6 +162,7 @@ public class LevelParser {
         }
 
     }
+
     /**
      * Converts a String to a double object.
      */
@@ -169,6 +172,7 @@ public class LevelParser {
             return Double.valueOf(from);
         }
     }
+
     /**
      * Converts any list to an immutable list.
      * 

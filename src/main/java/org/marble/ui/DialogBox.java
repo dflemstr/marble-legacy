@@ -79,7 +79,7 @@ public class DialogBox extends UIFrame {
             uiButton.addActionListener(new ButtonActionListener(button));
             if (button.getIcon().isPresent()) {
                 final Texture iconTexture =
-                        TextureManager.load("icons/actions/dialog-"
+                        TextureManager.load("icons/actions/"
                                 + button.getIcon().get() + ".png",
                                 Texture.MinificationFilter.Trilinear, false);
                 uiButton.setIcon(new SubTex(iconTexture));
@@ -89,12 +89,13 @@ public class DialogBox extends UIFrame {
 
         final UILabel messageLabel = new UILabel(message);
         messageLabel.setGap(8);
+        messageLabel.setStyledText(true);
         messageLabel.setBorder(new EmptyBorder(16, 16, 16, 16));
         if (icon.isPresent()) {
             final Texture iconTexture =
-                    TextureManager.load("icons/status/dialog-"
-                            + icon.get().getIcon() + ".png",
-                            Texture.MinificationFilter.Trilinear, false);
+                    TextureManager.load("icons/status/" + icon.get().getIcon()
+                            + ".png", Texture.MinificationFilter.Trilinear,
+                            false);
             messageLabel.setIcon(new SubTex(iconTexture));
         }
 
@@ -123,11 +124,12 @@ public class DialogBox extends UIFrame {
     private static final Optional<String> absent = Optional.<String> absent();
 
     public enum Button {
-        OK(16, "OK", Optional.of("ok")), Cancel(8, "Cancel", Optional
-                .of("cancel")), Close(12, "Close", Optional.of("close")), Yes(
-                10, "Yes", absent), No(9, "No", absent), Abort(13, "Abort",
-                absent), Retry(14, "Retry", absent), Ignore(15, "Ignore",
-                absent);
+        OK(16, "OK", Optional.of("dialog-ok")), Cancel(8, "Cancel", Optional
+                .of("dialog-cancel")), Close(12, "Close", Optional
+                .of("dialog-close")), Yes(10, "Yes", Optional.of("dialog-ok")),
+        No(9, "No", Optional.of("dialog-ok")), Abort(13, "Abort", Optional
+                .of("process-stop")), Retry(14, "Retry", absent), Ignore(15,
+                "Ignore", absent);
         private final int weight;
         private final String label;
         private final Optional<String> icon;
@@ -153,8 +155,8 @@ public class DialogBox extends UIFrame {
     }
 
     public enum Icon {
-        Information("information"), Warning("warning"), Critical("critical"),
-        Question("information");
+        Information("dialog-information"), Warning("dialog-warning"), Critical(
+                "dialog-error"), Question("dialog-information");
         private final String icon;
 
         private Icon(final String icon) {

@@ -1,6 +1,7 @@
 package org.marble;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Set;
 
 import javax.vecmath.Matrix4d;
@@ -35,9 +36,12 @@ import com.ardor3d.scenegraph.extension.Skybox;
 import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.TextureManager;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
+import org.codehaus.jparsec.error.Location;
+import org.codehaus.jparsec.error.ParseErrorDetails;
 import org.codehaus.jparsec.error.ParserException;
 
 import org.marble.ball.BallKind;
@@ -59,6 +63,9 @@ import org.marble.level.LevelLoadException;
 import org.marble.level.LevelLoader;
 import org.marble.settings.Quality;
 import org.marble.settings.Settings;
+import org.marble.ui.DialogBox;
+import org.marble.ui.DialogBox.Button;
+import org.marble.ui.DialogBox.DialogListener;
 import org.marble.ui.Menu;
 
 /**
@@ -108,6 +115,7 @@ public class Game {
     private RenderVisitorPass preDrawingPass;
     private RenderVisitorPass postIlluminationPass;
     long seconds = 0;
+
     /**
      * Creates a new game instance.
      * 
@@ -131,6 +139,7 @@ public class Game {
                 ImmutableSet.<Engine<?>> of(graphicsEngine, inputEngine,
                         physicsEngine);
     }
+
     /**
      * Starts managing an entity.
      * 
@@ -146,6 +155,7 @@ public class Game {
 
         entities.add(entity);
     }
+
     /**
      * Performs deferred destruction of all subsystems.
      */
@@ -160,6 +170,7 @@ public class Game {
             engine.destroy();
         }
     }
+
     /**
      * The graphics engine that is in use.
      */
@@ -202,12 +213,89 @@ public class Game {
         setupUI();
         setupPasses();
 
+        loadLevel(Game.class.getResource("level/menu.level"));
+    }
+
+    private void loadLevel(final URL level) {
+
+        String errorMessage = null;
         try {
-            load(new LevelLoader().loadLevel(Game.class
-                    .getResource("level/menu.level")));
-        } catch (final Exception e) {
-            e.printStackTrace(); // TODO better error handling
+            load(new LevelLoader().loadLevel(level));
+        } catch (final ParserException e) {
+            errorMessage =
+                    describeParseError(e.getErrorDetails(), e.getLocation());
+
+        } catch (final LevelLoadException e) {
+            errorMessage =
+                    e.getMessage().replace("`", "[b]").replace("'", "[/b]")
+                            + "\nSee the program's error output for more information.";
+            e.printStackTrace();
+        } catch (final IOException e) {
+            errorMessage =
+                    e.getMessage().replace("`", "[b]").replace("'", "[/b]")
+                            + "\nSee the program's error output for more information.";
+            e.printStackTrace();
         }
+        if (errorMessage != null) {
+            final DialogBox dialog =
+                    new DialogBox("Error while loading the level",
+                            errorMessage, Optional.of(DialogBox.Icon.Critical),
+                            DialogBox.Button.Abort, DialogBox.Button.Retry,
+                            DialogBox.Button.Ignore);
+            dialog.setDialogListener(new LevelReloadDialogListener(level));
+            dialog.setLocationRelativeTo(getGraphicsEngine().getCanvas()
+                    .getCanvasRenderer().getCamera());
+            hud.add(dialog);
+        }
+    }
+
+    private String describeParseError(final ParseErrorDetails details,
+            final Location location) {
+        final StringBuilder builder = new StringBuilder();
+
+        if (location != null) {
+            builder.append("The text contained an error on line [b]"
+                    + location.line + "[/b], column [b]" + location.column
+                    + "[/b]");
+        }
+        if (details != null) {
+            builder.append(":\n");
+            if (details.getFailureMessage() != null) {
+                builder.append(details.getFailureMessage());
+            } else if (!details.getExpected().isEmpty()) {
+                builder.append("Expected:\n    ");
+                describeParseAlternatives(builder,
+                        ImmutableSet.copyOf(details.getExpected()));
+                builder.append("\nbut got:\n    \"[b]");
+                builder.append(details.getEncountered());
+                builder.append("[/b]\"");
+            } else if (details.getUnexpected() != null) {
+                builder.append("Unexpected [b]")
+                        .append(details.getUnexpected()).append("[/b].");
+            }
+        }
+        return builder.toString();
+    }
+
+    private void describeParseAlternatives(final StringBuilder builder,
+            final Set<String> messages) {
+        if (messages.isEmpty())
+            return;
+        final int size = messages.size();
+        int i = 0;
+
+        builder.append("[b]");
+        for (final String message : messages) {
+            if (i++ > 0) {
+                if (i == size) {
+                    builder.append("[/b] or [b]");
+                } else {
+                    builder.append("[/b], [b]");
+                }
+            }
+            builder.append(message);
+        }
+        builder.append("[/b]");
     }
 
     public void load(final ImmutableSet<Entity> level) throws ParserException,
@@ -244,6 +332,13 @@ public class Game {
      */
     public void restart() {
         runState = RunState.Restarting;
+    }
+
+    /**
+     * Tells the game to quit on the next update cycle.
+     */
+    public void quit() {
+        runState = RunState.Quitting;
     }
 
     public void setRunState(final RunState runState) {
@@ -457,6 +552,32 @@ public class Game {
         ball.setTransform(ballTransform);
         addEntity(ball);
         track(ball.getSpatial());
+    }
+
+    private final class LevelReloadDialogListener implements DialogListener {
+        private final URL level;
+
+        private LevelReloadDialogListener(final URL level) {
+            this.level = level;
+        }
+
+        @Override
+        public void dialogDone(final Button pressedButton) {
+            switch (pressedButton) {
+            case Abort:
+                quit();
+                break;
+            case Retry:
+                loadLevel(level);
+                break;
+            }
+            // Ignore = do nothing
+        }
+
+        @Override
+        public void dialogClosed() {
+            // Same as ignore
+        }
     }
 
     /**
