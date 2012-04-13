@@ -2,6 +2,7 @@ package org.marble.engine;
 
 import java.util.Map;
 
+import com.ardor3d.framework.DisplaySettings;
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.image.Texture;
 import com.ardor3d.renderer.pass.BasicPassManager;
@@ -26,6 +27,7 @@ import org.marble.graphics.scene.EntityController;
  */
 public class GraphicsEngine extends Engine<Graphical> {
     private final Node rootNode = new Node();
+    private final DisplaySettings displaySettings;
     private final NativeCanvas canvas;
     private ZBufferState zbuffer;
     private LightState lighting;
@@ -47,9 +49,11 @@ public class GraphicsEngine extends Engine<Graphical> {
      * @param canvas
      *            The canvas to render to.
      */
-    public GraphicsEngine(final NativeCanvas canvas) {
+    public GraphicsEngine(final NativeCanvas canvas,
+            final DisplaySettings displaySettings) {
         super(Graphical.class);
         this.canvas = canvas;
+        this.displaySettings = displaySettings;
     }
 
     @Override
@@ -157,5 +161,9 @@ public class GraphicsEngine extends Engine<Graphical> {
         rootNode.updateGeometricState(timer.getTimePerFrame(), true);
         passes.updatePasses(timer.getTimePerFrame());
         return !canvas.isClosing();
+    }
+
+    public DisplaySettings getDisplaySettings() {
+        return displaySettings;
     }
 }

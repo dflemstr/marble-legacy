@@ -2,6 +2,7 @@ package org.marble.graphics;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.ardor3d.framework.DisplaySettings;
 import com.ardor3d.image.Texture.EnvironmentalMapMode;
 import com.ardor3d.image.TextureCubeMap;
 import com.ardor3d.image.TextureCubeMap.Face;
@@ -114,10 +115,13 @@ public class EnvironmentNode extends Node implements PreDrawing {
         final ContextCapabilities caps =
                 ContextManager.getCurrentContext().getCapabilities();
 
+        final DisplaySettings settings =
+                new DisplaySettings(1 << textureSizeMagnitude,
+                        1 << textureSizeMagnitude, 24, 0, 0, 24, 0, 0, false,
+                        false);
         final TextureRenderer renderer =
-                TextureRendererFactory.INSTANCE.createTextureRenderer(
-                        1 << textureSizeMagnitude, 1 << textureSizeMagnitude,
-                        r, caps);
+                TextureRendererFactory.INSTANCE.createTextureRenderer(settings,
+                        false, r, caps);
         renderer.setBackgroundColor(environmentColor);
         renderer.getCamera().setFrustum(0.0625, 1024, -0.0625, 0.0625, 0.0625,
                 -0.0625);

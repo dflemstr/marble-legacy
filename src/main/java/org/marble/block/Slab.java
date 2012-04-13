@@ -84,7 +84,7 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
         this.depth = depth;
 
         graphicalBox =
-                new SegmentedBox("slab", 1, 1, 0.3, Vector3.ZERO, width / 2,
+                new SegmentedBox("slab", 1, 3, 0.3, Vector3.ZERO, width / 2,
                         height / 2, depth / 2);
 
         final CollisionShape geometricalBox =

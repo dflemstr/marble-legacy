@@ -115,7 +115,7 @@ public class Application implements Runnable, Scene, Updater {
         // Create the game.
         game =
                 new Game(canvas, logicalLayer, physicalLayer, mouseManager,
-                        settings);
+                        settings, displaySettings);
     }
 
     @Override

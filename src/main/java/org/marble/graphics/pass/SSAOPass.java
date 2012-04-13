@@ -4,8 +4,6 @@ import com.ardor3d.framework.DisplaySettings;
 import com.ardor3d.image.Texture;
 import com.ardor3d.image.Texture2D;
 import com.ardor3d.math.ColorRGBA;
-import com.ardor3d.math.Vector2;
-import com.ardor3d.math.Vector3;
 import com.ardor3d.renderer.Camera;
 import com.ardor3d.renderer.ContextManager;
 import com.ardor3d.renderer.Renderer;
@@ -19,6 +17,8 @@ import com.ardor3d.scenegraph.Renderable;
 import com.ardor3d.scenegraph.hint.CullHint;
 import com.ardor3d.scenegraph.shape.Quad;
 
+import org.marble.graphics.shader.FrustumSpaceDataLogic;
+import org.marble.graphics.shader.ScreenSpaceDataLogic;
 import org.marble.util.Shaders;
 
 public class SSAOPass extends Pass {
@@ -38,12 +38,111 @@ public class SSAOPass extends Pass {
     private final GLSLShaderObjectsState ssaoShader;
     private final GLSLShaderObjectsState blurShader;
 
-    private final Vector3 frustumCorner = new Vector3();
-    private final Vector2 resolution = new Vector2();
+    private final DisplaySettings displaySettings;
 
-    public SSAOPass(final Texture2D depthTexture,
-            final Texture2D normalTexture, final int downsamples) {
+    private float sampleRadius = 1.0f;
+    private float intensity = 8.0f;
+    private float scale = 1.0f;
+    private float bias = 0.1f;
+    private float cutoff = 0.99f;
+    private boolean showOnlyAO = false;
+    private boolean disableBlur = false;
+
+    /**
+     * @return the sample radius
+     */
+    public float getSampleRadius() {
+        return sampleRadius;
+    }
+
+    /**
+     * @param sampleRadius
+     *            the sample radius to set
+     */
+    public void setSampleRadius(final float sampleRadius) {
+        this.sampleRadius = sampleRadius;
+        ssaoShader.setUniform("sampleRadius", sampleRadius);
+    }
+
+    /**
+     * @return the intensity
+     */
+    public float getIntensity() {
+        return intensity;
+    }
+
+    /**
+     * @param intensity
+     *            the intensity to set
+     */
+    public void setIntensity(final float intensity) {
+        this.intensity = intensity;
+        ssaoShader.setUniform("intensity", intensity);
+    }
+
+    /**
+     * @return the scale
+     */
+    public float getScale() {
+        return scale;
+    }
+
+    /**
+     * @param scale
+     *            the scale to set
+     */
+    public void setScale(final float scale) {
+        this.scale = scale;
+        ssaoShader.setUniform("scale", scale);
+    }
+
+    /**
+     * @return the bias
+     */
+    public float getBias() {
+        return bias;
+    }
+
+    /**
+     * @param bias
+     *            the bias to set
+     */
+    public void setBias(final float bias) {
+        this.bias = bias;
+        ssaoShader.setUniform("bias", bias);
+    }
+
+    /**
+     * @return the cutoff
+     */
+    public float getCutoff() {
+        return cutoff;
+    }
+
+    /**
+     * @param cutoff
+     *            the cutoff to set
+     */
+    public void setCutoff(final float cutoff) {
+        this.cutoff = cutoff;
+        ssaoShader.setUniform("cutoff", cutoff);
+    }
+
+    private void writeUniforms() {
+        ssaoShader.setUniform("sampleRadius", sampleRadius);
+        ssaoShader.setUniform("intensity", intensity);
+        ssaoShader.setUniform("scale", scale);
+        ssaoShader.setUniform("bias", bias);
+        ssaoShader.setUniform("cutoff", cutoff);
+
+        blurShader.setUniform("showOnlyAO", showOnlyAO);
+    }
+
+    public SSAOPass(final DisplaySettings displaySettings,
+            final Texture2D depthTexture, final Texture2D normalTexture,
+            final int downsamples) {
         this.downsamples = downsamples;
+        this.displaySettings = displaySettings;
 
         screenTexture = new Texture2D();
         screenTexture.setWrap(Texture.WrapMode.Clamp);
@@ -71,33 +170,39 @@ public class SSAOPass extends Pass {
         ssaoShader.setUniform("screen", 0);
         ssaoShader.setUniform("depth", 1);
         ssaoShader.setUniform("normal", 2);
+        ssaoShader.setShaderDataLogic(new FrustumSpaceDataLogic());
 
         blurShader = Shaders.loadShader("ssao-blur");
-        ssaoShader.setUniform("screen", 0);
+        blurShader.setUniform("screen", 0);
         blurShader.setUniform("depth", 1);
         blurShader.setUniform("ssao", 2);
+        blurShader.setShaderDataLogic(new ScreenSpaceDataLogic());
+
+        writeUniforms();
     }
 
     private void ensurePassRenderer(final Renderer r) {
         if (screenRenderer == null) {
-            final Camera cam = Camera.getCurrentCamera();
-            final DisplaySettings settings =
-                    new DisplaySettings(cam.getWidth(), cam.getHeight(), 24, 0,
-                            0, 8, 0, 0, false, false);
             screenRenderer =
                     TextureRendererFactory.INSTANCE.createTextureRenderer(
-                            settings, false, r, ContextManager
+                            displaySettings, false, r, ContextManager
                                     .getCurrentContext().getCapabilities());
             screenRenderer.setBackgroundColor(new ColorRGBA(0.0f, 0.0f, 0.0f,
                     0.0f));
             screenRenderer.setupTexture(screenTexture);
         }
         if (ssaoRenderer == null) {
-            final Camera cam = Camera.getCurrentCamera();
             final DisplaySettings settings =
-                    new DisplaySettings(cam.getWidth() / downsamples,
-                            cam.getHeight() / downsamples, 24, 0, 0, 8, 0, 0,
-                            false, false);
+                    new DisplaySettings(displaySettings.getWidth()
+                            / downsamples, displaySettings.getHeight()
+                            / downsamples, displaySettings.getColorDepth(),
+                            displaySettings.getFrequency(),
+                            displaySettings.getAlphaBits(),
+                            displaySettings.getDepthBits(),
+                            displaySettings.getStencilBits(),
+                            displaySettings.getSamples(),
+                            displaySettings.isFullScreen(),
+                            displaySettings.isStereo());
             ssaoRenderer =
                     TextureRendererFactory.INSTANCE.createTextureRenderer(
                             settings, false, r, ContextManager
@@ -136,24 +241,10 @@ public class SSAOPass extends Pass {
     @Override
     protected void doRender(final Renderer r) {
         ensurePassRenderer(r);
+
         final Camera cam = Camera.getCurrentCamera();
-
-        resolution.set(cam.getWidth(), cam.getHeight());
-
-        final double farY =
-                (cam.getFrustumTop() / cam.getFrustumNear())
-                        * cam.getFrustumFar();
-        final double farX =
-                farY * ((double) cam.getWidth() / (double) cam.getHeight());
-        frustumCorner.set(farX, farY, cam.getFrustumFar());
-
         screenRenderer.copyToTexture(screenTexture, 0, 0, cam.getWidth(),
                 cam.getHeight(), 0, 0);
-
-        ssaoShader.setUniform("resolution", resolution);
-        ssaoShader.setUniform("znear", (float) cam.getFrustumNear());
-        ssaoShader.setUniform("zfar", (float) cam.getFrustumFar());
-        ssaoShader.setUniform("frustumCorner", frustumCorner);
 
         fullScreenQuad.setRenderState(ssaoTextureState);
         fullScreenQuad.setRenderState(ssaoShader);
@@ -162,14 +253,42 @@ public class SSAOPass extends Pass {
         ssaoRenderer.render(fullScreenQuad, ssaoTexture,
                 Renderer.BUFFER_COLOR_AND_DEPTH);
 
-        blurShader.setUniform("resolution", resolution);
-        blurShader.setUniform("znear", (float) cam.getFrustumNear());
-        blurShader.setUniform("zfar", (float) cam.getFrustumFar());
-
         fullScreenQuad.setRenderState(blurTextureState);
         fullScreenQuad.setRenderState(blurShader);
         fullScreenQuad.updateWorldRenderStates(false);
 
         r.draw((Renderable) fullScreenQuad);
+    }
+
+    /**
+     * @return whether to only render the ambient occlusion without tinting
+     */
+    public boolean shouldShowOnlyAO() {
+        return showOnlyAO;
+    }
+
+    /**
+     * @param showOnlyAO
+     *            whether to only render the ambient occlusion without tinting
+     */
+    public void setShowOnlyAO(final boolean showOnlyAO) {
+        this.showOnlyAO = showOnlyAO;
+        blurShader.setUniform("showOnlyAO", showOnlyAO);
+    }
+
+    /**
+     * @return whether blur should be disabled
+     */
+    public boolean shouldDisableBlur() {
+        return disableBlur;
+    }
+
+    /**
+     * @param disableBlur
+     *            whether blur should be disabled
+     */
+    public void setDisableBlur(final boolean disableBlur) {
+        this.disableBlur = disableBlur;
+        blurShader.setUniform("disableBlur", disableBlur);
     }
 }

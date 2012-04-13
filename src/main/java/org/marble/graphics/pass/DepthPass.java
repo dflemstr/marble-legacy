@@ -1,5 +1,6 @@
 package org.marble.graphics.pass;
 
+import com.ardor3d.framework.DisplaySettings;
 import com.ardor3d.image.Texture;
 import com.ardor3d.image.Texture2D;
 import com.ardor3d.image.TextureStoreFormat;
@@ -15,12 +16,10 @@ import com.ardor3d.renderer.state.CullState;
 import com.ardor3d.renderer.state.GLSLShaderObjectsState;
 import com.ardor3d.renderer.state.LightState;
 import com.ardor3d.renderer.state.TextureState;
-import com.ardor3d.scenegraph.Spatial;
 
 public class DepthPass extends Pass {
     private static final long serialVersionUID = 6442769845341890013L;
 
-    private final Spatial rootNode;
     private final GLSLShaderObjectsState emptyShader;
     private TextureRenderer depthRenderer;
     private final Texture2D depthTexture;
@@ -34,8 +33,10 @@ public class DepthPass extends Pass {
     private final CullState cullBackFace;
     private final LightState emptyLights;
 
-    public DepthPass(final Spatial rootNode) {
-        this.rootNode = rootNode;
+    private final DisplaySettings displaySettings;
+
+    public DepthPass(final DisplaySettings displaySettings) {
+        this.displaySettings = displaySettings;
 
         depthTexture = new Texture2D();
         depthTexture.setTextureStoreFormat(TextureStoreFormat.Depth32);
@@ -61,11 +62,10 @@ public class DepthPass extends Pass {
 
     private void ensurePassRenderer(final Renderer r) {
         if (depthRenderer == null) {
-            final Camera cam = Camera.getCurrentCamera();
             depthRenderer =
-                    TextureRendererFactory.INSTANCE.createTextureRenderer(cam
-                            .getWidth(), cam.getHeight(), r, ContextManager
-                            .getCurrentContext().getCapabilities());
+                    TextureRendererFactory.INSTANCE.createTextureRenderer(
+                            displaySettings, false, r, ContextManager
+                                    .getCurrentContext().getCapabilities());
             depthRenderer.setBackgroundColor(new ColorRGBA(0.0f, 0.0f, 0.0f,
                     0.0f));
             depthRenderer.setupTexture(depthTexture);
@@ -100,7 +100,7 @@ public class DepthPass extends Pass {
         depthRenderer.getCamera().setUp(cam.getUp());
         depthRenderer.getCamera().setLeft(cam.getLeft());
 
-        depthRenderer.render(rootNode, depthTexture,
+        depthRenderer.render(_spatials, depthTexture,
                 Renderer.BUFFER_COLOR_AND_DEPTH);
     }
 

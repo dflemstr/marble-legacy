@@ -9,35 +9,35 @@ uniform sampler2D depth;
 uniform vec2 resolution;
 uniform float znear;
 uniform float zfar;
-uniform float focalDepth = 0.0; // focal distance value in meters, but you may use autofocus option below
-uniform float focalLength = 40.0; // focal length in mm
-uniform float fstop = 1.4; // f-stop value
-uniform bool showFocus = false; // show debug focus point and focal range (red = focal point, green = focal range)
-uniform int samples = 3; // samples on the first ring
-uniform int rings = 3; // ring count
-uniform bool manualdof = false; // manual dof calculation
-uniform float ndofstart = 1.0; // near dof blur start
-uniform float ndofdist = 2.0; // near dof blur falloff distance
-uniform float fdofstart = 1.0; // far dof blur start
-uniform float fdofdist = 3.0; // far dof blur falloff distance
-uniform float CoC = 0.03; // circle of confusion size in mm (35mm film = 0.03mm)
-uniform bool vignetting = true; // use optical lens vignetting?
-uniform float vignout = 1.3; // vignetting outer border
-uniform float vignin = 0.0; // vignetting inner border
-uniform float vignfade = 22.0; // f-stops till vignete fades
-uniform bool autofocus = true; // use autofocus in shader? disable if you use external focalDepth value
-uniform vec2 focus = vec2(0.5,0.5); // autofocus point on screen (0.0,0.0 - left lower corner, 1.0,1.0 - upper right)
-uniform float maxblur = 1.0; // clamp value of max blur (0.0 = no blur,1.0 default)
-uniform float threshold = 0.5; // highlight threshold
-uniform float gain = 25.0; // highlight gain
-uniform float bias = 0.2; // bokeh edge bias
-uniform float fringe = 0.7; // bokeh chromatic aberration/fringing
-uniform bool noise = true; // use noise instead of pattern for sample dithering
-uniform float namount = 0.0001; // dither amount
-uniform bool depthblur = true; // blur the depth buffer?
-uniform float dbsize = 1.25; // depthblursize
-uniform bool pentagon = false; //use pentagon as bokeh shape?
-uniform float feather = 0.4; //pentagon shape feather
+uniform float focalDepth;
+uniform float focalLength;
+uniform float fstop;
+uniform bool showFocus;
+uniform int samples;
+uniform int rings;
+uniform bool manualDOF;
+uniform float nearDOFStart;
+uniform float nearDOFDistance;
+uniform float farDOFStart;
+uniform float farDOFDistance;
+uniform float coc;
+uniform bool vignetting;
+uniform float vignettingOuterBorder;
+uniform float vignettingInnerBorder;
+uniform float vignettingFade;
+uniform bool autoFocus;
+uniform vec2 focus;
+uniform float maxBlur;
+uniform float threshold;
+uniform float gain;
+uniform float bias;
+uniform float fringe;
+uniform bool noise;
+uniform float noiseDitherAmount;
+uniform bool depthBlur;
+uniform float depthBlurSize;
+uniform bool pentagonBokeh;
+uniform float pentagonFeather;
 
 varying vec2 coord;
 
@@ -46,7 +46,6 @@ float height = resolution.y;
 
 vec2 texel = vec2(1.0 / width, 1.0 / height);
 
-// pentagonal shape
 float penta(vec2 coords) {
     float scale = float(rings) - 1.3;
     vec4  HS0 = vec4( 1.0,          0.0,          0.0,  1.0);
@@ -68,26 +67,25 @@ float penta(vec2 coords) {
     dist.z = dot(P, HS2);
     dist.w = dot(P, HS3);
 
-    dist = smoothstep(-feather, feather, dist);
+    dist = smoothstep(-pentagonFeather, pentagonFeather, dist);
 
     inorout += dot(dist, one);
 
     dist.x = dot(P, HS4);
     dist.y = HS5.w - abs(P.z);
 
-    dist = smoothstep(feather, feather, dist);
+    dist = smoothstep(pentagonFeather, pentagonFeather, dist);
     inorout += dist.x;
 
     return clamp(inorout, 0.0, 1.0);
 }
 
-// blurring depth
 float bdepth(vec2 coords) {
     float d = 0.0;
     float kernel[9];
     vec2 offset[9];
 
-    vec2 wh = vec2(texel.x, texel.y) * dbsize;
+    vec2 wh = vec2(texel.x, texel.y) * depthBlurSize;
 
     offset[0] = vec2(-wh.x, -wh.y);
     offset[1] = vec2( 0.0,  -wh.y);
@@ -114,7 +112,6 @@ float bdepth(vec2 coords) {
     return d;
 }
 
-// processing the sample
 vec3 color(vec2 coords, float blur) {
     vec3 col;
 
@@ -128,7 +125,6 @@ vec3 color(vec2 coords, float blur) {
     return col + mix(vec3(0.0), col, thresh * blur);
 }
 
-// generating noise/pattern texture for dithering
 vec2 rand(vec2 coord) {
     float noiseX = ((fract(1.0 - coord.s * (width / 2.0)) * 0.25) + (fract(coord.t * (height / 2.0)) * 0.75)) * 2.0 - 1.0;
     float noiseY = ((fract(1.0 - coord.s * (width / 2.0)) * 0.75) + (fract(coord.t * (height / 2.0)) * 0.25)) * 2.0 - 1.0;
@@ -141,7 +137,7 @@ vec2 rand(vec2 coord) {
 }
 
 vec3 debugFocus(vec3 col, float blur, float depth) {
-    float edge = 0.002 * depth; // distance based edge smoothing
+    float edge = 0.002 * depth;
     float m = clamp(smoothstep(0.0,        edge, blur), 0.0, 1.0);
     float e = clamp(smoothstep(1.0 - edge, 1.0,  blur), 0.0, 1.0);
 
@@ -157,65 +153,53 @@ float linearize(float depth) {
 
 float vignette() {
     float dist = distance(gl_TexCoord[3].xy, vec2(0.5,0.5));
-    dist = smoothstep(vignout + (fstop / vignfade), vignin + (fstop / vignfade), dist);
+    dist = smoothstep(vignettingOuterBorder + (fstop / vignettingFade), vignettingInnerBorder + (fstop / vignettingFade), dist);
     return clamp(dist, 0.0, 1.0);
 }
 
 void main()
 {
-    // scene depth calculation
-
     float depthPoint = linearize(texture2D(depth, coord).r);
 
-    if (depthblur) {
+    if (depthBlur) {
         depthPoint = linearize(bdepth(coord));
     }
 
-    // focal plane calculation
-
     float fDepth = focalDepth;
 
-    if (autofocus) {
+    if (autoFocus) {
         fDepth = linearize(texture2D(depth, focus).r);
     }
 
-    // dof blur factor calculation
-
     float blur = 0.0;
 
-    if (manualdof) {
-        float a = depthPoint - fDepth; //focal plane
-        float b = (a - fdofstart) / fdofdist; //far DoF
-        float c = (-a - ndofstart) / ndofdist; //near Dof
+    if (manualDOF) {
+        float a = depthPoint - fDepth;
+        float b = (a - farDOFStart) / farDOFDistance;
+        float c = (-a - nearDOFStart) / nearDOFDistance;
         blur = (a > 0.0) ? b : c;
     } else {
-        float f = focalLength; //focal length in mm
-        float d = fDepth * 1000.0; //focal plane in mm
-        float o = depthPoint * 1000.0; //depth in mm
+        float f = focalLength;
+        float d = fDepth * 1000.0;
+        float o = depthPoint * 1000.0;
 
         float a = (o * f) / (o - f);
         float b = (d * f) / (d - f);
-        float c = (d - f) / (d * fstop * CoC);
+        float c = (d - f) / (d * fstop * coc);
 
         blur = abs(a - b) * c;
     }
 
     blur = clamp(blur, 0.0, 1.0);
 
-    // calculation of pattern for ditering
+    vec2 noise = rand(coord) * noiseDitherAmount * blur;
 
-    vec2 noise = rand(coord) * namount * blur;
-
-    // getting blur x and y step factor
-
-    float w = (1.0 / width)  * blur * maxblur + noise.x;
-    float h = (1.0 / height) * blur * maxblur + noise.y;
-
-    // calculation of final color
+    float w = (1.0 / width)  * blur * maxBlur + noise.x;
+    float h = (1.0 / height) * blur * maxBlur + noise.y;
 
     vec3 col = vec3(0.0);
 
-    if(blur < 0.05) { // some optimization thingy
+    if(blur < 0.05) {
         col = texture2D(screen, coord).rgb;
     } else {
         col = texture2D(screen, coord).rgb;
@@ -232,14 +216,14 @@ void main()
                 float pw = cos(float(j) * step) * float(i);
                 float ph = sin(float(j) * step) * float(i);
                 float p = 1.0;
-                if (pentagon) {
+                if (pentagonBokeh) {
                     p = penta(vec2(pw, ph));
                 }
                 col += color(coord + vec2(pw * w, ph * h), blur) * mix(1.0, float(i) / float(rings), bias) * p;
                 s += 1.0 * mix(1.0, float(i) / float(rings), bias) * p;
             }
         }
-        col /= s; // divide by sample count
+        col /= s;
     }
 
     if (showFocus) {
@@ -250,7 +234,5 @@ void main()
         col *= vignette();
     }
 
-    gl_FragColor.rgb = col;
-    gl_FragColor.a = 1.0;
-    // gl_FragColor = texture2D(depth, coord);
+    gl_FragColor = vec4(col, 1.0);
 }

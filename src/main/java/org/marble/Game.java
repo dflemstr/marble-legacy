@@ -10,6 +10,7 @@ import com.ardor3d.extension.effect.bloom.BloomRenderPass;
 import com.ardor3d.extension.ui.UIComponent;
 import com.ardor3d.extension.ui.UIHud;
 import com.ardor3d.framework.Canvas;
+import com.ardor3d.framework.DisplaySettings;
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.image.Texture;
 import com.ardor3d.image.Texture2D;
@@ -92,6 +93,52 @@ public class Game {
     // The main menu
     private Menu menu;
 
+    private final class ToggleDOFDebugFocus implements TriggerAction {
+        @Override
+        public void perform(final Canvas source,
+                final TwoInputStates inputStates, final double tpf) {
+            depthOfFieldPass.setShowFocus(!depthOfFieldPass.doesShowFocus());
+        }
+    }
+
+    private final class ToggleSSAOOnlyAO implements TriggerAction {
+        @Override
+        public void perform(final Canvas source,
+                final TwoInputStates inputStates, final double tpf) {
+            ssaoRenderPass.setShowOnlyAO(!ssaoRenderPass.shouldShowOnlyAO());
+
+            final boolean reducedMode =
+                    ssaoRenderPass.shouldShowOnlyAO()
+                            || ssaoRenderPass.shouldDisableBlur();
+            ssaoRenderPass.setIntensity(reducedMode ? 4.0f : 8.0f);
+            if (depthOfFieldPass != null) {
+                depthOfFieldPass.setEnabled(!reducedMode);
+            }
+            if (bloomRenderPass != null) {
+                bloomRenderPass.setEnabled(!reducedMode);
+            }
+        }
+    }
+
+    private final class ToggleSSAOBlur implements TriggerAction {
+        @Override
+        public void perform(final Canvas source,
+                final TwoInputStates inputStates, final double tpf) {
+            ssaoRenderPass.setDisableBlur(!ssaoRenderPass.shouldDisableBlur());
+
+            final boolean reducedMode =
+                    ssaoRenderPass.shouldShowOnlyAO()
+                            || ssaoRenderPass.shouldDisableBlur();
+            ssaoRenderPass.setIntensity(reducedMode ? 4.0f : 8.0f);
+            if (depthOfFieldPass != null) {
+                depthOfFieldPass.setEnabled(!reducedMode);
+            }
+            if (bloomRenderPass != null) {
+                bloomRenderPass.setEnabled(!reducedMode);
+            }
+        }
+    }
+
     /**
      * An action that toggles the visibility of the main menu.
      */
@@ -117,6 +164,14 @@ public class Game {
     }
 
     private RunState runState;
+    private SSAOPass ssaoRenderPass;
+    private DepthOfFieldPass depthOfFieldPass;
+    private BloomRenderPass bloomRenderPass;
+    private NormalPass normalPass;
+    private DepthPass depthPass;
+    private RenderPass renderPass;
+    private RenderVisitorPass preDrawingPass;
+    private RenderVisitorPass postIlluminationPass;
 
     /**
      * Creates a new game instance.
@@ -130,9 +185,9 @@ public class Game {
      */
     public Game(final NativeCanvas canvas, final LogicalLayer logicalLayer,
             final PhysicalLayer physicalLayer, final MouseManager mouseManager,
-            final Settings settings) {
+            final Settings settings, final DisplaySettings displaySettings) {
         this.settings = settings;
-        graphicsEngine = new GraphicsEngine(canvas);
+        graphicsEngine = new GraphicsEngine(canvas, displaySettings);
         inputEngine =
                 new InputEngine(logicalLayer, physicalLayer, mouseManager);
         physicsEngine = new PhysicsEngine();
@@ -211,8 +266,8 @@ public class Game {
 
         setupSkybox();
         setupCamera();
-        setupPasses();
         setupUI();
+        setupPasses();
 
         try {
             load(new LevelLoader().loadLevel(Game.class
@@ -274,10 +329,6 @@ public class Game {
                 .getPhysicalLayer(), getInputEngine().getLogicalLayer());
         hud.setMouseManager(getInputEngine().getMouseManager());
 
-        final RenderPass hudPass = new RenderPass();
-        hudPass.add(hud);
-        getGraphicsEngine().getPasses().add(hudPass);
-
         menu = new Menu(this);
         hud.add(menu);
 
@@ -288,64 +339,82 @@ public class Game {
 
     private void setupPasses() {
         final BasicPassManager manager = getGraphicsEngine().getPasses();
+        final Spatial rootNode = getGraphicsEngine().getRootNode();
+        final DisplaySettings displaySettings =
+                getGraphicsEngine().getDisplaySettings();
 
         {
-            final RenderVisitorPass preDrawingPass =
+            preDrawingPass =
                     new RenderVisitorPass(new PreDrawingVisitor(), true);
-            preDrawingPass.add(getGraphicsEngine().getRootNode());
+            preDrawingPass.add(rootNode);
             manager.add(preDrawingPass);
         }
 
         {
-            final RenderPass rootPass = new RenderPass();
-            rootPass.add(getGraphicsEngine().getRootNode());
-            manager.add(rootPass);
+            renderPass = new RenderPass();
+            renderPass.add(rootNode);
+            manager.add(renderPass);
         }
 
         Texture2D depthTexture = null;
         if (settings.ssao.getValue() || settings.dof.getValue()) {
-            final DepthPass depthPass =
-                    new DepthPass(getGraphicsEngine().getRootNode());
+            depthPass = new DepthPass(displaySettings);
+            depthPass.add(rootNode);
             depthTexture = depthPass.getDepthTexture();
             manager.add(depthPass);
         }
 
         Texture2D normalTexture = null;
         if (settings.ssao.getValue()) {
-            final NormalPass normalPass =
-                    new NormalPass(getGraphicsEngine().getRootNode());
+            normalPass = new NormalPass(displaySettings);
+            normalPass.add(rootNode);
             normalTexture = normalPass.getNormalTexture();
             manager.add(normalPass);
         }
 
         if (settings.ssao.getValue()) {
-            final SSAOPass ssaoRenderPass =
-                    new SSAOPass(depthTexture, normalTexture,
+            ssaoRenderPass =
+                    new SSAOPass(displaySettings, depthTexture, normalTexture,
                             Quality.values().length
                                     - settings.ssaoQuality.getValue().ordinal());
+            getInputEngine().getLogicalLayer().registerTrigger(
+                    new InputTrigger(new KeyPressedCondition(Key.ONE),
+                            new ToggleSSAOOnlyAO()));
+            getInputEngine().getLogicalLayer().registerTrigger(
+                    new InputTrigger(new KeyPressedCondition(Key.TWO),
+                            new ToggleSSAOBlur()));
             manager.add(ssaoRenderPass);
         }
 
         {
-            final RenderVisitorPass postIlluminationPass =
+            postIlluminationPass =
                     new RenderVisitorPass(new PostIlluminationVisitor(), true);
-            postIlluminationPass.add(getGraphicsEngine().getRootNode());
+            postIlluminationPass.add(rootNode);
             manager.add(postIlluminationPass);
         }
 
         if (settings.dof.getValue()) {
-            final DepthOfFieldPass depthOfFieldPass =
-                    new DepthOfFieldPass(depthTexture, 30, 1.4);
+            depthOfFieldPass =
+                    new DepthOfFieldPass(displaySettings, depthTexture);
+            getInputEngine().getLogicalLayer().registerTrigger(
+                    new InputTrigger(new KeyPressedCondition(Key.THREE),
+                            new ToggleDOFDebugFocus()));
             manager.add(depthOfFieldPass);
         }
 
         if (settings.bloom.getValue()) {
-            final BloomRenderPass bloomRenderPass =
+            bloomRenderPass =
                     new BloomRenderPass(getGraphicsEngine().getCanvas()
                             .getCanvasRenderer().getCamera(), 1);
             bloomRenderPass.setBlurSize(0.005f);
             bloomRenderPass.setUseCurrentScene(true);
             manager.add(bloomRenderPass);
+        }
+
+        {
+            final RenderPass hudPass = new RenderPass();
+            hudPass.add(hud);
+            manager.add(hudPass);
         }
     }
 
@@ -412,6 +481,8 @@ public class Game {
         cameraControl.setLookAtSpatial(spatial);
     }
 
+    long seconds = 0;
+
     /**
      * Advances the simulation one step.
      * 
@@ -425,8 +496,12 @@ public class Game {
         hud.updateGeometricState(timer.getTimePerFrame());
         cameraControl.update(timer.getTimePerFrame());
 
-        System.out.printf("%9.3f SPF%9.3f FPS%n", timer.getTimePerFrame(),
-                timer.getFrameRate());
+        final long newSeconds = (int) Math.floor(timer.getTimeInSeconds());
+        if (newSeconds != seconds) {
+            System.out.printf("%9.3f SPF%9.3f FPS%n", timer.getTimePerFrame(),
+                    timer.getFrameRate());
+            seconds = newSeconds;
+        }
 
         for (final Engine<?> engine : engines) {
             shouldContinue &= engine.update(timer);

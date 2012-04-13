@@ -1,5 +1,6 @@
 package org.marble.graphics.pass;
 
+import com.ardor3d.framework.DisplaySettings;
 import com.ardor3d.image.Texture;
 import com.ardor3d.image.Texture2D;
 import com.ardor3d.image.TextureStoreFormat;
@@ -15,14 +16,12 @@ import com.ardor3d.renderer.state.CullState;
 import com.ardor3d.renderer.state.GLSLShaderObjectsState;
 import com.ardor3d.renderer.state.LightState;
 import com.ardor3d.renderer.state.TextureState;
-import com.ardor3d.scenegraph.Spatial;
 
 import org.marble.util.Shaders;
 
 public class NormalPass extends Pass {
     private static final long serialVersionUID = -4575555443278463613L;
 
-    private final Spatial rootNode;
     private final GLSLShaderObjectsState normalShader;
     private TextureRenderer normalRenderer;
     private final Texture2D normalTexture;
@@ -36,8 +35,10 @@ public class NormalPass extends Pass {
     private final CullState cullBackFace;
     private final LightState emptyLights;
 
-    public NormalPass(final Spatial rootNode) {
-        this.rootNode = rootNode;
+    private final DisplaySettings displaySettings;
+
+    public NormalPass(final DisplaySettings displaySettings) {
+        this.displaySettings = displaySettings;
 
         normalTexture = new Texture2D();
         normalTexture.setTextureStoreFormat(TextureStoreFormat.RGB8);
@@ -63,11 +64,10 @@ public class NormalPass extends Pass {
 
     private void ensurePassRenderer(final Renderer r) {
         if (normalRenderer == null) {
-            final Camera cam = Camera.getCurrentCamera();
             normalRenderer =
-                    TextureRendererFactory.INSTANCE.createTextureRenderer(cam
-                            .getWidth(), cam.getHeight(), r, ContextManager
-                            .getCurrentContext().getCapabilities());
+                    TextureRendererFactory.INSTANCE.createTextureRenderer(
+                            displaySettings, false, r, ContextManager
+                                    .getCurrentContext().getCapabilities());
             normalRenderer.setBackgroundColor(new ColorRGBA(0.0f, 0.0f, 0.0f,
                     0.0f));
             normalRenderer.setupTexture(normalTexture);
@@ -102,7 +102,7 @@ public class NormalPass extends Pass {
         normalRenderer.getCamera().setUp(cam.getUp());
         normalRenderer.getCamera().setLeft(cam.getLeft());
 
-        normalRenderer.render(rootNode, normalTexture,
+        normalRenderer.render(_spatials, normalTexture,
                 Renderer.BUFFER_COLOR_AND_DEPTH);
     }
 

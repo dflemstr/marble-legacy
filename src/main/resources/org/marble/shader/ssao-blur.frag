@@ -6,6 +6,8 @@ uniform sampler2D depth;
 uniform vec2 resolution;
 uniform float znear;
 uniform float zfar;
+uniform bool showOnlyAO;
+uniform bool disableBlur;
 
 varying vec2 coord;
 
@@ -98,5 +100,15 @@ void main(void) {
     zsum += coefZ;
     sum += coefZ * texture2D(ssao, sample);
 
-    gl_FragColor = texture2D(screen, coord) * (sum / zsum);
+    vec4 amplitude;
+    if (disableBlur) {
+        amplitude = texture2D(ssao, sample);
+    } else {
+        amplitude = sum / zsum;
+    }
+    if (showOnlyAO) {
+        gl_FragColor = amplitude;
+    } else {
+        gl_FragColor = texture2D(screen, coord) * amplitude;
+    }
 }

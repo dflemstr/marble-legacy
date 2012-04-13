@@ -6,11 +6,11 @@ uniform vec2 resolution;
 uniform float znear;
 uniform float zfar;
 uniform vec3 frustumCorner;
-uniform float sampleRadius = 1.0;
-uniform float intensity = 8.0;
-uniform float scale = 1.0;
-uniform float bias = 0.1;
-uniform float cutoff = 0.99;
+uniform float sampleRadius;
+uniform float intensity;
+uniform float scale;
+uniform float bias;
+uniform float cutoff;
 uniform vec2[4] samples = { vec2(1.0, 0.0), vec2(-1.0, 0.0), vec2(0.0, 1.0), vec2(0.0, -1.0) };
 
 varying vec2 coord;
