@@ -441,6 +441,8 @@ public class Game {
         hud.setMouseManager(getInputEngine().getMouseManager());
 
         menu = new Menu(this);
+        menu.setLocationRelativeTo(getGraphicsEngine().getCanvas()
+                .getCanvasRenderer().getCamera());
         hud.add(menu);
 
         inputEngine.getLogicalLayer().registerTrigger(

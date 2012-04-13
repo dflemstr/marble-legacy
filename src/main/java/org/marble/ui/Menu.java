@@ -58,8 +58,6 @@ public class Menu extends UIFrame {
         setUseStandin(true);
         setOpacity(1f);
         setName("sample");
-        setLocationRelativeTo(game.getGraphicsEngine().getCanvas()
-                .getCanvasRenderer().getCamera());
     }
 
     private DisplayMode[] getResolutions() {
