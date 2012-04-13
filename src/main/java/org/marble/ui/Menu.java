@@ -67,6 +67,11 @@ public class Menu extends UIFrame {
         return modes;
     }
 
+    @Override
+    public void close() {
+        setVisible(false);
+    }
+
     private UIPanel makeLevelsPanel() {
 
         final UIPanel panel = new UIPanel(new GridLayout());
