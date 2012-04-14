@@ -109,7 +109,7 @@ public class GraphicsEngine extends Engine<Graphical> {
         rootNode.setRenderState(zbuffer);
 
         lighting = new LightState();
-        lighting.setGlobalAmbient(ColorRGBA.LIGHT_GRAY);
+        lighting.setGlobalAmbient(new ColorRGBA(0.4f, 0.4f, 0.4f, 1.0f));
         lighting.setEnabled(true);
         rootNode.setRenderState(lighting);
 

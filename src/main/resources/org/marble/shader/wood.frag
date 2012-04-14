@@ -112,6 +112,8 @@ void main(void) {
     float r2 = roughness * roughness;
     float a = 1.0 - 0.5 * r2 / (r2 + 0.33);
 
+    vec4 lightColor = gl_FrontLightModelProduct.sceneColor;
+
     int lightIndex;
     for (lightIndex = 0; lightIndex < lightCount; lightIndex++) {
         vec3 l = normalize(light[lightIndex]);
@@ -128,8 +130,9 @@ void main(void) {
 
         float diffuse = ldotn * (a + bTerm);
 
-        color += gl_FrontLightProduct[lightIndex].ambient;
-        color += gl_FrontLightProduct[lightIndex].diffuse * diffuse;
+        lightColor += gl_FrontLightProduct[lightIndex].ambient;
+        lightColor += gl_FrontLightProduct[lightIndex].diffuse  * max(0.0, diffuse);
+        lightColor += gl_FrontLightProduct[lightIndex].specular * max(0.0, diffuse);
     }
-    gl_FragColor = color;
+    gl_FragColor = color * lightColor;
 }
