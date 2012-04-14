@@ -5,6 +5,7 @@ import java.util.Map;
 import com.ardor3d.framework.DisplaySettings;
 import com.ardor3d.framework.NativeCanvas;
 import com.ardor3d.image.Texture;
+import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.renderer.pass.BasicPassManager;
 import com.ardor3d.renderer.queue.RenderBucketType;
 import com.ardor3d.renderer.state.CullState;
@@ -108,6 +109,7 @@ public class GraphicsEngine extends Engine<Graphical> {
         rootNode.setRenderState(zbuffer);
 
         lighting = new LightState();
+        lighting.setGlobalAmbient(ColorRGBA.LIGHT_GRAY);
         lighting.setEnabled(true);
         rootNode.setRenderState(lighting);
 

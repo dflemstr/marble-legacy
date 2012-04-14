@@ -44,7 +44,7 @@ public class DepthOfFieldPass extends Pass {
     private float farDOFStart = 1.0f;
     private float farDOFDistance = 3.0f;
     private float coc = 0.03f;
-    private boolean vignetting = true;
+    private boolean vignetting = false;
     private float vignettingOuterBorder = 1.3f;
     private float vignettingInnerBorder = 0.0f;
     private float vignettingFade = 22.0f;
