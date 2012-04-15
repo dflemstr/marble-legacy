@@ -1,78 +1,127 @@
 package org.marble.engine;
 
-import com.ardor3d.input.MouseManager;
-import com.ardor3d.input.PhysicalLayer;
-import com.ardor3d.input.logical.InputTrigger;
-import com.ardor3d.input.logical.LogicalLayer;
-import com.ardor3d.util.ReadOnlyTimer;
+import com.jme3.input.InputManager;
+import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
+import com.jme3.input.TouchInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.InputListener;
+import com.jme3.system.JmeContext;
 
-import org.marble.entity.Interactive;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
+import org.marble.entity.interactive.Interactive;
+import org.marble.input.PlayerInput;
 
 /**
  * The Ardor3D-based input engine.
  */
 public class InputEngine extends Engine<Interactive> {
 
-    private final LogicalLayer logicalLayer;
-    private final PhysicalLayer physicalLayer;
-    private final MouseManager mouseManager;
+    private final MouseInput mouseInput;
+    private final KeyInput keyInput;
+    private final TouchInput touchInput;
+
+    private final InputManager inputManager;
+
+    /**
+     * @return the inputManager
+     */
+    public InputManager getInputManager() {
+        return inputManager;
+    }
+
+    private final Multimap<Interactive, ActionListener> listeners =
+            HashMultimap.create();
 
     /**
      * Creates a new input engine.
-     * 
-     * @param logicalLayer
-     *            The layer for capturing input from.
-     * @param mouseManager
-     *            The manager for controlling the mouse.
      */
-    public InputEngine(final LogicalLayer logicalLayer,
-            final PhysicalLayer physicalLayer, final MouseManager mouseManager) {
+    public InputEngine(final JmeContext context) {
         super(Interactive.class);
-        this.logicalLayer = logicalLayer;
-        this.physicalLayer = physicalLayer;
-        this.mouseManager = mouseManager;
+        mouseInput = context.getMouseInput();
+        keyInput = context.getKeyInput();
+        touchInput = context.getTouchInput();
+
+        inputManager = new InputManager(mouseInput, keyInput, null, touchInput);
+    }
+
+    @Override
+    public void resume() {
+        inputManager.reset();
     }
 
     @Override
     public void destroy() {
-        // Do nothing
-    }
+        if (mouseInput != null) {
+            mouseInput.destroy();
+        }
 
-    public LogicalLayer getLogicalLayer() {
-        return logicalLayer;
-    }
+        if (keyInput != null) {
+            keyInput.destroy();
+        }
 
-    public MouseManager getMouseManager() {
-        return mouseManager;
-    }
-
-    public PhysicalLayer getPhysicalLayer() {
-        return physicalLayer;
+        if (touchInput != null) {
+            touchInput.destroy();
+        }
     }
 
     @Override
     public void initialize() {
+        if (mouseInput != null) {
+            mouseInput.initialize();
+        }
 
+        if (keyInput != null) {
+            keyInput.initialize();
+        }
+
+        if (touchInput != null) {
+            touchInput.initialize();
+        }
     }
 
     @Override
-    public boolean update(final ReadOnlyTimer timer) {
-        logicalLayer.checkTriggers(timer.getTimePerFrame());
-        return true;
+    public void update(final float timePerFrame) {
+        inputManager.update(timePerFrame);
     }
 
     @Override
     protected void entityAdded(final Interactive entity) {
-        for (final InputTrigger trigger : entity.getTriggers()) {
-            logicalLayer.registerTrigger(trigger);
+        for (final PlayerInput input : entity.handledInputs()) {
+            final InputActionListener listener =
+                    new InputActionListener(entity, input);
+            listeners.put(entity, listener);
+            inputManager.addListener(listener, input.getName());
         }
     }
 
     @Override
     protected void entityRemoved(final Interactive entity) {
-        for (final InputTrigger trigger : entity.getTriggers()) {
-            logicalLayer.deregisterTrigger(trigger);
+        for (final InputListener listener : listeners.get(entity)) {
+            inputManager.removeListener(listener);
         }
+        listeners.removeAll(entity);
     }
 
+    private static class InputActionListener implements ActionListener {
+        private final Interactive entity;
+        private final PlayerInput input;
+
+        public InputActionListener(final Interactive entity,
+                final PlayerInput input) {
+            this.entity = entity;
+            this.input = input;
+        }
+
+        @Override
+        public void onAction(final String name, final boolean isPressed,
+                final float tpf) {
+            if (input.getName().equals(name)) {
+                entity.handleInput(input, isPressed);
+            }
+        }
+
+    }
 }

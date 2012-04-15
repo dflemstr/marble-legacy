@@ -1,7 +1,5 @@
 package org.marble.engine;
 
-import com.ardor3d.util.ReadOnlyTimer;
-
 import org.marble.entity.Entity;
 
 /**
@@ -10,7 +8,7 @@ import org.marble.entity.Entity;
  * @param <E>
  *            The entity trait to handle.
  */
-public abstract class Engine<E extends Entity> {
+public class Engine<E extends Entity> {
     private final Class<E> entityType;
 
     protected Engine(final Class<E> entityType) {
@@ -35,12 +33,20 @@ public abstract class Engine<E extends Entity> {
     /**
      * Destruction routine called at the end of the simulation.
      */
-    public abstract void destroy();
+    public void destroy() {
+    }
 
     /**
      * Initialization routine called before any entities are added.
      */
-    public abstract void initialize();
+    public void initialize() {
+    }
+
+    public void suspend() {
+    }
+
+    public void resume() {
+    }
 
     /**
      * Makes this engine stop handling a specified entity. The entity must be
@@ -71,12 +77,9 @@ public abstract class Engine<E extends Entity> {
 
     /**
      * Advances the state of the engine by one step.
-     * 
-     * @param timer
-     *            The timer specifying how much time that has elapsed.
-     * @return Whether the engine is still usable.
      */
-    public abstract boolean update(ReadOnlyTimer timer);
+    public void update(final float timePerFrame) {
+    }
 
     /**
      * Notifies the core of the engine that an entity has been added.
@@ -84,7 +87,8 @@ public abstract class Engine<E extends Entity> {
      * @param entity
      *            The entity that was added.
      */
-    protected abstract void entityAdded(E entity);
+    protected void entityAdded(final E entity) {
+    }
 
     /**
      * Notifies the core of the engine that an entity has been removed.
@@ -92,5 +96,6 @@ public abstract class Engine<E extends Entity> {
      * @param entity
      *            The entity that has been removed.
      */
-    protected abstract void entityRemoved(E entity);
+    protected void entityRemoved(final E entity) {
+    }
 }

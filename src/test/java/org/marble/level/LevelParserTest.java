@@ -2,8 +2,7 @@ package org.marble.level;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.vecmath.Vector3d;
-import javax.vecmath.Vector3f;
+import com.jme3.math.Vector3f;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -48,7 +47,7 @@ public class LevelParserTest {
     public void entityDeclarations() {
         assertEquals(ImmutableList.of(new LevelStatement.Declaration(IGNORED,
                 "ball1", "String", ImmutableList.of((Object) "abc",
-                        (Object) 123.0, (Object) "abc"))),
+                        (Object) 123.0f, (Object) "abc"))),
                 parser.entityDeclarations
                         .parse("let ball1 be String ( [abc], 123, [abc] )   "));
     }
@@ -64,10 +63,10 @@ public class LevelParserTest {
     public void entityPositions() {
         final Optional<String> absent = Optional.absent();
         assertEquals(ImmutableList.of(new LevelStatement.Position(IGNORED, "a",
-                new Vector3d(1, 2, 3), absent)),
+                new Vector3f(1, 2, 3), absent)),
                 parser.entityPositions.parse("position a at ( 1, 2, 3)"));
         assertEquals(ImmutableList.of(new LevelStatement.Position(IGNORED, "a",
-                new Vector3d(1, 2, 3), Optional.of("b"))),
+                new Vector3f(1, 2, 3), Optional.of("b"))),
                 parser.entityPositions.parse("position a at ( 1, 2, 3) from b"));
     }
 
@@ -78,10 +77,10 @@ public class LevelParserTest {
 
     @Test
     public void number() {
-        assertEquals(2.0, parser.number.parse("2  "));
-        assertEquals(2.5, parser.number.parse("2.5  "));
-        assertEquals(0.5, parser.number.parse("0.5  "));
-        assertEquals(-0.5, parser.number.parse("-0.5  "));
+        assertEquals(2.0f, parser.number.parse("2  "));
+        assertEquals(2.5f, parser.number.parse("2.5  "));
+        assertEquals(0.5f, parser.number.parse("0.5  "));
+        assertEquals(-0.5f, parser.number.parse("-0.5  "));
     }
 
     @Test
@@ -96,9 +95,9 @@ public class LevelParserTest {
         assertEquals(ImmutableList.of(new Alias(IGNORED, "String",
                 "java.lang.String"), new Alias(IGNORED, "String2",
                 "java.lang.String"), new Declaration(IGNORED, "s1", "String",
-                ImmutableList.of((Object) 1.0, (Object) 2.0, (Object) "3")),
+                ImmutableList.of((Object) 1.0f, (Object) 2.0f, (Object) "3")),
                 new Declaration(IGNORED, "s2", "String2", ImmutableList.of()),
-                new Position(IGNORED, "s1", new Vector3d(0, 0, 0), absent),
+                new Position(IGNORED, "s1", new Vector3f(0, 0, 0), absent),
                 new Connection(IGNORED, "s1", "a", "s2", "b"), new Connection(
                         IGNORED, "s2", "a", "s1", "b")),
                 parser.parser.parse(level));

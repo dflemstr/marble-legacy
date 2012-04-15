@@ -1,0 +1,61 @@
+MaterialDef DepthOfField {
+    MaterialParameters {
+        Texture2D Texture
+        Texture2D DepthTexture
+        Float ZNear
+        Float ZFar
+        Float FocalDepth
+        Float FocalLength
+        Float FStop
+        Boolean ShowFocus
+        Int Samples
+        Int Rings
+        Boolean ManualDOF
+        Float NearDOFStart
+        Float NearDOFDistance
+        Float FarDOFStart
+        Float FarDOFDistance
+        Float CoC
+        Boolean Vignetting
+        Float VignettingOuterBorder
+        Float VignettingInnerBorder
+        Float VignettingFade
+        Boolean AutoFocus
+        Vector2 Focus
+        Float MaxBlur
+        Float Threshold
+        Float Gain
+        Float Bias
+        Float Fringe
+        Boolean Noise
+        Float NoiseDitherAmount
+        Boolean DepthBlur
+        Float DepthBlurSize
+        Boolean PentagonBokeh
+        Float PentagonFeather
+    }
+
+    Technique {
+        VertexShader GLSL120:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL120: Shaders/DepthOfField/DepthOfField.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            Resolution
+        }
+
+        Defines {
+            SHOW_FOCUS : ShowFocus
+            MANUAL_DOF : ManualDOF
+            VIGNETTING : Vignetting
+            AUTO_FOCUS : AutoFocus
+            NOISE : Noise
+            DEPTH_BLUR : DepthBlur
+            PENTAGON_BOKEH : PentagonBokeh
+        }
+    }
+
+    Technique FixedFunc {
+    }
+}

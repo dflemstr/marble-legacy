@@ -1,0 +1,8 @@
+Material Mercury : MatDefs/Optics/Reflection.j3md {
+    MaterialParameters {
+        Ambient : 1.0 1.0 1.0 1.0
+        Diffuse : 1.0 1.0 1.0 1.0
+        Specular : 2.0 2.0 2.0 1.0
+        Shininess: 64.0
+    }
+}

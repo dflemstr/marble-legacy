@@ -1,17 +1,17 @@
 package org.marble.util;
 
-import javax.vecmath.Vector3d;
+import com.jme3.math.Vector3f;
 
 /**
  * Represents a cardinal direction.
  */
 public enum Direction {
-    NORTH(0, 1, 0), EAST(1, 0, 0), SOUTH(0, -1, 0), WEST(-1, 0, 0),
-    UP(0, 0, 1), DOWN(0, 0, -1);
-    private Vector3d physicalDirection;
+    North(0, 1, 0), East(1, 0, 0), South(0, -1, 0), West(-1, 0, 0),
+    Up(0, 0, 1), Down(0, 0, -1);
+    private Vector3f physicalDirection;
 
-    private Direction(final double x, final double y, final double z) {
-        physicalDirection = new Vector3d(x, y, z);
+    private Direction(final float x, final float y, final float z) {
+        physicalDirection = new Vector3f(x, y, z);
     }
 
     /**
@@ -21,7 +21,7 @@ public enum Direction {
      * @return A mutable reference to the physical direction. This vector must
      *         not be altered.
      */
-    public Vector3d getPhysicalDirection() {
+    public Vector3f getPhysicalDirection() {
         return physicalDirection;
     }
 }

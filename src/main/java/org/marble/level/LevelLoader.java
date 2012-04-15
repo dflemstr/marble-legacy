@@ -8,8 +8,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
+import com.jme3.math.FastMath;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Transform;
+import com.jme3.math.Vector3f;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
@@ -24,9 +28,9 @@ import org.json.JSONObject;
 
 import org.codehaus.jparsec.error.ParserException;
 
-import org.marble.entity.Connected;
-import org.marble.entity.Connector;
 import org.marble.entity.Entity;
+import org.marble.entity.connected.Connected;
+import org.marble.entity.connected.Connector;
 
 /**
  * A class for loading level data from level files.
@@ -111,8 +115,12 @@ public final class LevelLoader {
         final ImmutableSet.Builder<Entity> entityBuilder =
                 ImmutableSet.builder();
         // Temporary variables:
-        final Matrix4d transform = new Matrix4d();
-        final Vector3d translation = new Vector3d();
+        final Matrix4f baseMatrix = new Matrix4f();
+        final Matrix4f transformMatrix = new Matrix4f();
+        final Matrix3f rotationMatrix = new Matrix3f();
+        final Quaternion rotationQuaternion = new Quaternion();
+        final Vector3f translationVector = new Vector3f();
+        final Transform movedTransform = new Transform();
 
         for (final LevelStatement statement : statements) {
             final int loc = statement.getLocation();
@@ -154,13 +162,45 @@ public final class LevelLoader {
 
                 // Calculate the transformation that aligns the moved connector
                 // to the base connector
-                baseConnector.transformInto(movedConnector, transform);
+                baseConnector.transformInto(movedConnector, transformMatrix);
 
                 // Create the offset transform relative to the base entity
-                transform.mul(baseEntity.getTransform(), transform);
+                final Transform baseTransform = baseEntity.getTransform();
+                baseMatrix.loadIdentity();
+                baseMatrix.scale(baseTransform.getScale());
+                baseMatrix.multLocal(baseTransform.getRotation());
+                baseMatrix.setTranslation(baseTransform.getTranslation());
+
+                baseMatrix.multLocal(transformMatrix);
+
+                final float scaleX =
+                        FastMath.sqrt(FastMath.sqr(baseMatrix.get(0, 0))
+                                + FastMath.sqr(baseMatrix.get(1, 0))
+                                + FastMath.sqr(baseMatrix.get(2, 0)));
+                final float scaleY =
+                        FastMath.sqrt(FastMath.sqr(baseMatrix.get(0, 1))
+                                + FastMath.sqr(baseMatrix.get(1, 1))
+                                + FastMath.sqr(baseMatrix.get(2, 1)));
+                final float scaleZ =
+                        FastMath.sqrt(FastMath.sqr(baseMatrix.get(0, 2))
+                                + FastMath.sqr(baseMatrix.get(1, 2))
+                                + FastMath.sqr(baseMatrix.get(2, 2)));
+
+                for (int x = 0; x < 3; x++) {
+                    rotationMatrix.set(x, 0, baseMatrix.get(x, 0) / scaleX);
+                    rotationMatrix.set(x, 1, baseMatrix.get(x, 1) / scaleY);
+                    rotationMatrix.set(x, 2, baseMatrix.get(x, 2) / scaleZ);
+                }
+
+                movedTransform.loadIdentity();
+                rotationQuaternion.fromRotationMatrix(rotationMatrix);
+                movedTransform.setRotation(rotationQuaternion);
+                movedTransform.setTranslation(baseMatrix.get(0, 3),
+                        baseMatrix.get(1, 3), baseMatrix.get(2, 3));
+                movedTransform.setScale(scaleX, scaleY, scaleZ);
 
                 // Use the calculated transform for the moved entity
-                movedEntity.setTransform(transform);
+                movedEntity.setTransform(movedTransform);
             } else if (statement instanceof LevelStatement.Declaration) {
                 final LevelStatement.Declaration declaration =
                         (LevelStatement.Declaration) statement;
@@ -184,8 +224,8 @@ public final class LevelLoader {
                         (LevelStatement.Position) statement;
                 final Entity movedEntity = entityNames.get(position.getName());
                 validateEntity(movedEntity, position.getName(), loc);
-                transform.setIdentity();
 
+                movedTransform.loadIdentity();
                 // Should we position the entity relative to some other entity?
                 if (position.getRelativeTo().isPresent()) {
                     final String relativeToName =
@@ -197,13 +237,13 @@ public final class LevelLoader {
                     // other entity, one might want to make the offset relative
                     // (so that if the base entity is rotated, the moved
                     // entity's offset is relative to that rotation)
-                    baseEntity.getTransform().get(translation);
-                    translation.add(position.getPosition());
-                    transform.setTranslation(translation);
+                    baseEntity.getTransform().getTranslation(translationVector);
+                    translationVector.addLocal(position.getPosition());
+                    movedTransform.setTranslation(translationVector);
                 } else {
-                    transform.setTranslation(position.getPosition());
+                    movedTransform.setTranslation(position.getPosition());
                 }
-                movedEntity.setTransform(transform);
+                movedEntity.setTransform(movedTransform);
             }
         }
 

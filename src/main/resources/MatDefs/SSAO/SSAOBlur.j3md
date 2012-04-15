@@ -1,0 +1,30 @@
+MaterialDef SSAOBlur {
+    MaterialParameters {
+        Texture2D Texture;
+        Texture2D SSAOTexture;
+        Texture2D DepthTexture;
+        Float ZNear;
+        Float ZFar;
+        Boolean ShowOnlyAO;
+        Boolean DisableBlur;
+    }
+
+    Technique {
+        VertexShader GLSL120:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL120: Shaders/SSAO/SSAOBlur.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            Resolution
+        }
+
+        Defines {
+            SHOW_ONLY_AO : ShowOnlyAO
+            DISABLE_BLUR : DisableBlur
+        }
+    }
+
+    Technique FixedFunc {
+    }
+}

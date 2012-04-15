@@ -1,8 +1,9 @@
 package org.marble.graphics;
 
-import com.ardor3d.math.type.ReadOnlyVector3;
-import com.ardor3d.scenegraph.MeshData;
-import com.ardor3d.scenegraph.shape.Box;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.util.BufferUtils;
 
 /**
  * A dynamically sized segmented box that maintains proportionally applied
@@ -10,10 +11,7 @@ import com.ardor3d.scenegraph.shape.Box;
  * texture will be retained as specified, and the center parts of the texture
  * will be repeated according to an algorithm.
  */
-public class SegmentedBox extends Box {
-    private final double borderSize;
-    private final double middleSize;
-    private final double textureBorderSize;
+public class SegmentedBox extends Mesh {
 
     /**
      * Creates a new segmented box.
@@ -21,8 +19,6 @@ public class SegmentedBox extends Box {
      * It is recommended to keep {@code borderSize} and {@code middleSize} as
      * close as possible to get a natural-looking object.
      * 
-     * @param name
-     *            The name of the box.
      * @param borderSize
      *            How large, in world space, that the border should be rendered
      *            as.
@@ -37,12 +33,10 @@ public class SegmentedBox extends Box {
      *            {@code 0.1} would make 2x10% along one axis of the texture be
      *            the border, and 80% be part of the repeated middle.
      */
-    public SegmentedBox(final String name, final double borderSize,
-            final double middleSize, final double textureBorderSize) {
-        super(name);
-        this.borderSize = borderSize;
-        this.middleSize = middleSize;
-        this.textureBorderSize = textureBorderSize;
+    public SegmentedBox(final float borderSize, final float middleSize,
+            final float textureBorderSize) {
+        this(borderSize, middleSize, textureBorderSize, Vector3f.ZERO, 0.5f,
+                0.5f, 0.5f);
     }
 
     /**
@@ -50,9 +44,6 @@ public class SegmentedBox extends Box {
      * 
      * It is recommended to keep {@code borderSize} and {@code middleSize} as
      * close as possible to get a natural-looking object.
-     * 
-     * @param name
-     *            The name of the box.
      * 
      * @param borderSize
      *            How large, in world space, that the border should be rendered
@@ -82,93 +73,51 @@ public class SegmentedBox extends Box {
      * @param extentZ
      *            How far the box should extend from the center in z-direction.
      */
-    public SegmentedBox(final String name, final double borderSize,
-            final double middleSize, final double textureBorderSize,
-            final ReadOnlyVector3 center, final double extentX,
-            final double extentY, final double extentZ) {
-        super(name, center, extentX, extentY, extentZ);
-        this.borderSize = borderSize;
-        this.middleSize = middleSize;
-        this.textureBorderSize = textureBorderSize;
-        setData(center, extentX, extentY, extentZ);
+    public SegmentedBox(final float borderSize, final float middleSize,
+            final float textureBorderSize, final Vector3f center,
+            final float extentX, final float extentY, final float extentZ) {
+        super();
+        updateGeometry(center, extentX, extentY, extentZ, borderSize,
+                middleSize, textureBorderSize);
     }
 
-    /**
-     * Creates a new segmented box.
-     * 
-     * It is recommended to keep {@code borderSize} and {@code middleSize} as
-     * close as possible to get a natural-looking object.
-     * 
-     * @param name
-     *            The name of the box.
-     * 
-     * @param borderSize
-     *            How large, in world space, that the border should be rendered
-     *            as.
-     * 
-     * @param middleSize
-     *            How large, in world space, that a repeated middle tile should
-     *            be. Middle tiles are guaranteed to have at most this size; the
-     *            middle space is repartitioned to accommodate more tiles to
-     *            ensure this is the case.
-     * 
-     * @param textureBorderSize
-     *            A value between 0 and 1 specifying how much of the texture or
-     *            applied material to reserve for the static border. A value of
-     *            {@code 0.1} would make 2x10% along one axis of the texture be
-     *            the border, and 80% be part of the repeated middle.
-     * @param pntA
-     *            One of the corners of the box.
-     * @param pntB
-     *            The corner opposite to the first one.
-     */
-    public SegmentedBox(final String name, final double borderSize,
-            final double middleSize, final double textureBorderSize,
-            final ReadOnlyVector3 pntA, final ReadOnlyVector3 pntB) {
-        super(name, pntA, pntB);
-        this.borderSize = borderSize;
-        this.middleSize = middleSize;
-        this.textureBorderSize = textureBorderSize;
-        setData(pntA, pntB);
-    }
-
-    @Override
-    public void setData(final ReadOnlyVector3 center, final double extentX,
-            final double extentY, final double extentZ) {
+    private void updateGeometry(final Vector3f center, final float extentX,
+            final float extentY, final float extentZ, final float borderSize,
+            final float middleSize, final float textureBorderSize) {
         if (!(borderSize > 0 && middleSize > 0 && textureBorderSize > 0 && textureBorderSize < 1))
             return;
-        final double texBorderUpper = textureBorderSize;
-        final double texBorderLower = 1 - textureBorderSize;
+        final float texBorderUpper = textureBorderSize;
+        final float texBorderLower = 1 - textureBorderSize;
 
-        final double centerX = center.getXf();
-        final double centerY = center.getYf();
-        final double centerZ = center.getZf();
+        final float centerX = center.getX();
+        final float centerY = center.getY();
+        final float centerZ = center.getZ();
 
-        final double north = centerY + extentY;
-        final double south = centerY - extentY;
-        final double east = centerX + extentX;
-        final double west = centerX - extentX;
-        final double down = centerZ - extentZ;
-        final double up = centerZ + extentZ;
+        final float north = centerY + extentY;
+        final float south = centerY - extentY;
+        final float east = centerX + extentX;
+        final float west = centerX - extentX;
+        final float down = centerZ - extentZ;
+        final float up = centerZ + extentZ;
 
-        final double borderNorth = north - borderSize;
-        final double borderSouth = south + borderSize;
-        final double borderEast = east - borderSize;
-        final double borderWest = west + borderSize;
+        final float borderNorth = north - borderSize;
+        final float borderSouth = south + borderSize;
+        final float borderEast = east - borderSize;
+        final float borderWest = west + borderSize;
 
-        final double middleSizeX = 2 * (extentX - borderSize);
-        final double middleSizeY = 2 * (extentY - borderSize);
+        final float middleSizeX = 2 * (extentX - borderSize);
+        final float middleSizeY = 2 * (extentY - borderSize);
 
         final int segmentsX =
                 Math.max(0, (int) Math.ceil(middleSizeX / middleSize));
         final int segmentsY =
                 Math.max(0, (int) Math.ceil(middleSizeY / middleSize));
 
-        final double segmentSizeX = middleSizeX / segmentsX;
-        final double segmentSizeY = middleSizeY / segmentsY;
+        final float segmentSizeX = middleSizeX / segmentsX;
+        final float segmentSizeY = middleSizeY / segmentsY;
 
-        final QuadVertexBuilder builder =
-                new QuadVertexBuilder((segmentsX + 4) * (segmentsY + 4) - 3);
+        final QuadMeshBuilder builder =
+                new QuadMeshBuilder((segmentsX + 4) * (segmentsY + 4) - 3);
 
         /**
          * Upper face of the box: {@code
@@ -241,7 +190,7 @@ public class SegmentedBox extends Box {
                 borderSouth, 1, 1, texBorderLower, texBorderLower, 0, 0, 1);
 
         for (int segmentY = 0; segmentY < segmentsY; segmentY++) {
-            final double segmentPosY = borderSouth + segmentY * segmentSizeY;
+            final float segmentPosY = borderSouth + segmentY * segmentSizeY;
             // 4
             builder.addXQuad(false, true, west, segmentPosY + segmentSizeY, up,
                     segmentPosY, down, 0, texBorderUpper, texBorderUpper,
@@ -260,7 +209,7 @@ public class SegmentedBox extends Box {
         }
 
         for (int segmentX = 0; segmentX < segmentsX; segmentX++) {
-            final double segmentPosX = borderWest + segmentX * segmentSizeX;
+            final float segmentPosX = borderWest + segmentX * segmentSizeX;
             // 2
             builder.addYQuad(true, false, north, segmentPosX, up, segmentPosX
                     + segmentSizeX, down, texBorderUpper, 0, texBorderLower,
@@ -277,8 +226,7 @@ public class SegmentedBox extends Box {
                     segmentPosX + segmentSizeX, south, texBorderUpper,
                     texBorderLower, texBorderLower, 1, 0, 0, 1);
             for (int segmentY = 0; segmentY < segmentsY; segmentY++) {
-                final double segmentPosY =
-                        borderSouth + segmentY * segmentSizeY;
+                final float segmentPosY = borderSouth + segmentY * segmentSizeY;
                 // 5
                 builder.addZQuad(true, false, up, segmentPosX, segmentPosY,
                         segmentPosX + segmentSizeX, segmentPosY + segmentSizeY,
@@ -292,10 +240,14 @@ public class SegmentedBox extends Box {
                 texBorderLower, texBorderLower, texBorderUpper, texBorderUpper,
                 0, 0, -1);
 
-        final MeshData data = getMeshData();
-        data.setVertexBuffer(builder.getVertices());
-        data.setTextureBuffer(builder.getTexcoords(), 0);
-        data.setNormalBuffer(builder.getNormals());
-        data.setIndexBuffer(builder.getIndices());
+        setBuffer(Type.Position, 3,
+                BufferUtils.createFloatBuffer(builder.getVertices()));
+        setBuffer(Type.Normal, 3,
+                BufferUtils.createFloatBuffer(builder.getNormals()));
+        setBuffer(Type.TexCoord, 2,
+                BufferUtils.createFloatBuffer(builder.getTexcoords()));
+        setBuffer(Type.Index, 3,
+                BufferUtils.createIntBuffer(builder.getIndices()));
+        updateBound();
     }
 }

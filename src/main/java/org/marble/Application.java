@@ -1,29 +1,11 @@
 package org.marble;
 
-import java.net.URISyntaxException;
-
-import com.ardor3d.framework.CanvasRenderer;
-import com.ardor3d.framework.DisplaySettings;
-import com.ardor3d.framework.FrameHandler;
-import com.ardor3d.framework.NativeCanvas;
-import com.ardor3d.framework.Scene;
-import com.ardor3d.framework.Updater;
-import com.ardor3d.image.util.AWTImageLoader;
-import com.ardor3d.input.MouseManager;
-import com.ardor3d.input.PhysicalLayer;
-import com.ardor3d.input.logical.LogicalLayer;
-import com.ardor3d.intersection.PickResults;
-import com.ardor3d.intersection.PickingUtil;
-import com.ardor3d.intersection.PrimitivePickResults;
-import com.ardor3d.math.Ray3;
-import com.ardor3d.renderer.TextureRendererFactory;
-import com.ardor3d.util.ContextGarbageCollector;
-import com.ardor3d.util.GameTaskQueue;
-import com.ardor3d.util.GameTaskQueueManager;
-import com.ardor3d.util.ReadOnlyTimer;
-import com.ardor3d.util.Timer;
-import com.ardor3d.util.resource.ResourceLocatorTool;
-import com.ardor3d.util.resource.SimpleResourceLocator;
+import com.jme3.asset.AssetManager;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeContext;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.SystemListener;
+import com.jme3.system.Timer;
 
 import org.marble.settings.Settings;
 
@@ -32,185 +14,39 @@ import org.marble.settings.Settings;
  * 
  * This application will run the game using the LWJGL renderer and input system.
  */
-public class Application implements Runnable, Scene, Updater {
+public class Application implements Runnable, SystemListener {
+    private final AppSettings appSettings;
+    private final Settings settings;
+    private final AssetManager assetManager;
 
-    // Should we restart the application the next time we exit?
-    private static boolean shouldRestart;
+    private Game game;
+    private JmeContext context;
 
-    // Measures time between updates.
-    private final Timer timer;
-
-    // The canvas that we render to.
-    private final NativeCanvas canvas;
-
-    // Schedules frame updates and renderings.
-    private final FrameHandler frameHandler;
-
-    // Handles mouse- and keyboard input.
-    private final LogicalLayer logicalLayer;
-
-    // The game that we're managing.
-    private final Game game;
-
-    /**
-     * Creates a new application that can subsequently be ran using
-     * {@link #run()} directly, or via a new thread.
-     */
     public Application() {
-        // Loads settings from the preferences system.
-        final Settings settings = new Settings();
+        settings = new Settings();
+        appSettings = new AppSettings(false);
+        appSettings.setWidth(settings.viewportWidth.getValue());
+        appSettings.setHeight(settings.viewportHeight.getValue());
+        appSettings.setBitsPerPixel(settings.viewportDepth.getValue());
+        appSettings.setFrequency(settings.screenFrequency.getValue());
+        appSettings.setDepthBits(settings.viewportDepthBufferBits.getValue());
+        appSettings.setStencilBits(settings.viewportStencilBufferBits
+                .getValue());
+        appSettings.setSamples(settings.screenSamplesPerPixel.getValue());
+        appSettings.setFullscreen(settings.screenFullscreen.getValue());
+        appSettings.setVSync(settings.screenVerticalSync.getValue());
+        appSettings.setFrameRate(settings.framerate.getValue());
 
-        // Convert relevant parts to display settings.
-        final DisplaySettings displaySettings =
-                new DisplaySettings(settings.viewportWidth.getValue(),
-                        settings.viewportHeight.getValue(),
-                        settings.viewportDepth.getValue(),
-                        settings.screenFrequency.getValue(),
-                        settings.viewportAlphaBufferBits.getValue(),
-                        settings.viewportDepthBufferBits.getValue(),
-                        settings.viewportStencilBufferBits.getValue(),
-                        settings.screenSamplesPerPixel.getValue(),
-                        settings.screenFullscreen.getValue(),
-                        settings.stereoscopic.getValue());
+        appSettings.setTitle("Marble");
+        appSettings.setRenderer(AppSettings.LWJGL_OPENGL2);
+        appSettings.setAudioRenderer(AppSettings.LWJGL_OPENAL);
+        appSettings.setUseInput(true);
+        appSettings.setUseJoysticks(false);
 
-        // We can support multiple renderers via this mechanism.
-        // Currently, we only support LWJGL, but new renderers can easily be
-        // added via this enum.
-        final RendererFactory rendererFactory =
-                settings.rendererImpl.getValue();
-
-        // Use the factory to create all of the renderer-provided classes that
-        // we need.
-        canvas = rendererFactory.createCanvas(displaySettings, this);
-        final PhysicalLayer physicalLayer =
-                new PhysicalLayer(rendererFactory.createKeyboardWrapper(),
-                        rendererFactory.createMouseWrapper(),
-                        rendererFactory.createControllerWrapper(),
-                        rendererFactory.createFocusWrapper(canvas));
-        logicalLayer = new LogicalLayer();
-        logicalLayer.registerInput(canvas, physicalLayer);
-        final MouseManager mouseManager = rendererFactory.createMouseManager();
-        TextureRendererFactory.INSTANCE.setProvider(rendererFactory
-                .createTextureRendererProvider());
-
-        // Set up our frame handler to schedule renders for the canvas.
-        timer = new Timer();
-        frameHandler = new FrameHandler(timer);
-        frameHandler.addUpdater(this);
-        frameHandler.addCanvas(canvas);
-
-        // Create the game.
-        game =
-                new Game(canvas, logicalLayer, physicalLayer, mouseManager,
-                        settings, displaySettings);
-    }
-
-    @Override
-    public PickResults doPick(final Ray3 pickRay) {
-        final PrimitivePickResults pickResults = new PrimitivePickResults();
-        pickResults.setCheckDistance(true);
-
-        // Find the objects in the scene that are hit by the ray.
-        PickingUtil.findPick(game.getGraphicsEngine().getRootNode(), pickRay,
-                pickResults);
-        return pickResults;
-    }
-
-    @Override
-    public void init() {
-        // Use AWT to load images.
-        // TODO use alternative image loader, and drop the dependency on AWT
-        // completely.
-        AWTImageLoader.registerLoader();
-        SimpleResourceLocator srl;
-        try {
-            srl =
-                    new SimpleResourceLocator(
-                            ResourceLocatorTool.getClassPathResource(
-                                    Application.class, "org/marble/texture/"));
-            ResourceLocatorTool.addResourceLocator(
-                    ResourceLocatorTool.TYPE_TEXTURE, srl);
-
-            srl =
-                    new SimpleResourceLocator(
-                            ResourceLocatorTool.getClassPathResource(
-                                    Application.class, "org/marble/shader/"));
-            ResourceLocatorTool.addResourceLocator(
-                    ResourceLocatorTool.TYPE_SHADER, srl);
-
-            srl =
-                    new SimpleResourceLocator(
-                            ResourceLocatorTool.getClassPathResource(
-                                    Application.class, "org/marble/model/"));
-            ResourceLocatorTool.addResourceLocator(
-                    ResourceLocatorTool.TYPE_MODEL, srl);
-        } catch (final URISyntaxException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        // Perform game-specific initialization.
-        game.initialize();
-    }
-
-    @Override
-    public boolean renderUnto(final com.ardor3d.renderer.Renderer renderer) {
-        // Traverse the "render" update queue.
-        GameTaskQueueManager
-                .getManager(canvas.getCanvasRenderer().getRenderContext())
-                .getQueue(GameTaskQueue.RENDER).execute(renderer);
-
-        // Clean up native resources such as old VBOs, textures etc.
-        ContextGarbageCollector.doRuntimeCleanup(renderer);
-
-        if (canvas.isClosing())
-            return false;
-        else {
-            game.render(renderer);
-            return true;
-        }
-    }
-
-    @Override
-    public void run() {
-        // XXX Debug; this try statement messes up the Java debugger stack
-        // traces; disable it for now.
-        // try {
-
-        frameHandler.init();
-        // If we've successfully gotten ourself a renderer, we're good to
-        // go.
-        game.setRunState(Game.RunState.Running);
-
-        // Main game loop.
-        while (game.getRunState() == Game.RunState.Running) {
-            frameHandler.updateFrame();
-        }
-        // } finally {
-        // Safely destroy the rendering system.
-        final CanvasRenderer renderer = canvas.getCanvasRenderer();
-        if (renderer != null) {
-            renderer.makeCurrentContext();
-            try {
-                ContextGarbageCollector.doFinalCleanup(renderer.getRenderer());
-                canvas.close();
-            } finally {
-                renderer.releaseCurrentContext();
-            }
-        }
-        // }
-
-        shouldRestart = game.getRunState() == Game.RunState.Restarting;
-    }
-
-    @Override
-    public void update(final ReadOnlyTimer timer) {
-        // Traverse the "update" update queue.
-        GameTaskQueueManager
-                .getManager(canvas.getCanvasRenderer().getRenderContext())
-                .getQueue(GameTaskQueue.UPDATE).execute();
-
-        game.update(timer);
+        assetManager =
+                JmeSystem.newAssetManager(Thread.currentThread()
+                        .getContextClassLoader()
+                        .getResource("com/jme3/asset/Desktop.cfg"));
     }
 
     /**
@@ -221,8 +57,65 @@ public class Application implements Runnable, Scene, Updater {
      *            application.
      */
     public static void main(final String[] args) {
-        do {
-            new Application().run();
-        } while (shouldRestart);
+        new Application().run();
     }
+
+    public void run(final JmeContext.Type contextType) {
+        context = JmeSystem.newContext(appSettings, contextType);
+        game = new Game(context, assetManager, settings);
+        context.setSystemListener(this);
+        context.create(false);
+    }
+
+    @Override
+    public void run() {
+        run(JmeContext.Type.Display);
+    }
+
+    @Override
+    public void initialize() {
+        game.initialize();
+        context.getTimer().reset();
+    }
+
+    @Override
+    public void reshape(final int width, final int height) {
+        game.reshape(width, height);
+    }
+
+    @Override
+    public void update() {
+        final Timer timer = context.getTimer();
+        timer.update();
+        game.update(timer);
+    }
+
+    @Override
+    public void requestClose(final boolean esc) {
+        context.destroy(false);
+    }
+
+    @Override
+    public void gainFocus() {
+        game.resume();
+    }
+
+    @Override
+    public void loseFocus() {
+        game.suspend();
+    }
+
+    @Override
+    public void handleError(final String errorMsg, final Throwable t) {
+        game.handleError(errorMsg, t);
+        System.err.println(errorMsg);
+        context.destroy(false);
+    }
+
+    @Override
+    public void destroy() {
+        game.destroy();
+        context.getTimer().reset();
+    }
+
 }

@@ -1,6 +1,6 @@
 package org.marble.entity;
 
-import javax.vecmath.Matrix4d;
+import com.jme3.math.Transform;
 
 import org.marble.Game;
 
@@ -27,7 +27,7 @@ public interface Entity {
     /**
      * The current location and rotation of the entity.
      */
-    public Matrix4d getTransform();
+    public Transform getTransform();
 
     /**
      * Performs allocation of resources. This method is called when the entity
@@ -43,5 +43,5 @@ public interface Entity {
     /**
      * Sets the location and rotation of the entity.
      */
-    public void setTransform(Matrix4d transform);
+    public void setTransform(Transform transform);
 }

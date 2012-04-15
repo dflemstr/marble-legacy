@@ -14,7 +14,7 @@ let slab1 be Slab(15, 15, 1),
     slab5 be Slab(15, 7, 1)
     
 // Create some rails
-let rail1 be Rail(100)
+let rail1 be Rail(10)
     
 // Create some walls
 let wall1 be Wall(12),

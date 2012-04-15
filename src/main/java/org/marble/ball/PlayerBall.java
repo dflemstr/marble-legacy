@@ -2,36 +2,32 @@ package org.marble.ball;
 
 import java.util.Set;
 
-import javax.vecmath.Vector3f;
-
-import com.ardor3d.framework.Canvas;
-import com.ardor3d.input.Key;
-import com.ardor3d.input.logical.InputTrigger;
-import com.ardor3d.input.logical.KeyPressedCondition;
-import com.ardor3d.input.logical.KeyReleasedCondition;
-import com.ardor3d.input.logical.TriggerAction;
-import com.ardor3d.input.logical.TwoInputStates;
+import com.jme3.math.Vector3f;
 
 import com.google.common.collect.ImmutableSet;
 
-import org.marble.entity.Active;
-import org.marble.entity.Interactive;
-import org.marble.physics.Force;
+import org.marble.entity.interactive.Interactive;
+import org.marble.entity.physical.Actor;
+import org.marble.input.PlayerInput;
 import org.marble.util.Direction;
 
 /**
  * A player-controlled ball.
  */
-public class PlayerBall extends Ball implements Interactive, Active {
-    private static final double FORCE_MAGNITUDE = 20.0;
+public class PlayerBall extends Ball implements Interactive, Actor {
+    private final Vector3f appliedForce = new Vector3f();
+    private final Vector3f internalForce = new Vector3f();
+    private final Vector3f addedForce = new Vector3f();
+    private static final float FORCE_MAGNITUDE = 24.0f;
 
-    private final ImmutableSet<InputTrigger> triggers;
+    public PlayerBall(final BallKind kind) {
+        this(kind, 0.5f);
+    }
 
-    private final AddInputForce forceNorth, forceEast, forceSouth, forceWest;
+    public PlayerBall(final String kind) {
+        this(BallKind.valueOf(kind), 0.5f);
+    }
 
-    private final Vector3f inputBaseForce = new Vector3f();
-
-    private final InputForce inputForce = new InputForce();
     /**
      * Creates a new player-controlled ball.
      * 
@@ -40,84 +36,61 @@ public class PlayerBall extends Ball implements Interactive, Active {
      * @param mass
      *            The base mass of the ball.
      */
-    public PlayerBall(final BallKind kind, final double radius) {
+    public PlayerBall(final BallKind kind, final float radius) {
         super(kind, radius);
-
-        forceNorth = new AddInputForce(Direction.NORTH, FORCE_MAGNITUDE);
-        forceEast = new AddInputForce(Direction.EAST, FORCE_MAGNITUDE);
-        forceSouth = new AddInputForce(Direction.SOUTH, FORCE_MAGNITUDE);
-        forceWest = new AddInputForce(Direction.WEST, FORCE_MAGNITUDE);
-
-        final InputTrigger upPressTrigger =
-                new InputTrigger(new KeyPressedCondition(Key.UP), forceNorth);
-        final InputTrigger leftPressTrigger =
-                new InputTrigger(new KeyPressedCondition(Key.LEFT), forceWest);
-        final InputTrigger downPressTrigger =
-                new InputTrigger(new KeyPressedCondition(Key.DOWN), forceSouth);
-        final InputTrigger rightPressTrigger =
-                new InputTrigger(new KeyPressedCondition(Key.RIGHT), forceEast);
-        final InputTrigger upReleaseTrigger =
-                new InputTrigger(new KeyReleasedCondition(Key.UP), forceSouth);
-        final InputTrigger leftReleaseTrigger =
-                new InputTrigger(new KeyReleasedCondition(Key.LEFT), forceEast);
-        final InputTrigger downReleaseTrigger =
-                new InputTrigger(new KeyReleasedCondition(Key.DOWN), forceNorth);
-        final InputTrigger rightReleaseTrigger =
-                new InputTrigger(new KeyReleasedCondition(Key.RIGHT), forceWest);
-
-        triggers =
-                ImmutableSet.of(leftPressTrigger, rightPressTrigger,
-                        downPressTrigger, upPressTrigger, leftReleaseTrigger,
-                        rightReleaseTrigger, downReleaseTrigger,
-                        upReleaseTrigger);
     }
+
     /**
      * Creates a new player-controlled ball.
      * 
      * @param radius
      *            The radius of the ball.
      */
-    public PlayerBall(final String kind, final double radius) {
+    public PlayerBall(final String kind, final float radius) {
         this(BallKind.valueOf(kind), radius);
     }
 
     @Override
-    public Set<Force> getForces() {
-        return ImmutableSet.<Force> of(inputForce);
+    public Set<PlayerInput> handledInputs() {
+        return ImmutableSet.of(PlayerInput.MoveBackward,
+                PlayerInput.MoveForward, PlayerInput.MoveLeft,
+                PlayerInput.MoveRight);
     }
 
     @Override
-    public Set<InputTrigger> getTriggers() {
-        return triggers;
+    public void handleInput(final PlayerInput input, final boolean isActive) {
+        Direction direction;
+        switch (input) {
+        case MoveForward:
+            direction = Direction.North;
+            break;
+        case MoveBackward:
+            direction = Direction.South;
+            break;
+        case MoveLeft:
+            direction = Direction.West;
+            break;
+        case MoveRight:
+            direction = Direction.East;
+            break;
+        default:
+            throw new UnsupportedOperationException(
+                    "Cannot handle this input: " + input);
+        }
+        addedForce.set(direction.getPhysicalDirection());
+        addedForce.multLocal(FORCE_MAGNITUDE);
+        if (isActive) {
+            internalForce.addLocal(addedForce);
+        } else {
+            internalForce.subtractLocal(addedForce);
+        }
     }
 
-    /**
-     * Alters the {@code inputForce} on activation.
-     */
-    private class AddInputForce implements TriggerAction {
-        private final Vector3f addedForce = new Vector3f();
-
-        public AddInputForce(final Direction direction, final double magnitude) {
-            addedForce.set(direction.getPhysicalDirection());
-            addedForce.scale((float) magnitude);
-        }
-
-        @Override
-        public void perform(final Canvas source,
-                final TwoInputStates inputStates, final double tpf) {
-            inputBaseForce.add(addedForce);
-        }
-
-    }
-
-    /**
-     * An action that applies the {@code inputForce} force every tick.
-     */
-    private class InputForce implements Force {
-        @Override
-        public void calculateForce(final Vector3f out) {
-            out.set(inputBaseForce);
-            out.scale((float) (kind.getMass() / kind.getStability()));
-        }
+    @Override
+    public void performActions(final float timePerFrame) {
+        appliedForce.set(internalForce);
+        appliedForce.multLocal(getBallKind().getMass()
+                / getBallKind().getStability());
+        getBody().applyCentralForce(appliedForce);
     }
 }

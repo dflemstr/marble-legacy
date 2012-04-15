@@ -2,114 +2,100 @@ package org.marble.block;
 
 import java.util.Map;
 
-import javax.vecmath.Vector3f;
+import com.jme3.asset.AssetManager;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
+import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Cylinder;
 
-import com.ardor3d.math.Matrix3;
-import com.ardor3d.scenegraph.Node;
-import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.scenegraph.shape.Cylinder;
-
-import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.collision.shapes.CompoundShape;
-import com.bulletphysics.collision.shapes.CylinderShapeX;
-import com.bulletphysics.dynamics.RigidBody;
-import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
-import com.bulletphysics.linearmath.Transform;
-
+import org.marble.Game;
 import org.marble.entity.AbstractEntity;
-import org.marble.entity.Connected;
-import org.marble.entity.Connector;
-import org.marble.entity.Graphical;
-import org.marble.entity.Physical;
+import org.marble.entity.connected.Connected;
+import org.marble.entity.connected.Connector;
+import org.marble.entity.graphical.Graphical;
+import org.marble.entity.physical.Physical;
 import org.marble.util.Connectors;
 
 public class Rail extends AbstractEntity implements Connected, Graphical,
         Physical {
 
-    final double width;
-    final double height;
-    final double depth;
-    final double angle;
+    final float width;
+    final float height;
+    final float depth;
+    final float angle;
 
-    private final RigidBody physicalBox;
+    private RigidBodyControl physicalBox;
 
-    private final Cylinder left;
-    private final Cylinder right;
+    private Node graphicalRails;
 
-    public Rail(final double length) {
-        this(length, 0.7, 0.3, 0);
+    public Rail(final float length) {
+        this(length, 0.7f, 0.3f, 0);
     }
 
-    public Rail(final double width, final double height, final double depth,
-            final double angle) {
+    public Rail(final float width, final float height, final float depth,
+            final float angle) {
         this.width = width;
         this.height = height;
         this.depth = depth;
         this.angle = angle;
+    }
 
-        left = new Cylinder("left rail", 10, 10, depth / 2, width);
-        right = new Cylinder("right rail", 10, 10, depth / 2, width);
+    @Override
+    public void initialize(final Game game) {
+        final AssetManager assetManager = game.getAssetManager();
 
-        left.setRotation(new Matrix3(0, 0, -1, 0, 1, 0, 1, 0, 0));
-        right.setRotation(new Matrix3(0, 0, -1, 0, 1, 0, 1, 0, 0));
+        final Spatial left =
+                new Geometry("left rail",
+                        new Cylinder(10, 10, depth / 2, width));
+        left.setMaterial(assetManager
+                .loadMaterial("Materials/Misc/Undefined.j3m"));
 
-        left.setTranslation(0, height / 2, 0);
-        right.setTranslation(0, -height / 2, 0);
+        final Spatial right =
+                new Geometry("right rail", new Cylinder(10, 10, depth / 2,
+                        width));
+        right.setMaterial(assetManager
+                .loadMaterial("Materials/Misc/Undefined.j3m"));
 
-        final CompoundShape compound = new CompoundShape();
+        final Matrix3f rotation = new Matrix3f(0, 0, -1, 0, 1, 0, 1, 0, 0);
+        left.setLocalRotation(rotation);
+        right.setLocalRotation(rotation);
+
+        left.setLocalTranslation(0, height / 2, 0);
+        right.setLocalTranslation(0, -height / 2, 0);
+
+        graphicalRails = new Node("rails");
+        graphicalRails.attachChild(left);
+        graphicalRails.attachChild(right);
+        getSpatial().attachChild(graphicalRails);
 
         final CollisionShape leftCylinder =
-                new CylinderShapeX(new Vector3f((float) width / 2,
-                        (float) depth / 2, (float) depth / 2));
+                new CylinderCollisionShape(new Vector3f(depth / 2, depth / 2,
+                        width / 2));
         final CollisionShape rightCylinder =
-                new CylinderShapeX(new Vector3f((float) width / 2,
-                        (float) depth / 2, (float) depth / 2));
+                new CylinderCollisionShape(new Vector3f(depth / 2, depth / 2,
+                        width / 2));
 
-        final Transform r = new Transform();
-        final Transform l = new Transform();
+        final CompoundCollisionShape compound = new CompoundCollisionShape();
+        compound.addChildShape(leftCylinder, new Vector3f(0, height / 2, 0),
+                rotation);
+        compound.addChildShape(rightCylinder, new Vector3f(0, -height / 2, 0),
+                rotation);
 
-        r.setIdentity();
-        l.setIdentity();
-
-        l.origin.set(0, (float) height / 2, 0);
-        r.origin.set(0, (float) -height / 2, 0);
-
-        compound.addChildShape(l, leftCylinder);
-        compound.addChildShape(r, rightCylinder);
-
-        final Vector3f inertia = new Vector3f(0, 0, 0);
-        compound.calculateLocalInertia(0.0f, inertia);
-
-        final RigidBodyConstructionInfo info =
-                new RigidBodyConstructionInfo(0.0f, null, compound);
-
-        physicalBox = new RigidBody(info);
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.marble.entity.Graphical#getSpatial()
-     */
-    @Override
-    public Spatial getSpatial() {
-        final Node node = new Node();
-        node.attachChild(left);
-        node.attachChild(right);
-        return node;
+        physicalBox = new RigidBodyControl(compound, 0);
+        getSpatial().addControl(physicalBox);
     }
 
     @Override
-    public RigidBody getBody() {
+    public RigidBodyControl getBody() {
         return physicalBox;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.marble.entity.Connected#getConnectors()
-     */
     @Override
     public Map<String, Connector> getConnectors() {
         return Connectors.fromBox(width, height, depth);

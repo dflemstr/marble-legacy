@@ -12,7 +12,7 @@ import static org.codehaus.jparsec.Scanners.string;
 
 import java.util.List;
 
-import javax.vecmath.Vector3d;
+import com.jme3.math.Vector3f;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -58,7 +58,7 @@ public class LevelParser {
             .source().followedBy(delimiter).map(new Doublifier());
 
     // A 3-dimensional vector represented as a tuple like "(3, -2, 4.2)"
-    final Parser<Vector3d> vector3 = between(
+    final Parser<Vector3f> vector3 = between(
             openParen,
             new Vectorizer().sequence(number.followedBy(comma),
                     number.followedBy(comma), number), closeParen).label(
@@ -164,12 +164,12 @@ public class LevelParser {
     }
 
     /**
-     * Converts a String to a double object.
+     * Converts a String to a Float object.
      */
     private static final class Doublifier implements Map<String, Object> {
         @Override
-        public Double map(final String from) {
-            return Double.valueOf(from);
+        public Float map(final String from) {
+            return Float.valueOf(from);
         }
     }
 
@@ -199,12 +199,12 @@ public class LevelParser {
     }
 
     /**
-     * Constructs a 3D vector from a sequence of double parsers.
+     * Constructs a 3D vector from a sequence of Float parsers.
      */
-    private static final class Vectorizer extends Mapper<Vector3d> {
+    private static final class Vectorizer extends Mapper<Vector3f> {
         @SuppressWarnings("unused")
-        Vector3d map(final Double x, final Double y, final Double z) {
-            return new Vector3d(x, y, z);
+        Vector3f map(final Float x, final Float y, final Float z) {
+            return new Vector3f(x, y, z);
         }
     }
 }

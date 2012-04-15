@@ -1,0 +1,11 @@
+Material Glass : MatDefs/Optics/Fresnel.j3md {
+    MaterialParameters {
+        Ambient : 1.0 1.0 1.0 1.0
+        Diffuse : 1.0 1.0 1.0 1.0
+        Specular : 4.0 4.0 4.0 1.0
+        Shininess: 64.0
+        FresnelPower : 2.0
+        RefractionIndex : 1.10
+        AberrationIndex : 0.02
+    }
+}

@@ -4,26 +4,11 @@
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry exported="true" kind="lib" path="lib/ardor3d-core.jar" sourcepath="lib/ardor3d-core-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/ardor3d-core-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/ardor3d-awt.jar" sourcepath="lib/ardor3d-awt-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/ardor3d-awt-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/jinput.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/lwjgl.jar" sourcepath="lib/lwjgl-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/lwjgl-javadoc.jar!/"/>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="marble/lib/native/windows"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/ardor3d-lwjgl.jar" sourcepath="lib/ardor3d-lwjgl-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/lwjgl-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/guava.jar" sourcepath="lib/guava-sources.jar">
@@ -36,7 +21,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/commons-lang3-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/vecmath.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jparsec.jar" sourcepath="lib/jparsec-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/jparsec-javadoc.jar!/"/>
@@ -49,25 +33,27 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry exported="true" kind="lib" path="lib/json.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ardor3d-ui.jar" sourcepath="lib/ardor3d-ui-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/ardor3d-ui-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/jbullet.jar" sourcepath="lib/jbullet-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/jbullet-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/ardor3d-extras.jar" sourcepath="lib/ardor3d-extras-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/ardor3d-extras-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/ardor3d-effects.jar" sourcepath="lib/ardor3d-effects-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/ardor3d-effects-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="lib" path="lib/eventbus.jar"/>
+	<classpathentry kind="lib" path="lib/j-ogg-oggd.jar"/>
+	<classpathentry kind="lib" path="lib/j-ogg-vorbisd.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-core.jar" sourcepath="lib/jME3-core-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-desktop.jar" sourcepath="lib/jME3-desktop-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-effects.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-jogg.jar" sourcepath="lib/jME3-jogg-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-lwjgl-natives.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-lwjgl.jar" sourcepath="lib/jME3-lwjgl-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-niftygui.jar" sourcepath="lib/jME3-niftygui-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-plugins.jar"/>
+	<classpathentry kind="lib" path="lib/nifty-default-controls.jar"/>
+	<classpathentry kind="lib" path="lib/nifty-examples.jar"/>
+	<classpathentry kind="lib" path="lib/nifty-style-black.jar"/>
+	<classpathentry kind="lib" path="lib/nifty.jar"/>
+	<classpathentry kind="lib" path="lib/stack-alloc.jar"/>
+	<classpathentry kind="lib" path="lib/xmlpull-xpp3.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-jbullet.jar" sourcepath="lib/jME3-jbullet-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jbullet.jar"/>
+	<classpathentry kind="lib" path="lib/vecmath.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-terrain.jar" sourcepath="lib/jME3-terrain-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-blender.jar" sourcepath="lib/jME3-blender-sources.jar"/>
 	<classpathentry kind="output" path="target"/>
 </classpath>
