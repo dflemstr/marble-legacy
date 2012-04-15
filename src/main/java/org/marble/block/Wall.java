@@ -28,6 +28,10 @@ public class Wall extends AbstractEntity implements Connected, Graphical,
     private final Box graphicalBox;
     private final RigidBody physicalBox;
 
+    public Wall(final double width) {
+        this(width, 0.5, 1.0);
+    }
+
     public Wall(final double width, final double height, final double depth) {
         this.width = width;
         this.height = height;
