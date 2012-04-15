@@ -127,7 +127,7 @@ public class DialogBox extends UIFrame {
         OK(16, "OK", Optional.of("dialog-ok")), Cancel(8, "Cancel", Optional
                 .of("dialog-cancel")), Close(12, "Close", Optional
                 .of("dialog-close")), Yes(10, "Yes", Optional.of("dialog-ok")),
-        No(9, "No", Optional.of("dialog-ok")), Abort(13, "Abort", Optional
+        No(9, "No", Optional.of("dialog-cancel")), Abort(13, "Abort", Optional
                 .of("process-stop")), Retry(14, "Retry", absent), Ignore(15,
                 "Ignore", absent);
         private final int weight;

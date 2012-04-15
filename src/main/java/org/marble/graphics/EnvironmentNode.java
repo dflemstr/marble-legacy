@@ -6,6 +6,7 @@ import com.ardor3d.framework.DisplaySettings;
 import com.ardor3d.image.Texture.EnvironmentalMapMode;
 import com.ardor3d.image.TextureCubeMap;
 import com.ardor3d.image.TextureCubeMap.Face;
+import com.ardor3d.image.TextureStoreFormat;
 import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.Vector3;
 import com.ardor3d.math.type.ReadOnlyColorRGBA;
@@ -99,6 +100,7 @@ public class EnvironmentNode extends Node implements PreDrawing {
         shader.setEnabled(true);
 
         environment = new TextureCubeMap();
+        environment.setTextureStoreFormat(TextureStoreFormat.RGB8);
         environment.setEnvironmentalMapMode(EnvironmentalMapMode.ObjectLinear);
 
         textures = new TextureState();
