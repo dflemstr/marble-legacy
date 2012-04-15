@@ -12,12 +12,9 @@ import com.ardor3d.scenegraph.shape.Cylinder;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.CompoundShape;
 import com.bulletphysics.collision.shapes.CylinderShapeX;
-import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.Transform;
-
-import com.google.common.collect.ImmutableSet;
 
 import org.marble.entity.AbstractEntity;
 import org.marble.entity.Connected;
@@ -116,11 +113,6 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
     @Override
     public Map<String, Connector> getConnectors() {
         return Connectors.fromBox(width, height, depth);
-    }
-
-    @Override
-    public Iterable<ActionInterface> getActions() {
-        return ImmutableSet.of();
     }
 
 }
