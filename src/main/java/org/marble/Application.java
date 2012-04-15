@@ -185,7 +185,6 @@ public class Application implements Runnable, Scene, Updater {
         // Main game loop.
         while (game.getRunState() == Game.RunState.Running) {
             frameHandler.updateFrame();
-            Thread.yield();
         }
         // } finally {
         // Safely destroy the rendering system.

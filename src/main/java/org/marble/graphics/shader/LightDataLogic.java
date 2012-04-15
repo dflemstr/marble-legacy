@@ -17,6 +17,10 @@ public class LightDataLogic implements GLSLShaderDataLogic {
         final RenderContext context = ContextManager.getCurrentContext();
         final LightState light =
                 (LightState) context.getCurrentState(StateType.Light);
-        shader.setUniform("lightCount", light.getLightList().size());
+        if (light.isEnabled()) {
+            shader.setUniform("lightCount", light.getLightList().size());
+        } else {
+            shader.setUniform("lightCount", 0);
+        }
     }
 }

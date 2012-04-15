@@ -17,7 +17,10 @@ import com.ardor3d.renderer.ContextManager;
 import com.ardor3d.renderer.Renderer;
 import com.ardor3d.renderer.TextureRenderer;
 import com.ardor3d.renderer.TextureRendererFactory;
+import com.ardor3d.renderer.state.ClipState;
+import com.ardor3d.renderer.state.CullState;
 import com.ardor3d.renderer.state.GLSLShaderObjectsState;
+import com.ardor3d.renderer.state.LightState;
 import com.ardor3d.renderer.state.TextureState;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
@@ -62,6 +65,12 @@ public class EnvironmentNode extends Node implements PreDrawing {
     protected final GLSLShaderObjectsState shader;
 
     protected final int textureSizeMagnitude;
+
+    private final GLSLShaderObjectsState emptyShader;
+    private final TextureState emptyTexture;
+    private final ClipState emptyClip;
+    private final CullState cullBackFace;
+    private final LightState emptyLights;
 
     /**
      * Creates a new environment node.
@@ -111,6 +120,22 @@ public class EnvironmentNode extends Node implements PreDrawing {
         // Apply the states to this node and all sub-nodes
         setRenderState(textures);
         setRenderState(shader);
+
+        emptyShader = new GLSLShaderObjectsState();
+        emptyShader.setEnabled(false);
+
+        emptyClip = new ClipState();
+        emptyClip.setEnabled(false);
+
+        emptyTexture = new TextureState();
+        emptyTexture.setEnabled(false);
+
+        cullBackFace = new CullState();
+        cullBackFace.setCullFace(CullState.Face.Back);
+        cullBackFace.setEnabled(true);
+
+        emptyLights = new LightState();
+        emptyLights.setEnabled(false);
     }
 
     @Override
@@ -198,26 +223,27 @@ public class EnvironmentNode extends Node implements PreDrawing {
         setLastFrustumIntersection(FrustumIntersect.Intersects);
     }
 
-    private TextureRenderer createEnvironmentRenderer(final Renderer r) {
-        final ContextCapabilities caps =
-                ContextManager.getCurrentContext().getCapabilities();
-
-        final DisplaySettings settings =
-                new DisplaySettings(1 << textureSizeMagnitude,
-                        1 << textureSizeMagnitude, 24, 0, 0, 24, 0, 0, false,
-                        false);
-        final TextureRenderer renderer =
-                TextureRendererFactory.INSTANCE.createTextureRenderer(settings,
-                        false, r, caps);
-        renderer.setBackgroundColor(environmentColor);
-        renderer.getCamera().setFrustum(0.0625, 1024, -0.0625, 0.0625, 0.0625,
-                -0.0625);
-        return renderer;
-    }
-
     private void ensureEnvironment(final Renderer r) {
         if (envRenderer == null) {
-            envRenderer = createEnvironmentRenderer(r);
+            final ContextCapabilities caps =
+                    ContextManager.getCurrentContext().getCapabilities();
+
+            final DisplaySettings settings =
+                    new DisplaySettings(1 << textureSizeMagnitude,
+                            1 << textureSizeMagnitude, 24, 0, 0, 24, 0, 0,
+                            false, false);
+            envRenderer =
+                    TextureRendererFactory.INSTANCE.createTextureRenderer(
+                            settings, false, r, caps);
+            envRenderer.setBackgroundColor(environmentColor);
+            envRenderer.getCamera().setFrustum(0.0625, 1024, -0.0625, 0.0625,
+                    0.0625, -0.0625);
+
+            // envRenderer.enforceState(emptyTexture);
+            envRenderer.enforceState(emptyClip);
+            envRenderer.enforceState(cullBackFace);
+            // envRenderer.enforceState(emptyLights);
+            // envRenderer.enforceState(emptyShader);
             envRenderer.setupTexture(environment);
         }
     }
