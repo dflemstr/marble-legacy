@@ -5,7 +5,7 @@ import java.util.prefs.Preferences;
 /**
  * An integer settings entry.
  */
-class IntegerEntry extends Entry<Integer> {
+class IntegerEntry extends AbstractEntry<Integer> {
     IntegerEntry(final Preferences prefs, final String node,
             final Integer defaultValue) {
         super(prefs, node, defaultValue);
@@ -17,7 +17,7 @@ class IntegerEntry extends Entry<Integer> {
     }
 
     @Override
-    public void setValue(final Integer value) {
+    public void putValue(final Integer value) {
         prefs.putInt(node, value);
     }
 }

@@ -461,6 +461,13 @@ public class Game {
         if (settings.dof.getValue()) {
             depthOfFieldPass =
                     new DepthOfFieldPass(displaySettings, depthTexture);
+            depthOfFieldPass.setVignetting(settings.dofVignetting.getValue());
+            depthOfFieldPass.setDepthBlur(settings.dofDepthBlur.getValue());
+            depthOfFieldPass.setPentagonBokeh(settings.dofPentagonBokeh
+                    .getValue());
+            final int quality = settings.dofQuality.getValue().ordinal() + 1;
+            depthOfFieldPass.setRings(Math.max(quality, 3));
+            depthOfFieldPass.setSamples(quality);
             getInputEngine().getLogicalLayer().registerTrigger(
                     new InputTrigger(new KeyPressedCondition(Key.THREE),
                             new ToggleDOFDebugFocus()));

@@ -5,7 +5,7 @@ import java.util.prefs.Preferences;
 /**
  * A string settings entry.
  */
-class StringEntry extends Entry<String> {
+class StringEntry extends AbstractEntry<String> {
     StringEntry(final Preferences prefs, final String node,
             final String defaultValue) {
         super(prefs, node, defaultValue);
@@ -17,7 +17,7 @@ class StringEntry extends Entry<String> {
     }
 
     @Override
-    public void setValue(final String value) {
+    public void putValue(final String value) {
         prefs.put(node, value);
     }
 }

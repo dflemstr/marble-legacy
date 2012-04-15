@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableMap;
 /**
  * A renderer settings entry.
  */
-class EnumEntry<E extends Enum<E>> extends Entry<E> {
+class EnumEntry<E extends Enum<E>> extends AbstractEntry<E> {
     private final ImmutableMap<String, E> alternatives;
 
     EnumEntry(final Preferences prefs, final String node, final E defaultValue,
@@ -33,7 +33,7 @@ class EnumEntry<E extends Enum<E>> extends Entry<E> {
     }
 
     @Override
-    public void setValue(final E value) {
+    public void putValue(final E value) {
         prefs.put(node, value.name());
     }
 

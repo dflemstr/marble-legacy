@@ -1,6 +1,11 @@
 package org.marble.settings;
 
+import java.util.Set;
 import java.util.prefs.Preferences;
+
+import com.google.common.collect.Sets;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import org.marble.RendererFactory;
 
@@ -8,6 +13,40 @@ import org.marble.RendererFactory;
  * Controls the settings for the desktop version of the application.
  */
 public class Settings {
+    private final class CompositeEntry<A, B> implements Entry<Pair<A, B>> {
+        private final Entry<A> entryA;
+        private final Entry<B> entryB;
+        private final Set<EntryListener<Pair<A, B>>> listeners = Sets
+                .newHashSet();
+
+        public CompositeEntry(final Entry<A> entryA, final Entry<B> entryB) {
+            this.entryA = entryA;
+            this.entryB = entryB;
+        }
+
+        @Override
+        public Pair<A, B> getValue() {
+            return Pair.of(entryA.getValue(), entryB.getValue());
+        }
+
+        @Override
+        public void setValue(final Pair<A, B> value) {
+            entryA.setValue(value.getLeft());
+            entryB.setValue(value.getRight());
+        }
+
+        @Override
+        public void addEntryListener(final EntryListener<Pair<A, B>> listener) {
+            listeners.add(listener);
+        }
+
+        @Override
+        public void
+                removeEntryListener(final EntryListener<Pair<A, B>> listener) {
+            listeners.remove(listeners);
+        }
+    }
+
     protected final Preferences prefs = Preferences
             .userNodeForPackage(Settings.class);
 
@@ -42,15 +81,26 @@ public class Settings {
             prefs, "graphics/environment_quality", Quality.Medium,
             Quality.class);
     public final Entry<Boolean> bloom = new BooleanEntry(prefs,
-            "graphics/bloom", true);
+            "graphics/bloom", false);
     public final Entry<Boolean> ssao = new BooleanEntry(prefs, "graphics/ssao",
-            true);
+            false);
     public final Entry<Quality> ssaoQuality = new EnumEntry<Quality>(prefs,
-            "graphics/ssao_quality", Quality.Highest, Quality.class);
+            "graphics/ssao/quality", Quality.Highest, Quality.class);
     public final Entry<Boolean> dof = new BooleanEntry(prefs, "graphics/dof",
-            true);
+            false);
+    public final Entry<Boolean> dofVignetting = new BooleanEntry(prefs,
+            "graphics/dof/vignetting", false);
+    public final Entry<Boolean> dofDepthBlur = new BooleanEntry(prefs,
+            "graphics/dof/depth_blur", false);
+    public final Entry<Boolean> dofPentagonBokeh = new BooleanEntry(prefs,
+            "graphics/dof/pentagon_bokeh", false);
+    public final Entry<Quality> dofQuality = new EnumEntry<Quality>(prefs,
+            "graphics/dof/quality", Quality.Medium, Quality.class);
     public final Entry<Boolean> musicEnabled = new BooleanEntry(prefs,
             "audio/music/enabled", true);
     public final Entry<Boolean> soundEffectsEnabled = new BooleanEntry(prefs,
             "audio/effects/enabled", true);
+
+    public final Entry<Pair<Integer, Integer>> viewportResolution =
+            new CompositeEntry<Integer, Integer>(viewportWidth, viewportHeight);
 }

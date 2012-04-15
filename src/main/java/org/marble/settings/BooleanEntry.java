@@ -5,7 +5,7 @@ import java.util.prefs.Preferences;
 /**
  * A boolean settings entry.
  */
-class BooleanEntry extends Entry<Boolean> {
+class BooleanEntry extends AbstractEntry<Boolean> {
     BooleanEntry(final Preferences prefs, final String node,
             final Boolean defaultValue) {
         super(prefs, node, defaultValue);
@@ -17,7 +17,7 @@ class BooleanEntry extends Entry<Boolean> {
     }
 
     @Override
-    public void setValue(final Boolean value) {
+    public void putValue(final Boolean value) {
         prefs.putBoolean(node, value);
     }
 
