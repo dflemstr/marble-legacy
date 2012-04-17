@@ -4,10 +4,8 @@ import java.util.Map;
 
 import javax.vecmath.Vector3f;
 
-import com.ardor3d.math.Matrix3;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.scenegraph.shape.Cylinder;
 
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.CompoundShape;
@@ -23,7 +21,7 @@ import org.marble.entity.Graphical;
 import org.marble.entity.Physical;
 import org.marble.util.Connectors;
 
-public class Rail extends AbstractEntity implements Connected, Graphical,
+public class Spiral extends AbstractEntity implements Connected, Graphical,
         Physical {
 
     final double width;
@@ -33,28 +31,26 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
 
     private final RigidBody physicalBox;
 
-    private final Cylinder left;
-    private final Cylinder right;
+    private final org.marble.shape.Bend left;
+    private final org.marble.shape.Bend right;
 
-    public Rail(final double length) {
-        this(length, 0.7, 0.3, 0);
+    public Spiral(final double length, final double angle) {
+        this(length, 0.7, 0.3, angle);
     }
 
-    public Rail(final double width, final double height, final double depth,
+    public Spiral(final double width, final double height, final double depth,
             final double angle) {
         this.width = width;
         this.height = height;
         this.depth = depth;
         this.angle = angle;
 
-        left = new Cylinder("left rail", 10, 10, depth / 2, width);
-        right = new Cylinder("right rail", 10, 10, depth / 2, width);
-
-        left.setRotation(new Matrix3(0, 0, -1, 0, 1, 0, 1, 0, 0));
-        right.setRotation(new Matrix3(0, 0, -1, 0, 1, 0, 1, 0, 0));
-
-        left.setTranslation(0, height / 2, 0);
-        right.setTranslation(0, -height / 2, 0);
+        left =
+                new org.marble.shape.Bend("left rail", 200, 10, width / 2
+                        + height / 2, depth / 2, angle, true);
+        right =
+                new org.marble.shape.Bend("right rail", 200, 10, width / 2
+                        - height / 2, depth / 2, angle, true);
 
         final CompoundShape compound = new CompoundShape();
 
@@ -112,7 +108,7 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
      */
     @Override
     public Map<String, Connector> getConnectors() {
-        return Connectors.fromRail(width, height, depth);
+        return Connectors.fromSpiral(width, height, depth, angle);
     }
 
 }
