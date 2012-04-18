@@ -112,7 +112,7 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
      */
     @Override
     public Map<String, Connector> getConnectors() {
-        return Connectors.fromBox(width, height, depth);
+        return Connectors.fromRail(width, height, depth);
     }
 
 }
