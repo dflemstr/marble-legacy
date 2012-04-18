@@ -2,6 +2,8 @@ package org.marble.block;
 
 import java.util.Map;
 
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
 import com.ardor3d.scenegraph.Node;
@@ -34,8 +36,8 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
     private final org.marble.shape.Bend left;
     private final org.marble.shape.Bend right;
 
-    public Spiral(final double length, final double angle) {
-        this(length, 0.7, 0.3, angle);
+    public Spiral(final double radius, final double angle) {
+        this(radius, 1, 0.2, angle);
     }
 
     public Spiral(final double width, final double height, final double depth,
@@ -53,25 +55,53 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
                         - height / 2, depth / 2, angle, true);
 
         final CompoundShape compound = new CompoundShape();
+        final int steps = (int) (5 * angle * width);
+        for (int i = 0; i < steps; i++) {
 
-        final CollisionShape leftCylinder =
-                new CylinderShapeX(new Vector3f((float) width / 2,
-                        (float) depth / 2, (float) depth / 2));
-        final CollisionShape rightCylinder =
-                new CylinderShapeX(new Vector3f((float) width / 2,
-                        (float) depth / 2, (float) depth / 2));
+            final double theta = angle / steps;
 
-        final Transform r = new Transform();
-        final Transform l = new Transform();
+            final CollisionShape leftCylinder =
+                    new CylinderShapeX(
+                            new Vector3f(
+                                    (float) (Math.sin(theta) * (width / 2 + height / 2)) / 2,
+                                    (float) depth / 2, (float) depth / 2));
+            final CollisionShape rightCylinder =
+                    new CylinderShapeX(
+                            new Vector3f(
+                                    (float) (Math.sin(theta) * (width / 2 - height / 2)) / 2,
+                                    (float) depth / 2, (float) depth / 2));
 
-        r.setIdentity();
-        l.setIdentity();
+            final Transform r = new Transform();
+            final Transform l = new Transform();
 
-        l.origin.set(0, (float) height / 2, 0);
-        r.origin.set(0, (float) -height / 2, 0);
+            r.setIdentity();
+            l.setIdentity();
 
-        compound.addChildShape(l, leftCylinder);
-        compound.addChildShape(r, rightCylinder);
+            final Quat4f q = new Quat4f();
+
+            final Matrix3f rotZ =
+                    new Matrix3f((float) Math.cos(theta * i),
+                            (float) -Math.sin(theta * i), 0,
+                            (float) Math.sin(theta * i), (float) Math.cos(theta
+                                    * i), 0, 0, 0, 1);
+
+            q.set(rotZ);
+
+            r.setRotation(q);
+            l.setRotation(q);
+
+            r.origin.set(
+                    (float) (Math.cos(theta * i) * (width / 2 + height / 2)),
+                    (float) (Math.sin(theta * i) * (width / 2 + height / 2)),
+                    (float) theta * i);
+            l.origin.set(
+                    (float) (Math.cos(theta * i) * (width / 2 - height / 2)),
+                    (float) (Math.sin(theta * i) * (width / 2 - height / 2)),
+                    (float) theta * i);
+
+            compound.addChildShape(l, leftCylinder);
+            compound.addChildShape(r, rightCylinder);
+        }
 
         final Vector3f inertia = new Vector3f(0, 0, 0);
         compound.calculateLocalInertia(0.0f, inertia);

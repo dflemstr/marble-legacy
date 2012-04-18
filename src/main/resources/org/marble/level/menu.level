@@ -15,13 +15,6 @@ let slab1 be Slab(15, 15, 1),
     slab4 be Slab(4, 3, 1),
     slab5 be Slab(15, 7, 1)
     
-// Create some rails
-let rail1 be Rail(10),
-	rail2 be Rail(20),
-	rail3 be Rail(20)
-
-
-    
 // Create some walls
 let wall1 be Wall(12),
 	wall2 be Wall(15),
@@ -29,6 +22,7 @@ let wall1 be Wall(12),
 	wall4 be Wall(15),
 	wall5 be Wall(15),
 	wall6 be Wall(15)
+
 
 // Create demo balls
 let woodenBall  be Ball([Wood]),
@@ -44,10 +38,10 @@ let glassTrans  be Transformer([Glass]),
 // Create a lantern
 let lantern     be Lantern((0.3, 0.2, 0.1))
 
-// Create some spirals
-let spiral1 be Spiral(10,30),
-	spiral2 be Spiral(4,30)
+let spiral1 be Spiral(10,10)
 
+let bend1 be Bend(10,1),
+	bend2 be Bend(40,3)
 
 position slab1 at (0, 0, 0)
 connect slab2.south_middle to slab1.north_1_0,
@@ -60,11 +54,9 @@ connect slab2.south_middle to slab1.north_1_0,
         wall4.south_middle to slab1.west_middle,
         wall5.south_middle to slab5.north_middle,
         wall6.north_middle to slab5.south_middle,
-		rail1.start_middle to slab3.north_middle,
-		rail2.start_middle to rail1.end_middle,
-		spiral1.start_middle to rail2.end_middle,
-		rail3.start_middle to spiral1.end_middle,
-		spiral2.end_middle to rail3.end_middle
+		bend1.start_middle to slab3.north_middle,
+		bend2.start_middle to bend1.end_middle,
+		spiral1.end_middle to bend2.end_middle
 		
 position woodenBall  at (-2, 0, 8) from slab1
 position stoneBall   at (-4, 0, 8) from slab1

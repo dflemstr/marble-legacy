@@ -80,9 +80,8 @@ public final class Connectors {
         builder.put("start_middle", offsetBy(width / 2, 0, 0, -pi / 2, 0, 0));
         builder.put(
                 "end_middle",
-                offsetBy(Math.cos(pi - angle) * (width / 2),
-                        Math.sin(pi - angle) * (width / 2), 0, -pi / 2 - angle,
-                        0, 0));
+                offsetBy(Math.cos(angle) * (width / 2), Math.sin(angle)
+                        * (width / 2), 0, pi / 2 + angle, 0, 0));
 
         return builder.build();
     }

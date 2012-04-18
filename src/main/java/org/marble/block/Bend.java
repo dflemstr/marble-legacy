@@ -2,6 +2,8 @@ package org.marble.block;
 
 import java.util.Map;
 
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
 import com.ardor3d.scenegraph.Node;
@@ -54,24 +56,48 @@ public class Bend extends AbstractEntity implements Connected, Graphical,
 
         final CompoundShape compound = new CompoundShape();
 
-        final CollisionShape leftCylinder =
-                new CylinderShapeX(new Vector3f((float) width / 2,
-                        (float) depth / 2, (float) depth / 2));
-        final CollisionShape rightCylinder =
-                new CylinderShapeX(new Vector3f((float) width / 2,
-                        (float) depth / 2, (float) depth / 2));
+        final int steps = (int) (5 * angle * width);
 
-        final Transform r = new Transform();
-        final Transform l = new Transform();
+        for (int i = 0; i < steps; i++) {
 
-        r.setIdentity();
-        l.setIdentity();
+            final double theta = angle / steps;
 
-        l.origin.set(0, (float) height / 2, 0);
-        r.origin.set(0, (float) -height / 2, 0);
+            final CollisionShape leftCylinder =
+                    new CylinderShapeX(
+                            new Vector3f(
+                                    (float) (Math.sin(theta) * (width / 2 + height / 2)) / 2,
+                                    (float) depth / 2, (float) depth / 2));
+            final CollisionShape rightCylinder =
+                    new CylinderShapeX(
+                            new Vector3f(
+                                    (float) (Math.sin(theta) * (width / 2 - height / 2)) / 2,
+                                    (float) depth / 2, (float) depth / 2));
 
-        compound.addChildShape(l, leftCylinder);
-        compound.addChildShape(r, rightCylinder);
+            final Transform r = new Transform();
+            final Transform l = new Transform();
+
+            r.setIdentity();
+            l.setIdentity();
+
+            final Quat4f q = new Quat4f();
+
+            q.set(new Matrix3f((float) Math.cos(theta * i), (float) -Math
+                    .sin(theta * i), 0, (float) Math.sin(theta * i),
+                    (float) Math.cos(theta * i), 0, 0, 0, 1));
+
+            r.setRotation(q);
+            l.setRotation(q);
+
+            r.origin.set(
+                    (float) (Math.cos(theta * i) * (width / 2 + height / 2)),
+                    (float) (Math.sin(theta * i) * (width / 2 + height / 2)), 0);
+            l.origin.set(
+                    (float) (Math.cos(theta * i) * (width / 2 - height / 2)),
+                    (float) (Math.sin(theta * i) * (width / 2 - height / 2)), 0);
+
+            compound.addChildShape(l, leftCylinder);
+            compound.addChildShape(r, rightCylinder);
+        }
 
         final Vector3f inertia = new Vector3f(0, 0, 0);
         compound.calculateLocalInertia(0.0f, inertia);
