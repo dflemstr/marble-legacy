@@ -33,6 +33,7 @@ import org.codehaus.jparsec.error.ParserException;
 
 import org.marble.ball.BallKind;
 import org.marble.ball.PlayerBall;
+import org.marble.engine.AudioEngine;
 import org.marble.engine.Engine;
 import org.marble.engine.GraphicsEngine;
 import org.marble.engine.InputEngine;
@@ -56,6 +57,8 @@ public class Game {
     private final InputEngine inputEngine;
     // Handles physics simulations.
     private final PhysicsEngine physicsEngine;
+    // Handles sound rendering.
+    private final AudioEngine audioEngine;
 
     // Stores settings that are immediately persisted when changed
     private final Settings settings;
@@ -82,10 +85,11 @@ public class Game {
         graphicsEngine = new GraphicsEngine(context);
         inputEngine = new InputEngine(context);
         physicsEngine = new PhysicsEngine(context);
+        audioEngine = new AudioEngine(context);
 
         engines =
                 ImmutableSet.<Engine<?>> of(graphicsEngine, inputEngine,
-                        physicsEngine);
+                        physicsEngine, audioEngine);
 
         this.context = context;
         this.assetManager = assetManager;

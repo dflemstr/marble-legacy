@@ -3,6 +3,7 @@ package org.marble.engine;
 import com.jme3.audio.AudioContext;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.Listener;
+import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
 
@@ -10,17 +11,21 @@ import org.marble.entity.audible.Audible;
 
 public class AudioEngine extends Engine<Audible> {
 
-    private final AudioRenderer audioRenderer;
+    private AudioRenderer audioRenderer;
+    private final AppSettings appSettings;
 
-    private final Listener listener;
+    /**
+     * @return the audioRenderer
+     */
+    public AudioRenderer getAudioRenderer() {
+        return audioRenderer;
+    }
 
-    protected AudioEngine(final JmeContext context) {
+    private Listener listener;
+
+    public AudioEngine(final JmeContext context) {
         super(Audible.class);
-        audioRenderer = JmeSystem.newAudioRenderer(context.getSettings());
-        AudioContext.setAudioRenderer(audioRenderer);
-
-        listener = new Listener();
-        audioRenderer.setListener(listener);
+        appSettings = context.getSettings();
     }
 
     @Override
@@ -30,7 +35,13 @@ public class AudioEngine extends Engine<Audible> {
 
     @Override
     public void initialize() {
+        audioRenderer = JmeSystem.newAudioRenderer(appSettings);
         audioRenderer.initialize();
+
+        listener = new Listener();
+        audioRenderer.setListener(listener);
+
+        AudioContext.setAudioRenderer(audioRenderer);
     }
 
     @Override
