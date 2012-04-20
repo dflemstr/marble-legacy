@@ -13,6 +13,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Transform;
+import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.ViewPort;
@@ -26,6 +27,8 @@ import com.jme3.util.SkyFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+
+import de.lessvoid.nifty.Nifty;
 
 import org.codehaus.jparsec.error.Location;
 import org.codehaus.jparsec.error.ParseErrorDetails;
@@ -73,6 +76,7 @@ public class Game {
     private final AssetManager assetManager;
 
     private ChaseCamera chaseCamera;
+    private Nifty nifty;
     private Spatial skybox;
     private Spatial ambientLight;
 
@@ -162,7 +166,7 @@ public class Game {
         setupSkybox();
         setupLighting();
         setupCamera();
-        setupUI();
+        setupGUI();
         setupFilters();
 
         loadLevel(Game.class.getResource("level/menu.level"));
@@ -186,6 +190,18 @@ public class Game {
         ambientLight = new LightNode("ambient", ambient);
         getGraphicsEngine().getRootNode().attachChild(ambientLight);
         getGraphicsEngine().getRootNode().addLight(ambient);
+    }
+
+    private void setupGUI() {
+        final NiftyJmeDisplay niftyDisplay =
+                new NiftyJmeDisplay(assetManager,
+                        inputEngine.getInputManager(),
+                        audioEngine.getAudioRenderer(),
+                        graphicsEngine.getGuiViewPort());
+        nifty = niftyDisplay.getNifty();
+        nifty.fromXml("Interface/Nifty/Menu.xml", "start");
+
+        graphicsEngine.getGuiViewPort().addProcessor(niftyDisplay);
     }
 
     private void loadLevel(final URL level) {
@@ -406,22 +422,6 @@ public class Game {
                         down, up);
         skybox.rotate(FastMath.HALF_PI, 0, 0);
         graphicsEngine.getRootNode().attachChild(skybox);
-    }
-
-    private void setupUI() {
-        /*
-         * UIComponent.setUseTransparency(true); hud = new UIHud();
-         * hud.setupInput(getGraphicsEngine().getCanvas(), getInputEngine()
-         * .getPhysicalLayer(), getInputEngine().getLogicalLayer());
-         * hud.setMouseManager(getInputEngine().getMouseManager());
-         * 
-         * menu = new Menu(this);
-         * menu.setLocationRelativeTo(getGraphicsEngine().getCanvas()
-         * .getCanvasRenderer().getCamera()); hud.add(menu);
-         * 
-         * inputEngine.getLogicalLayer().registerTrigger( new InputTrigger(new
-         * KeyPressedCondition(Key.ESCAPE), new ToggleMenu()));
-         */
     }
 
     private void start() {
