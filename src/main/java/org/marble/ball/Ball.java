@@ -1,72 +1,55 @@
 package org.marble.ball;
 
-import javax.vecmath.Vector3f;
-
-import com.ardor3d.image.Texture;
-import com.ardor3d.math.ColorRGBA;
-import com.ardor3d.math.Vector3;
-import com.ardor3d.renderer.queue.RenderBucketType;
-import com.ardor3d.renderer.state.BlendState;
-import com.ardor3d.renderer.state.GLSLShaderObjectsState;
-import com.ardor3d.renderer.state.TextureState;
-import com.ardor3d.scenegraph.Node;
-import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.scenegraph.shape.GeoSphere;
-import com.ardor3d.scenegraph.shape.GeoSphere.TextureMode;
-import com.ardor3d.util.TextureManager;
-
-import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.collision.shapes.SphereShape;
-import com.bulletphysics.dynamics.RigidBody;
-import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
-import com.bulletphysics.linearmath.DefaultMotionState;
+import com.jme3.asset.AssetManager;
+import com.jme3.bullet.collision.PhysicsCollisionEvent;
+import com.jme3.bullet.collision.shapes.SphereCollisionShape;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.RenderManager;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 
 import org.marble.Game;
 import org.marble.entity.AbstractEntity;
-import org.marble.entity.Collidable;
-import org.marble.entity.Graphical;
-import org.marble.entity.Physical;
-import org.marble.graphics.ChromaticAberrationNode;
-import org.marble.graphics.ReflectionNode;
-import org.marble.graphics.shader.LightDataLogic;
-import org.marble.util.Shaders;
+import org.marble.entity.graphical.Graphical;
+import org.marble.entity.physical.Collidable;
+import org.marble.entity.physical.Physical;
+import org.marble.graphics.EnvironmentNode;
+import org.marble.graphics.GeoSphere;
+import org.marble.graphics.MaterialSP;
 
 /**
  * A physical ball that can have different materials and physical properties.
  */
 public class Ball extends AbstractEntity implements Graphical, Physical,
         Collidable {
-    protected BallKind kind;
-    protected final double radius;
+    private BallKind kind;
+    private final float radius;
 
-    // The actual node that is transformed with our entity and body
-    protected final Node centerNode;
+    private RigidBodyControl physicalBall;
+    private Spatial graphicalBall;
 
-    // A node whose sub-nodes should make out the actual ball part of the
-    // geometrical nodes. The sub-nodes will be changed and/or added/removed
-    // when the ball material changes.
-    protected final Node ballNode;
-
-    protected final RigidBody physicalSphere;
+    private Optional<EnvironmentNode> environmentNode = Optional.absent();
 
     // Our scene's root node
     private Spatial rootNode;
 
+    private RenderManager renderManager;
+    private AssetManager assetManager;
+
     // How large (2^n) we will let our generated textures be.
     private int textureSizeMagnitude;
-
-    private final TextureState ts = new TextureState();
-    private final BlendState bs = new BlendState();
-    private final CollisionShape geometricalSphere;
-    private final Vector3f inertia;
 
     /**
      * Creates a new ball.
      */
     public Ball(final BallKind kind) {
-        this(kind, 0.5);
+        this(kind, 0.5f);
     }
 
     /**
@@ -75,29 +58,9 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
      * @param radius
      *            The radius.
      */
-    public Ball(final BallKind kind, final double radius) {
+    public Ball(final BallKind kind, final float radius) {
         this.kind = kind;
         this.radius = radius;
-
-        centerNode = new Node();
-
-        ballNode = new Node();
-        ballNode.getSceneHints().setRenderBucketType(
-                RenderBucketType.Transparent);
-        centerNode.attachChild(ballNode);
-
-        bs.setEnabled(true);
-        bs.setBlendEnabled(true);
-
-        geometricalSphere = new SphereShape((float) radius);
-        inertia = new Vector3f(0, 0, 0);
-        geometricalSphere
-                .calculateLocalInertia((float) kind.getMass(), inertia);
-
-        final RigidBodyConstructionInfo info =
-                new RigidBodyConstructionInfo((float) kind.getMass(),
-                        new DefaultMotionState(), geometricalSphere, inertia);
-        physicalSphere = new RigidBody(info);
     }
 
     /**
@@ -113,7 +76,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
      * @param radius
      *            The radius.
      */
-    public Ball(final String kind, final double radius) {
+    public Ball(final String kind, final float radius) {
         this(BallKind.valueOf(kind), radius);
     }
 
@@ -122,33 +85,51 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     }
 
     @Override
-    public RigidBody getBody() {
-        return physicalSphere;
-    }
-
-    @Override
-    public Spatial getSpatial() {
-        return centerNode;
-    }
-
-    @Override
-    public void handleContactAdded(final Physical other) {
-    }
-
-    @Override
-    public void handleContactRemoved(final Physical other) {
+    public RigidBodyControl getBody() {
+        return physicalBall;
     }
 
     @Override
     public void initialize(final Game game) {
         rootNode = game.getGraphicsEngine().getRootNode();
+        renderManager = game.getGraphicsEngine().getRenderManager();
+        assetManager = game.getAssetManager();
 
         // The lowest texture setting makes textures be 16x16; the size is
         // doubled for each step
         textureSizeMagnitude =
                 game.getSettings().environmentQuality.getValue().ordinal() + 4;
 
+        final GeoSphere geometricalBall =
+                new GeoSphere(true, radius, 4, GeoSphere.TextureMode.Projected);
+
+        graphicalBall = new Geometry("ball", geometricalBall);
+        getSpatial().attachChild(graphicalBall);
+
+        physicalBall =
+                new RigidBodyControl(new SphereCollisionShape(radius),
+                        kind.getMass());
+        physicalBall.setSleepingThresholds(0, 0);
+        getSpatial().addControl(physicalBall);
+
         setBallKind(kind);
+    }
+
+    private void enableEnvironment() {
+        if (!environmentNode.isPresent()) {
+            final EnvironmentNode node =
+                    new EnvironmentNode(rootNode, renderManager,
+                            textureSizeMagnitude);
+            environmentNode = Optional.of(node);
+            getSpatial().attachChild(node);
+        }
+    }
+
+    private void disableEnvironment() {
+        if (environmentNode.isPresent()) {
+            getSpatial().detachChild(environmentNode.get());
+            environmentNode = Optional.absent();
+        }
     }
 
     /**
@@ -159,91 +140,85 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
      */
     public void setBallKind(final BallKind kind) {
         // TODO implement material properties and changes.
-        ballNode.detachAllChildren();
-        final GeoSphere sphere =
-                new GeoSphere("ball", true, radius, 4, TextureMode.Projected);
+
+        final Material material;
         switch (kind) {
         case Wood:
-            final GLSLShaderObjectsState wood = Shaders.loadShader("wood");
-            wood.setShaderDataLogic(new LightDataLogic());
-            wood.setUniform("woodGradient", 0);
+            disableEnvironment();
+            material = assetManager.loadMaterial("Materials/Organic/Wood.j3m");
 
-            final Vector3 vec = Vector3.fetchTempInstance();
+            final Vector3f vec = new Vector3f();
 
             // The trunkCenter vectors define a line that is the center of the
             // trunk that our wood was cut from - all the "rings" will be around
             // this axis.
             randomize(vec);
-            wood.setUniform("trunkCenter1", vec);
+            // material.setVector3("TrunkCenter1", vec);
 
             randomize(vec);
-            wood.setUniform("trunkCenter2", vec);
+            // material.setVector3("TrunkCenter2", vec);
 
             // The noiseSeed vector seeds the random noise generator. The
             // generator has a period of 289.
             randomize(vec);
-            vec.multiplyLocal(289);
-            wood.setUniform("noiseSeed", vec);
+            vec.multLocal(289);
+            material.setVector3("NoiseSeed", vec);
 
             // The variation is a value between 0.0 and 1.0 that determines
             // which column of the wood gradient texture that is used for
             // tinting the material.
-            wood.setUniform("variation", (float) Math.random());
-
-            Vector3.releaseTempInstance(vec);
-            sphere.setRenderState(wood);
-
-            ts.setTexture(TextureManager.load("wood-gradient.png",
-                    Texture.MinificationFilter.BilinearNoMipMaps, false));
-            sphere.setRenderState(ts);
-            ballNode.attachChild(sphere);
+            material.setFloat("Variation", (float) Math.random());
             break;
         case Stone:
-            ts.setTexture(TextureManager.load("stone.png",
-                    Texture.MinificationFilter.Trilinear, true));
-            sphere.setRenderState(ts);
-            ballNode.attachChild(sphere);
+            disableEnvironment();
+            material = assetManager.loadMaterial("Materials/Mineral/Stone.j3m");
             break;
         case Fabric:
-            ts.setTexture(TextureManager.load("fabric.png",
-                    Texture.MinificationFilter.Trilinear, true));
-            sphere.setRenderState(ts);
-            sphere.setRenderState(bs);
-            ballNode.attachChild(sphere);
+            disableEnvironment();
+            material =
+                    assetManager.loadMaterial("Materials/Organic/Fabric.j3m");
+            material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
             break;
         case Glass:
-            final Node chromAberrator =
-                    new ChromaticAberrationNode(rootNode, new ColorRGBA(0.941f,
-                            0.984f, 1, 1), textureSizeMagnitude);
-            chromAberrator.attachChild(sphere);
-            ballNode.attachChild(chromAberrator);
+            enableEnvironment();
+            material =
+                    new MaterialSP(
+                            assetManager
+                                    .loadMaterial("Materials/Mineral/Glass.j3m"));
+            material.setTexture("EnvironmentMap", environmentNode.get()
+                    .getEnvironment());
             break;
         case Mercury:
-            final Node reflector =
-                    new ReflectionNode(rootNode, new ColorRGBA(0.941f, 0.984f,
-                            1, 1), textureSizeMagnitude);
-            reflector.attachChild(sphere);
-            ballNode.attachChild(reflector);
+            enableEnvironment();
+            material = assetManager.loadMaterial("Materials/Metal/Mercury.j3m");
+            material.setTexture("EnvironmentMap", environmentNode.get()
+                    .getEnvironment());
             break;
+        default:
+            throw new UnsupportedOperationException(
+                    "Unimplemented ball material for kind " + kind);
         }
-        ballNode.updateGeometricState(0);
+        graphicalBall.setMaterial(material);
 
-        geometricalSphere
-                .calculateLocalInertia((float) kind.getMass(), inertia);
-        physicalSphere.setMassProps((float) kind.getMass(), inertia);
+        physicalBall.setMass(kind.getMass());
 
         this.kind = kind;
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("name", name).add("kind", kind)
-                .add("radius", radius).toString();
+        return Objects.toStringHelper(this).add("name", getName())
+                .add("kind", kind).add("radius", radius).toString();
     }
 
-    private void randomize(final Vector3 vec) {
-        vec.setX(Math.random());
-        vec.setY(Math.random());
-        vec.setZ(Math.random());
+    private void randomize(final Vector3f vec) {
+        vec.setX((float) Math.random());
+        vec.setY((float) Math.random());
+        vec.setZ((float) Math.random());
+    }
+
+    @Override
+    public void handleCollisionWith(final Physical other,
+            final PhysicsCollisionEvent event) {
     }
 }

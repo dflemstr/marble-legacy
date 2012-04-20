@@ -3,53 +3,37 @@ package org.marble.block;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.vecmath.Vector3f;
-
-import com.ardor3d.math.Vector3;
-import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.scenegraph.shape.Box;
-
-import com.bulletphysics.collision.shapes.BoxShape;
-import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.dynamics.RigidBody;
-import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
-import com.bulletphysics.linearmath.DefaultMotionState;
+import com.jme3.asset.AssetManager;
+import com.jme3.bullet.collision.PhysicsCollisionEvent;
+import com.jme3.bullet.collision.shapes.BoxCollisionShape;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.Box;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 
+import org.marble.Game;
 import org.marble.ball.Ball;
 import org.marble.ball.BallKind;
 import org.marble.entity.AbstractEntity;
-import org.marble.entity.Collidable;
-import org.marble.entity.Connected;
-import org.marble.entity.Connector;
-import org.marble.entity.Graphical;
-import org.marble.entity.Physical;
+import org.marble.entity.connected.Connected;
+import org.marble.entity.connected.Connector;
+import org.marble.entity.graphical.Graphical;
+import org.marble.entity.physical.Collidable;
+import org.marble.entity.physical.Physical;
 
 public class Transformer extends AbstractEntity implements Physical, Graphical,
         Connected, Collidable {
     private static final Logger log = Logger.getLogger(AbstractEntity.class
             .getName());
     private final BallKind targetKind;
-    private final Box graphicalBox;
-    private final RigidBody physicalBox;
+    private Geometry graphicalBox;
+    private RigidBodyControl physicalBox;
 
     public Transformer(final BallKind targetKind) {
         this.targetKind = targetKind;
-
-        graphicalBox = new Box("slab", Vector3.ZERO, 0.5, 0.5, 0.5);
-
-        final CollisionShape geometricalBox =
-                new BoxShape(new Vector3f(0.5f, 0.5f, 0.5f));
-
-        final Vector3f inertia = new Vector3f(0, 0, 0);
-        geometricalBox.calculateLocalInertia(0.0f, inertia);
-
-        final RigidBodyConstructionInfo info =
-                new RigidBodyConstructionInfo(0.0f, new DefaultMotionState(),
-                        geometricalBox, inertia);
-        physicalBox = new RigidBody(info);
     }
 
     public Transformer(final String targetKind) {
@@ -57,7 +41,23 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
     }
 
     @Override
-    public RigidBody getBody() {
+    public void initialize(final Game game) {
+        final AssetManager assetManager = game.getAssetManager();
+
+        graphicalBox =
+                new Geometry("slab", new Box(Vector3f.ZERO, 0.5f, 0.5f, 0.5f));
+        graphicalBox.setMaterial(assetManager
+                .loadMaterial("Materials/Misc/Undefined.j3m"));
+        getSpatial().attachChild(graphicalBox);
+
+        physicalBox =
+                new RigidBodyControl(new BoxCollisionShape(new Vector3f(0.5f,
+                        0.5f, 0.5f)), 0);
+        getSpatial().addControl(physicalBox);
+    }
+
+    @Override
+    public RigidBodyControl getBody() {
         return physicalBox;
     }
 
@@ -67,12 +67,15 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
     }
 
     @Override
-    public Spatial getSpatial() {
-        return graphicalBox;
+    public String toString() {
+        return Objects.toStringHelper(this).add("name", getName())
+                .add("targetKind", targetKind).toString();
     }
 
     @Override
-    public void handleContactAdded(final Physical other) {
+    public void handleCollisionWith(final Physical other,
+            final PhysicsCollisionEvent event) {
+
         if (other instanceof Ball) {
             final Ball ball = (Ball) other;
             if (ball.getBallKind() != targetKind) {
@@ -80,16 +83,5 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
                 log.info("Transformed " + ball + " into material " + targetKind);
             }
         }
-    }
-
-    @Override
-    public void handleContactRemoved(final Physical other) {
-        // Do nothing
-    }
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).add("name", name)
-                .add("targetKind", targetKind).toString();
     }
 }

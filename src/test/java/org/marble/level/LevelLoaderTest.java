@@ -5,8 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
-import javax.vecmath.Vector3d;
-import javax.vecmath.Vector3f;
+import com.jme3.math.Vector3f;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -19,9 +18,9 @@ import org.junit.Test;
 
 import org.marble.Game;
 import org.marble.entity.AbstractEntity;
-import org.marble.entity.Connected;
-import org.marble.entity.Connector;
 import org.marble.entity.Entity;
+import org.marble.entity.connected.Connected;
+import org.marble.entity.connected.Connector;
 import org.marble.level.LevelStatement.Alias;
 import org.marble.level.LevelStatement.Connection;
 import org.marble.level.LevelStatement.Declaration;
@@ -107,21 +106,29 @@ public class LevelLoaderTest {
                         new Declaration(0, "e2", mockEntityClass, ImmutableList
                                 .of()),
                         new Declaration(0, "e3", mockEntityClass, ImmutableList
-                                .of()), new Position(0, "e1", new Vector3d(0,
+                                .of()), new Position(0, "e1", new Vector3f(0,
                                 1, 2), absent), new Connection(0, "e2", "c1",
                                 "e1", "c2"), new Connection(0, "e3", "c1",
                                 "e1", "c3")));
         assertEquals(3, entities2.size());
         final UnmodifiableIterator<Entity> iter = entities2.iterator();
-        final Vector3d pos = new Vector3d();
+        final Vector3f pos = new Vector3f();
         // Yes, ImmutableSet is guaranteed to iterate entries in insertion order
-        iter.next().getTransform().get(pos);
+        iter.next().getTransform().getTranslation(pos);
+        roundVectorToInts(pos);
         assertEquals(new Vector3f(0, 1, 2), pos);
-        iter.next().getTransform().get(pos);
+        iter.next().getTransform().getTranslation(pos);
+        roundVectorToInts(pos);
         assertEquals(new Vector3f(2, 1, 2), pos);
-        // TODO fix accuracy
-        // iter.next().getTransform().get(pos);
-        // assertEquals(new Vector3f(3, 1, 3), pos);
+        iter.next().getTransform().getTranslation(pos);
+        roundVectorToInts(pos);
+        assertEquals(new Vector3f(3, 1, 3), pos);
+    }
+
+    private void roundVectorToInts(final Vector3f vector) {
+        vector.x = Math.round(vector.x);
+        vector.y = Math.round(vector.y);
+        vector.z = Math.round(vector.z);
     }
 
     @Test
@@ -132,11 +139,11 @@ public class LevelLoaderTest {
         final ImmutableSet<Entity> entities1 =
                 loader.runStatements(ImmutableList.of(new Declaration(0, "e1",
                         mockEntityClass, ImmutableList.of()), new Position(0,
-                        "e1", new Vector3d(1, 2, 3), absent)));
+                        "e1", new Vector3f(1, 2, 3), absent)));
         assertEquals(1, entities1.size());
-        final Vector3d pos = new Vector3d();
-        entities1.iterator().next().getTransform().get(pos);
-        assertEquals(new Vector3d(1, 2, 3), pos);
+        final Vector3f pos = new Vector3f();
+        entities1.iterator().next().getTransform().getTranslation(pos);
+        assertEquals(new Vector3f(1, 2, 3), pos);
 
         final ImmutableSet<Entity> entities2 =
                 loader.runStatements(ImmutableList.of(
@@ -144,16 +151,16 @@ public class LevelLoaderTest {
                                 .of()),
                         new Declaration(0, "e2", mockEntityClass, ImmutableList
                                 .of()),
-                        new Position(0, "e1", new Vector3d(0, 1, 2), absent),
-                        new Position(0, "e2", new Vector3d(3, 4, 5), Optional
+                        new Position(0, "e1", new Vector3f(0, 1, 2), absent),
+                        new Position(0, "e2", new Vector3f(3, 4, 5), Optional
                                 .of("e1"))));
         assertEquals(2, entities2.size());
         final UnmodifiableIterator<Entity> iter = entities2.iterator();
         // Yes, ImmutableSet is guaranteed to iterate entries in insertion order
-        iter.next().getTransform().get(pos);
-        assertEquals(new Vector3d(0, 1, 2), pos);
-        iter.next().getTransform().get(pos);
-        assertEquals(new Vector3d(3, 5, 7), pos);
+        iter.next().getTransform().getTranslation(pos);
+        assertEquals(new Vector3f(0, 1, 2), pos);
+        iter.next().getTransform().getTranslation(pos);
+        assertEquals(new Vector3f(3, 5, 7), pos);
     }
 
     @Before

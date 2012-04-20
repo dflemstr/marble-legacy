@@ -7,8 +7,6 @@ import com.google.common.collect.Sets;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import org.marble.RendererFactory;
-
 /**
  * Controls the settings for the desktop version of the application.
  */
@@ -70,9 +68,6 @@ public class Settings {
             "graphics/screen/vertical_sync", false);
     public final Entry<Integer> screenSamplesPerPixel = new IntegerEntry(prefs,
             "graphics/samples_per_pixel", 0);
-    public final Entry<RendererFactory> rendererImpl =
-            new EnumEntry<RendererFactory>(prefs, "graphics/renderer",
-                    RendererFactory.LWJGL, RendererFactory.class);
     public final Entry<Integer> framerate = new IntegerEntry(prefs,
             "graphics/framerate", -1);
     public final Entry<Boolean> stereoscopic = new BooleanEntry(prefs,
@@ -81,9 +76,9 @@ public class Settings {
             prefs, "graphics/environment_quality", Quality.Medium,
             Quality.class);
     public final Entry<Boolean> bloom = new BooleanEntry(prefs,
-            "graphics/bloom", false);
+            "graphics/bloom", true);
     public final Entry<Boolean> ssao = new BooleanEntry(prefs, "graphics/ssao",
-            false);
+            true);
     public final Entry<Quality> ssaoQuality = new EnumEntry<Quality>(prefs,
             "graphics/ssao/quality", Quality.Highest, Quality.class);
     public final Entry<Boolean> dof = new BooleanEntry(prefs, "graphics/dof",

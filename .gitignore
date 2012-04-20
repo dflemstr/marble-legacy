@@ -12,6 +12,10 @@
 !lib/*.jar
 *.war
 *.ear
+*.dll
+*.so
+*.dylib
+*.jnilib
 
 # Maven
 target/

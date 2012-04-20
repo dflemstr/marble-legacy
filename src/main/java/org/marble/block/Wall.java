@@ -2,69 +2,62 @@ package org.marble.block;
 
 import java.util.Map;
 
-import javax.vecmath.Vector3f;
+import com.jme3.asset.AssetManager;
+import com.jme3.bullet.collision.shapes.BoxCollisionShape;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.Box;
 
-import com.ardor3d.math.Vector3;
-import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.scenegraph.shape.Box;
-
-import com.bulletphysics.collision.shapes.BoxShape;
-import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.dynamics.RigidBody;
-import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
-import com.bulletphysics.linearmath.DefaultMotionState;
-
+import org.marble.Game;
 import org.marble.entity.AbstractEntity;
-import org.marble.entity.Connected;
-import org.marble.entity.Connector;
-import org.marble.entity.Graphical;
-import org.marble.entity.Physical;
+import org.marble.entity.connected.Connected;
+import org.marble.entity.connected.Connector;
+import org.marble.entity.graphical.Graphical;
+import org.marble.entity.physical.Physical;
 import org.marble.util.Connectors;
 
 public class Wall extends AbstractEntity implements Connected, Graphical,
         Physical {
 
-    private final double width, height, depth;
-    private final Box graphicalBox;
-    private final RigidBody physicalBox;
+    private final float width, height, depth;
+    private RigidBodyControl physicalBox;
+    private Geometry graphicalBox;
 
-    public Wall(final double width) {
-        this(width, 0.5, 1.0);
+    public Wall(final float width) {
+        this(width, 0.5f, 1.0f);
     }
 
-    public Wall(final double width, final double height, final double depth) {
+    public Wall(final float width, final float height, final float depth) {
         this.width = width;
         this.height = height;
         this.depth = depth;
-
-        graphicalBox =
-                new Box("wall", new Vector3(0, 0, depth / 2), width / 2,
-                        height / 2, depth / 2);
-        final CollisionShape geometricalBox =
-                new BoxShape(new Vector3f((float) width / 2,
-                        (float) height / 2, (float) depth));
-
-        final Vector3f inertia = new Vector3f(0, 0, 0);
-        geometricalBox.calculateLocalInertia(0.0f, inertia);
-
-        final RigidBodyConstructionInfo info =
-                new RigidBodyConstructionInfo(0.0f, new DefaultMotionState(),
-                        geometricalBox, inertia);
-        physicalBox = new RigidBody(info);
     }
 
     @Override
-    public RigidBody getBody() {
+    public void initialize(final Game game) {
+        final AssetManager assetManager = game.getAssetManager();
+
+        graphicalBox =
+                new Geometry("wall", new Box(Vector3f.ZERO, width / 2,
+                        height / 2, depth / 2));
+        graphicalBox.setMaterial(assetManager
+                .loadMaterial("Materials/Misc/Undefined.j3m"));
+        getSpatial().attachChild(graphicalBox);
+
+        physicalBox =
+                new RigidBodyControl(new BoxCollisionShape(new Vector3f(
+                        width / 2, height / 2, depth / 2)), 0);
+        getSpatial().addControl(physicalBox);
+    }
+
+    @Override
+    public RigidBodyControl getBody() {
         return physicalBox;
     }
 
     @Override
     public Map<String, Connector> getConnectors() {
         return Connectors.fromBox(width, height, depth);
-    }
-
-    @Override
-    public Spatial getSpatial() {
-        return graphicalBox;
     }
 }

@@ -16,7 +16,7 @@ public abstract class AbstractEntry<A> implements Entry<A> {
     protected final Preferences prefs;
     protected final String node;
     protected final A defaultValue;
-    protected final Set<EntryListener<A>> listeners = Sets.newHashSet();
+    protected final Set<EntryListener<A>> listeners = Sets.newIdentityHashSet();
 
     /**
      * Constructs a new settings entry.
@@ -65,10 +65,12 @@ public abstract class AbstractEntry<A> implements Entry<A> {
 
     protected abstract void putValue(final A value);
 
+    @Override
     public void addEntryListener(final EntryListener<A> listener) {
         listeners.add(listener);
     }
 
+    @Override
     public void removeEntryListener(final EntryListener<A> listener) {
         listeners.remove(listener);
     }

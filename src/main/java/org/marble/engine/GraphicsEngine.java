@@ -1,171 +1,150 @@
 package org.marble.engine;
 
-import java.util.Map;
+import com.jme3.light.Light;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.Renderer;
+import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial.CullHint;
+import com.jme3.system.JmeContext;
 
-import com.ardor3d.framework.DisplaySettings;
-import com.ardor3d.framework.NativeCanvas;
-import com.ardor3d.image.Texture;
-import com.ardor3d.math.ColorRGBA;
-import com.ardor3d.renderer.pass.BasicPassManager;
-import com.ardor3d.renderer.queue.RenderBucketType;
-import com.ardor3d.renderer.state.CullState;
-import com.ardor3d.renderer.state.LightState;
-import com.ardor3d.renderer.state.TextureState;
-import com.ardor3d.renderer.state.ZBufferState;
-import com.ardor3d.scenegraph.Node;
-import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.util.ReadOnlyTimer;
-import com.ardor3d.util.TextureManager;
-
-import com.google.common.collect.Maps;
-
-import org.marble.entity.Emitter;
-import org.marble.entity.Graphical;
-import org.marble.graphics.scene.EntityController;
+import org.marble.entity.graphical.Emitter;
+import org.marble.entity.graphical.Graphical;
 
 /**
  * The Ardor3D-based graphics engine.
  */
 public class GraphicsEngine extends Engine<Graphical> {
-    private final Node rootNode = new Node();
-    private final DisplaySettings displaySettings;
-    private final NativeCanvas canvas;
-    private ZBufferState zbuffer;
-    private LightState lighting;
-    private CullState culling;
-    private TextureState textures;
-
-    private BasicPassManager passes;
-
-    private final Map<Graphical, EntityController> controllers = Maps
-            .newIdentityHashMap();
+    private final JmeContext context;
+    private Renderer renderer;
+    private RenderManager renderManager;
+    private ViewPort viewPort;
+    private ViewPort guiViewPort;
 
     /**
-     * Creates a new graphics engine.
-     * 
-     * @param canvas
-     *            The canvas to render to.
+     * @return the guiViewPort
      */
-    public GraphicsEngine(final NativeCanvas canvas,
-            final DisplaySettings displaySettings) {
-        super(Graphical.class);
-        this.canvas = canvas;
-        this.displaySettings = displaySettings;
+    public ViewPort getGuiViewPort() {
+        return guiViewPort;
     }
 
-    @Override
-    public void destroy() {
-        // Do nothing
-    }
+    private Camera camera;
 
     /**
-     * The canvas that is being rendered to.
+     * @return the camera
      */
-    public NativeCanvas getCanvas() {
-        return canvas;
+    public Camera getCamera() {
+        return camera;
     }
 
-    public DisplaySettings getDisplaySettings() {
-        return displaySettings;
-    }
+    private final Node rootNode = new Node("root");
 
     /**
-     * The lighting system in use.
-     */
-    public LightState getLighting() {
-        return lighting;
-    }
-
-    public BasicPassManager getPasses() {
-        return passes;
-    }
-
-    /**
-     * The root node; all graphical nodes in the game must be sub-nodes of this
-     * node.
+     * @return the rootNode
      */
     public Node getRootNode() {
         return rootNode;
     }
 
     /**
-     * The Z-buffer in use.
+     * @return the guiNode
      */
-    public ZBufferState getZBuffer() {
-        return zbuffer;
+    public Node getGuiNode() {
+        return guiNode;
+    }
+
+    private final Node guiNode = new Node("gui");
+
+    public GraphicsEngine(final JmeContext context) {
+        super(Graphical.class);
+        this.context = context;
+    }
+
+    public void reshape(final int width, final int height) {
+        renderManager.notifyReshape(width, height);
     }
 
     @Override
     public void initialize() {
-        canvas.setTitle("Marble");
-        canvas.getCanvasRenderer().getCamera().setFrustumFar(512.0);
-        canvas.getCanvasRenderer().getCamera().setFrustumNear(1.0);
+        renderer = context.getRenderer();
 
-        rootNode.getSceneHints().setRenderBucketType(RenderBucketType.Opaque);
+        renderManager = new RenderManager(renderer);
+        renderManager.setTimer(context.getTimer());
 
-        zbuffer = new ZBufferState();
-        zbuffer.setEnabled(true);
-        zbuffer.setFunction(ZBufferState.TestFunction.LessThanOrEqualTo);
-        rootNode.setRenderState(zbuffer);
+        camera =
+                new Camera(context.getSettings().getWidth(), context
+                        .getSettings().getHeight());
+        camera.setFrustumPerspective(45f,
+                (float) camera.getWidth() / camera.getHeight(), 1f, 1000f);
+        camera.setLocation(new Vector3f(0, -10, 0));
+        camera.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Z);
 
-        lighting = new LightState();
-        lighting.setGlobalAmbient(ColorRGBA.LIGHT_GRAY);
-        lighting.setEnabled(true);
-        rootNode.setRenderState(lighting);
+        guiNode.setQueueBucket(Bucket.Gui);
+        guiNode.setCullHint(CullHint.Never);
 
-        /*
-         * final WireframeState wireframeState = new WireframeState();
-         * wireframeState.setEnabled(true);
-         * rootNode.setRenderState(wireframeState);
-         */
+        viewPort = renderManager.createMainView("Default", camera);
+        viewPort.setClearFlags(true, true, true);
+        viewPort.attachScene(rootNode);
 
-        culling = new CullState();
-        culling.setEnabled(true);
-        culling.setCullFace(CullState.Face.Back);
-        rootNode.setRenderState(culling);
-
-        textures = new TextureState();
-        textures.setEnabled(true);
-        textures.setTexture(TextureManager.load("texture/missing.png",
-                Texture.MinificationFilter.Trilinear, false));
-        rootNode.setRenderState(textures);
-
-        passes = new BasicPassManager();
-
-        rootNode.updateGeometricState(0);
+        final Camera guiCam =
+                new Camera(context.getSettings().getWidth(), context
+                        .getSettings().getHeight());
+        guiViewPort = renderManager.createPostView("GUI Default", guiCam);
+        guiViewPort.setClearFlags(false, false, false);
+        guiViewPort.attachScene(guiNode);
     }
 
     @Override
-    public boolean update(final ReadOnlyTimer timer) {
-        rootNode.updateGeometricState(timer.getTimePerFrame(), true);
-        passes.updatePasses(timer.getTimePerFrame());
-        return !canvas.isClosing();
+    public void suspend() {
+        context.setAutoFlushFrames(false);
+    }
+
+    @Override
+    public void resume() {
+        context.setAutoFlushFrames(true);
+    }
+
+    @Override
+    public void update(final float timePerFrame) {
+        rootNode.updateLogicalState(timePerFrame);
+        guiNode.updateLogicalState(timePerFrame);
+
+        rootNode.updateGeometricState();
+        guiNode.updateGeometricState();
+
+        renderManager.render(timePerFrame, context.isRenderable());
     }
 
     @Override
     protected void entityAdded(final Graphical entity) {
-        final Spatial spatial = entity.getSpatial();
-        final EntityController controller = new EntityController(entity);
+        rootNode.attachChild(entity.getSpatial());
 
         if (entity instanceof Emitter) {
-            lighting.attach(((Emitter) entity).getLight());
+            for (final Light light : ((Emitter) entity).getLights()) {
+                rootNode.addLight(light);
+            }
         }
-
-        spatial.addController(controller);
-        controllers.put(entity, controller);
-        rootNode.attachChild(spatial);
     }
 
     @Override
     protected void entityRemoved(final Graphical entity) {
-        final Spatial spatial = entity.getSpatial();
-        final EntityController controller = controllers.remove(entity);
+        rootNode.detachChild(entity.getSpatial());
 
         if (entity instanceof Emitter) {
-            lighting.detach(((Emitter) entity).getLight());
+            for (final Light light : ((Emitter) entity).getLights()) {
+                rootNode.removeLight(light);
+            }
         }
+    }
 
-        spatial.removeController(controller);
-        rootNode.detachChild(spatial);
+    public RenderManager getRenderManager() {
+        return renderManager;
+    }
+
+    public ViewPort getViewPort() {
+        return viewPort;
     }
 }

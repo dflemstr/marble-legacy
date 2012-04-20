@@ -1,137 +1,57 @@
 package org.marble.block;
 
 import java.util.Map;
+import java.util.Set;
 
-import javax.vecmath.Vector3d;
-import javax.vecmath.Vector3f;
-
-import com.ardor3d.bounding.BoundingBox;
-import com.ardor3d.extension.effect.particle.ParticleController;
-import com.ardor3d.extension.effect.particle.ParticleSystem;
-import com.ardor3d.extension.model.obj.ObjImporter;
-import com.ardor3d.image.Texture;
-import com.ardor3d.image.Texture.WrapMode;
-import com.ardor3d.image.TextureStoreFormat;
-import com.ardor3d.light.Light;
-import com.ardor3d.light.PointLight;
-import com.ardor3d.math.ColorRGBA;
-import com.ardor3d.math.MathUtils;
-import com.ardor3d.math.Vector3;
-import com.ardor3d.renderer.state.BlendState;
-import com.ardor3d.renderer.state.TextureState;
-import com.ardor3d.renderer.state.ZBufferState;
-import com.ardor3d.scenegraph.Node;
-import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.util.TextureManager;
-
-import com.bulletphysics.collision.shapes.BoxShape;
-import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.dynamics.RigidBody;
-import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
-import com.bulletphysics.linearmath.DefaultMotionState;
+import com.jme3.asset.AssetManager;
+import com.jme3.bullet.collision.shapes.BoxCollisionShape;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.effect.ParticleEmitter;
+import com.jme3.effect.ParticleMesh;
+import com.jme3.light.Light;
+import com.jme3.light.PointLight;
+import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.LightNode;
+import com.jme3.scene.Spatial;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import org.marble.Game;
 import org.marble.entity.AbstractEntity;
-import org.marble.entity.Connected;
-import org.marble.entity.Connector;
-import org.marble.entity.Emitter;
-import org.marble.entity.Graphical;
-import org.marble.entity.Physical;
-import org.marble.graphics.PostIlluminationParticleMesh;
-import org.marble.graphics.scene.LightMover;
+import org.marble.entity.connected.Connected;
+import org.marble.entity.connected.Connector;
+import org.marble.entity.graphical.Emitter;
+import org.marble.entity.graphical.Graphical;
+import org.marble.entity.physical.Physical;
 
 public class Lantern extends AbstractEntity implements Connected, Graphical,
-        Physical, Emitter {
-    private final Node graphicalLantern;
-    private final RigidBody physicalLantern;
-    private final ParticleSystem particles;
-    private final PointLight light;
+        Emitter, Physical {
+    private final ColorRGBA color;
+    private final float radius;
+    private Spatial graphicalLantern;
+    private RigidBodyControl physicalLantern;
+    private ParticleEmitter particles;
+    private PointLight light;
 
     public Lantern() {
-        this(new Vector3d(0.5, 0.5, 0.5));
+        this(new Vector3f(0.5f, 0.5f, 0.5f));
     }
 
-    public Lantern(final Vector3d colorVector) {
-        graphicalLantern = new ObjImporter().load("lantern.obj").getScene();
+    public Lantern(final Vector3f colorVector) {
+        this(colorVector, 32);
+    }
 
-        final CollisionShape geometricalLantern =
-                new BoxShape(new Vector3f(0.5f, 0.5f, 1));
-        final ColorRGBA color =
-                new ColorRGBA((float) colorVector.x, (float) colorVector.y,
-                        (float) colorVector.z, 1);
-        final float colorScale =
-                1.0f / Math.max(Math.max(color.getRed(), color.getGreen()),
-                        color.getBlue());
-        final ColorRGBA saturatedColor = color.multiply(colorScale, null);
-        final ColorRGBA alphaColor = color.clone();
-        alphaColor.setAlpha(0);
-
-        light = new PointLight();
-        light.setAmbient(ColorRGBA.BLACK);
-        light.setDiffuse(color);
-        light.setSpecular(saturatedColor);
-        light.setEnabled(true);
-        light.setLocation(0, 0, 0.5f);
-
-        final LightMover mover = new LightMover(graphicalLantern, light);
-        final Vector3 offset = Vector3.fetchTempInstance();
-        offset.set(0, 0, 0.5);
-        mover.setLightOffset(offset);
-        Vector3.releaseTempInstance(offset);
-        graphicalLantern.setListener(mover);
-
-        particles = new PostIlluminationParticleMesh("flame", 8);
-        particles.setEmissionDirection(new Vector3(0, 0, 1));
-        particles.setInitialVelocity(0.006);
-        particles.setStartSize(0.5);
-        particles.setEndSize(0.125);
-        particles.setMinimumLifeTime(100);
-        particles.setMaximumLifeTime(200);
-        particles.setStartColor(saturatedColor);
-        particles.setEndColor(alphaColor);
-        particles.setMaximumAngle(15 * MathUtils.DEG_TO_RAD);
-        particles.setTranslation(0, 0, 0.5);
-
-        final ParticleController particleController = new ParticleController();
-        particles.addController(particleController);
-
-        final BlendState blend = new BlendState();
-        blend.setBlendEnabled(true);
-        blend.setSourceFunction(BlendState.SourceFunction.SourceAlpha);
-        blend.setDestinationFunction(BlendState.DestinationFunction.One);
-        particles.setRenderState(blend);
-
-        final TextureState ts = new TextureState();
-        ts.setTexture(TextureManager.load("flare-small.png",
-                Texture.MinificationFilter.Trilinear,
-                TextureStoreFormat.GuessCompressedFormat, true));
-        ts.getTexture().setWrap(WrapMode.BorderClamp);
-        ts.setEnabled(true);
-        particles.setRenderState(ts);
-
-        final ZBufferState zstate = new ZBufferState();
-        zstate.setWritable(false);
-        particles.setRenderState(zstate);
-
-        particles.getParticleGeometry().setModelBound(new BoundingBox());
-
-        graphicalLantern.attachChild(particles);
-        particles.warmUp(60);
-        graphicalLantern.updateWorldTransform(true);
-
-        final Vector3f inertia = new Vector3f(0, 0, 0);
-        geometricalLantern.calculateLocalInertia(0.0f, inertia);
-
-        final RigidBodyConstructionInfo info =
-                new RigidBodyConstructionInfo(0.0f, new DefaultMotionState(),
-                        geometricalLantern, inertia);
-        physicalLantern = new RigidBody(info);
+    public Lantern(final Vector3f colorVector, final float radius) {
+        color = new ColorRGBA(colorVector.x, colorVector.y, colorVector.z, 1);
+        this.radius = radius;
     }
 
     @Override
-    public RigidBody getBody() {
+    public RigidBodyControl getBody() {
         return physicalLantern;
     }
 
@@ -142,21 +62,57 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
     }
 
     @Override
-    public Light getLight() {
-        return light;
-    }
-
-    @Override
-    public Spatial getSpatial() {
-        return graphicalLantern;
-    }
-
-    @Override
     public void initialize(final Game game) {
-        particles.getParticleController().setUpdateOnlyInView(true);
-        particles.getParticleController().setViewCamera(
-                game.getGraphicsEngine().getCanvas().getCanvasRenderer()
-                        .getCamera());
+        final AssetManager assetManager = game.getAssetManager();
+        graphicalLantern = assetManager.loadModel("Models/lantern.obj");
+        getSpatial().attachChild(graphicalLantern);
+
+        final ColorRGBA flameColor = color.clone();
+        final float maxComponent =
+                Math.max(Math.max(flameColor.a, flameColor.r),
+                        Math.max(flameColor.g, flameColor.b));
+        flameColor.multLocal(1 / maxComponent);
+        final ColorRGBA fumeColor = flameColor.clone();
+        fumeColor.a = 0;
+
+        light = new PointLight();
+        light.setColor(color);
+        light.setRadius(radius);
+        final LightNode lightNode = new LightNode("lantern light", light);
+        lightNode.setLocalTranslation(0, 0, 0.5f);
+        getSpatial().attachChild(lightNode);
+
+        particles =
+                new ParticleEmitter("emitter", ParticleMesh.Type.Triangle, 8);
+        final Material material =
+                new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
+        material.setTexture("Texture",
+                assetManager.loadTexture("Textures/flare.png"));
+        material.getAdditionalRenderState().setBlendMode(BlendMode.Additive);
+        particles.setMaterial(material);
+        particles.setStartColor(flameColor);
+        particles.setEndColor(fumeColor);
+
+        particles.getParticleInfluencer().setInitialVelocity(
+                new Vector3f(0, 0, 8f));
+        particles.getParticleInfluencer().setVelocityVariation(0.1f);
+        particles.setStartSize(1.0f);
+        particles.setEndSize(0.25f);
+        particles.setGravity(0, 0, 0);
+        particles.setLowLife(0.1f);
+        particles.setHighLife(0.2f);
+        particles.setLocalTranslation(0, 0, 0.5f);
+        particles.updateLogicalState(20);
+        getSpatial().attachChild(particles);
+
+        physicalLantern =
+                new RigidBodyControl(new BoxCollisionShape(new Vector3f(0.5f,
+                        0.5f, 1)), 0);
+        getSpatial().addControl(physicalLantern);
     }
 
+    @Override
+    public Set<Light> getLights() {
+        return ImmutableSet.<Light> of(light);
+    }
 }
