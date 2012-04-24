@@ -5,8 +5,13 @@
   "levels": [
     {
       "name": "Starting out",
-      "uri": "core/1.level",
+      "uri": "core/starting-out.level",
       "uuid": "03b88c7e-266b-47f1-917a-29b1e4198e0f"
+    },
+    {
+      "name": "Spirals",
+      "uri": "core/spirals.level",
+      "uuid": "d6e41148-a552-40fd-a670-1a7613bca837"
     }
   ]
 }

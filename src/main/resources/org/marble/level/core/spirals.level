@@ -1,0 +1,14 @@
+using Slab as org.marble.block.Slab
+using Spiral as org.marble.block.Spiral
+using WinBlock as org.marble.special.WinBlock
+
+let spawnPlatform be Slab(5, 5, 1),
+    spiral be Spiral(3, 4, 360),
+    winPlatform be Slab(5, 5, 1)
+
+position spawnPlatform at (0, 0, 0)
+connect spiral.start_middle to spawnPlatform.north_middle,
+        winPlatform.south_middle to spiral.end_middle
+
+let winBlock be WinBlock()
+position winBlock at (0, 0, 1) from winPlatform
