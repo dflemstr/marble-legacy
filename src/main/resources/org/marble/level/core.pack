@@ -5,7 +5,8 @@
   "levels": [
     {
       "name": "Starting out",
-      "uri": "core/1.level"
+      "uri": "core/1.level",
+      "uuid": "03b88c7e-266b-47f1-917a-29b1e4198e0f"
     }
   ]
 }

@@ -1,0 +1,13 @@
+using Slab as org.marble.block.Slab
+using WinBlock as org.marble.special.WinBlock
+
+let spawnPlatform be Slab(5, 5, 1),
+    bridge be Slab(2, 5, 1),
+    winPlatform be Slab(5, 5, 1)
+
+position spawnPlatform at (0, 0, 0)
+connect bridge.south_middle to spawnPlatform.north_middle,
+        winPlatform.south_middle to bridge.north_middle
+
+let winBlock be WinBlock()
+position winBlock at (0, 0, 1) from winPlatform
