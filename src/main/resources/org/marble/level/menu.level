@@ -51,11 +51,11 @@ connect slab2.south_middle to slab1.north_1_0,
         wall5.south_middle to slab5.north_middle,
         wall6.north_middle to slab5.south_middle
 		
-position woodenBall  at (-2, 0, 8) from slab1
-position stoneBall   at (-4, 0, 8) from slab1
+position woodenBall  at (-2, 0, 4) from slab1
+position stoneBall   at (-4, 0, 6) from slab1
 position fabricBall  at (-6, 0, 8) from slab1
-position glassBall   at ( 2, 0, 8) from slab1
-position mercuryBall at ( 4, 0, 8) from slab1
+position glassBall   at ( 2, 0, 4) from slab1
+position mercuryBall at ( 4, 0, 6) from slab1
 
 position glassTrans  at (-2, 4, 1) from slab1
 position woodTrans   at ( 2, 4, 1) from slab1
