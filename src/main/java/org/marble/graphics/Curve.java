@@ -14,6 +14,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
@@ -68,30 +69,41 @@ public class Curve extends Mesh {
         final FloatBuffer normalBuffer = BufferUtils.createVector3Buffer(verts);
         final FloatBuffer texcoordBuffer =
                 BufferUtils.createVector2Buffer(verts);
-        final int i = 0;
+        int i = 0;
 
-        final float currentHeight = 0;
+        float currentHeight = 0;
         final Vector3f cylinderMiddle = new Vector3f();
+        final Vector3f position = new Vector3f();
+        final Quaternion slopingRotation = new Quaternion();
+        slopingRotation.fromAngleAxis(
+                FastMath.atan(_height / (_angle * _radius)), Vector3f.UNIT_X);
+        final Quaternion addedRotation = new Quaternion();
+        addedRotation.fromAngleAxis(_angle / _circleSamples, Vector3f.UNIT_Z);
 
-        for (final int circleCount = 0; circleCount < _circleSamples; circleCount++) {
-            final float fraction = circleCount / _circleSamples;
-            final float angleFraction = fraction * _angle;
-            cylinderMiddle.add(FastMath.cos(angleFraction) * _radius,
-                    FastMath.sin(angleFraction) * _radius, currentHeight);
+        for (int circleCount = 0; circleCount < _circleSamples; circleCount++) {
+            final float circleFraction = circleCount / (float) _circleSamples;
+            final float circleAngleFraction = circleFraction * _angle;
+
+            cylinderMiddle.add(FastMath.cos(circleAngleFraction) * _radius,
+                    FastMath.sin(circleAngleFraction) * _radius, currentHeight);
 
             // compute slice vertices with duplication at end point
             final int iSave = i;
             for (int radialCount = 0; radialCount < _radialSamples; radialCount++) {
-                final float cosPhi = FastMath.cos(phi);
-                final float sinPhi = FastMath.sin(phi);
-                tempNormal = M.mult(new Vector3f(cosPhi, 0, sinPhi));
+                final float radialFraction =
+                        radialCount / (float) _radialSamples;
+                final float radialAngleFraction = radialFraction * _angle;
 
-                normalBuffer.put(tempNormal.getX()).put(tempNormal.getY())
-                        .put(tempNormal.getZ());
+                position.set(FastMath.cos(radialAngleFraction), 0,
+                        FastMath.sin(radialAngleFraction));
+                slopingRotation.multLocal(position);
 
-                tempNormal.multLocal(_tubeRadius).addLocal(torusMiddle);
-                vertexBuffer.put(tempNormal.getX()).put(tempNormal.getY())
-                        .put(tempNormal.getZ());
+                normalBuffer.put(position.getX()).put(position.getY())
+                        .put(position.getZ());
+
+                position.multLocal(_tubeRadius).addLocal(cylinderMiddle);
+                vertexBuffer.put(position.getX()).put(position.getY())
+                        .put(position.getZ());
 
                 texcoordBuffer.put(radialFraction).put(circleFraction);
                 i++;
@@ -104,6 +116,7 @@ public class Curve extends Mesh {
 
             i++;
             currentHeight += _height / _circleSamples;
+            slopingRotation.addLocal(addedRotation);
         }
 
         // duplicate the cylinder ends to form a torus

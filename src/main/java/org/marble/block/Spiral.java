@@ -31,7 +31,6 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
     final float theta;
     final float separation;
     final float tubeRadius;
-    final Vector3f direction;
     final float a;
     final float b;
 
@@ -40,24 +39,22 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
     private Node graphicalRails;
 
     public Spiral(final float radius, final float height, final float angle) {
-        this(radius, height, angle, 0, 0, 1, 90);
+        this(radius, height, angle, 90);
     }
 
     public Spiral(final float radius, final float height, final float angle,
-            final float x, final float y, final float z, final float theta) {
-        this(radius, height, angle, 1, 0.1f, x, y, z, theta);
+            final float theta) {
+        this(radius, height, angle, 1, 0.1f, theta);
     }
 
     public Spiral(final float radius, final float height, final float angle,
-            final float separation, final float tubeRadius, final float x,
-            final float y, final float z, final float theta) {
+            final float separation, final float tubeRadius, final float theta) {
         this.radius = radius;
         this.height = height;
         this.angle = angle * FastMath.DEG_TO_RAD;
         this.theta = theta;
         this.separation = separation;
         this.tubeRadius = tubeRadius;
-        direction = new Vector3f(x, y, z).normalize();
         a = FastMath.sin(FastMath.DEG_TO_RAD * theta) * separation;
         b = FastMath.cos(FastMath.DEG_TO_RAD * theta) * separation;
     }
@@ -70,13 +67,13 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
 
         final Spatial left =
                 new Geometry("left rail", new Curve(steps, 10, radius - a / 2,
-                        height, angle, tubeRadius, direction));
+                        height, angle, tubeRadius));
         left.setMaterial(assetManager
                 .loadMaterial("Materials/Misc/Undefined.j3m"));
 
         final Spatial right =
                 new Geometry("right rail", new Curve(steps, 10, radius + a / 2,
-                        height, angle, tubeRadius, direction));
+                        height, angle, tubeRadius));
         right.setMaterial(assetManager
                 .loadMaterial("Materials/Misc/Undefined.j3m"));
         left.setLocalTranslation(direction.mult(-b / 2));
