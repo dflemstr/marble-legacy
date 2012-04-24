@@ -83,15 +83,16 @@ public class MaterialSP extends Material {
         final Uniform lightPos = shader.getUniform("g_LightPosition");
         final Uniform lightDir = shader.getUniform("g_LightDirection");
 
-        lightColor.setVector4Length(numLights);
-        lightPos.setVector4Length(numLights);
-        lightDir.setVector4Length(numLights);
+        lightColor.setVector4Length(arraySize);
+        lightPos.setVector4Length(arraySize);
+        lightDir.setVector4Length(arraySize);
 
         final Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
         ambLightColor.a = 1.0f;
         ambientColor.setValue(VarType.Vector4, ambLightColor);
 
-        for (int i = 0; i < numLights; i++) {
+        int i;
+        for (i = 0; i < numLights; i++) {
             final Light l = lightList.get(i);
             final ColorRGBA color = l.getColor();
             lightColor.setVector4InArray(color.getRed(), color.getGreen(),
@@ -127,6 +128,10 @@ public class MaterialSP extends Material {
                 throw new UnsupportedOperationException(
                         "Unknown type of light: " + l.getType());
             }
+        }
+
+        for (; i < arraySize; i++) {
+            lightColor.setVector4InArray(0, 0, 0, 0, i);
         }
 
         lightList.clear();
