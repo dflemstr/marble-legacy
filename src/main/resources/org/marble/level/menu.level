@@ -4,32 +4,16 @@ using Ball as org.marble.ball.Ball
 using Transformer as org.marble.block.Transformer
 using Lantern as org.marble.block.Lantern
 using Wall as org.marble.block.Wall
-using Rail as org.marble.block.Rail
 using Spiral as org.marble.block.Spiral
 
 // Create some slabs
-let slab1 be Slab(15, 15, 1),
-    slab2 be Slab(3, 4, 1),
-    slab3 be Slab(7, 7, 1),
-    slab4 be Slab(4, 3, 1),
-    slab5 be Slab(15, 7, 1)
-
-// Create some rails
-let rail1 be Rail(50),
-	rail3 be Rail(30),
-	rail2 be Rail(30)
-
-// Create some spirals
-let spiral1 be Spiral(15,8,6,0,0,1,60)
+let mainSlab be Slab(15, 15, 1)
 
 // Create some walls
 let wall1 be Wall(12),
 	wall2 be Wall(15),
 	wall3 be Wall(15),
-	wall4 be Wall(15),
-	wall5 be Wall(15),
-	wall6 be Wall(15)
-
+	wall4 be Wall(15)
 
 // Create demo balls
 let woodenBall  be Ball([Wood]),
@@ -38,6 +22,8 @@ let woodenBall  be Ball([Wood]),
     glassBall   be Ball([Glass]),
     mercuryBall be Ball([Mercury])
 
+let spiral be Spiral(3, 4, 360)
+
 // Transformers
 let glassTrans  be Transformer([Glass]),
     woodTrans   be Transformer([Wood])
@@ -45,28 +31,21 @@ let glassTrans  be Transformer([Glass]),
 // Create a lantern
 let lantern     be Lantern((0.3, 0.2, 0.1))
 
-position slab1 at (0, 0, 0)
-connect slab2.south_middle to slab1.north_1_0,
-        slab3.south_middle to slab2.north_middle,
-        slab4.west_middle to slab3.east_middle,
-        slab5.west_middle to slab4.east_middle,
-        wall1.south_0_0 to slab1.north_3_0,
-        wall2.north_0_0 to slab1.south_0_0,
-        wall3.north_middle to slab1.east_middle,
-        wall4.south_middle to slab1.west_middle,
-        wall5.south_middle to slab5.north_middle,
-        wall6.north_middle to slab5.south_middle,
-        rail1.start_middle to slab3.north_middle,
-        spiral1.start_middle to rail1.end_middle,
-        rail2.start_middle to spiral1.end_middle
+position mainSlab at (0, 0, 0)
+connect wall1.south_0_0 to mainSlab.north_3_0,
+        wall2.north_0_0 to mainSlab.south_0_0,
+        wall3.north_middle to mainSlab.east_middle,
+        wall4.south_middle to mainSlab.west_middle
+
+position spiral at (0, 7, 0) from mainSlab
                 
-position woodenBall  at (-2, 0, 4) from slab1
-position stoneBall   at (-4, 0, 6) from slab1
-position fabricBall  at (-6, 0, 8) from slab1
-position glassBall   at ( 2, 0, 4) from slab1
-position mercuryBall at ( 4, 0, 6) from slab1
+position woodenBall  at (-2, 0, 4) from mainSlab
+position stoneBall   at (-4, 0, 6) from mainSlab
+position fabricBall  at (-6, 0, 8) from mainSlab
+position glassBall   at ( 2, 0, 4) from mainSlab
+position mercuryBall at ( 4, 0, 6) from mainSlab
 
-position glassTrans  at (-2, 4, 1) from slab1
-position woodTrans   at ( 2, 4, 1) from slab1
+position glassTrans  at (-2, 4, 1) from mainSlab
+position woodTrans   at ( 2, 4, 1) from mainSlab
 
-position lantern     at (-4, 4, 1) from slab1
+position lantern     at (-4, 4, 1) from mainSlab

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.input.ChaseCamera;
+import com.jme3.input.FlyByCamera;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -99,6 +100,7 @@ public class Game {
     private final JmeContext context;
     private final AssetManager assetManager;
 
+    private FlyByCamera flyCamera;
     private ChaseCamera chaseCamera;
     private Nifty nifty;
     private Spatial skybox;
@@ -456,9 +458,10 @@ public class Game {
         chaseCamera.setChasingSensitivity(20);
         chaseCamera.setSmoothMotion(true);
         chaseCamera.setTrailingEnabled(false);
+        chaseCamera.setEnabled(false);
 
-        // flyCamera = new FlyByCamera(graphicsEngine.getCamera());
-        // flyCamera.registerWithInput(getInputEngine().getInputManager());
+        flyCamera = new FlyByCamera(graphicsEngine.getCamera());
+        flyCamera.registerWithInput(getInputEngine().getInputManager());
     }
 
     private void setupFilters() {
@@ -519,7 +522,7 @@ public class Game {
 
         setPause(GameSession.PauseState.Running);
 
-        // getPhysicsEngine().enableDebug(assetManager);
+        getPhysicsEngine().enableDebug(assetManager);
     }
 
     public void die() {

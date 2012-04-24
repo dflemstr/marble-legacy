@@ -3,9 +3,9 @@ using Spiral as org.marble.block.Spiral
 using WinBlock as org.marble.special.WinBlock
 
 let spawnPlatform be Slab(15, 15, 1),
-    spiralX be Spiral(3, 4, 360, 1, 0, 0, 0),
-    spiralY be Spiral(3, 4, 360, 0, 1, 0, 0),
-    spiralZ be Spiral(3, 4, 360, 0, 0, 1, 0)
+    spiralX be Spiral(3, 4, 360),
+    spiralY be Spiral(3, 4, 360),
+    spiralZ be Spiral(3, 4, 360)
 
 position spawnPlatform at (0, 0, 0)
 position spiralX at (-7, 7, 0) from spawnPlatform,
