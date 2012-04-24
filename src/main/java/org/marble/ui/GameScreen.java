@@ -2,9 +2,7 @@ package org.marble.ui;
 
 import com.jme3.math.Vector3f;
 
-import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.elements.render.TextRenderer;
-import de.lessvoid.nifty.screen.Screen;
 
 import org.marble.Game;
 import org.marble.session.GameSession;
@@ -56,8 +54,7 @@ public class GameScreen extends AbstractScreenController {
     }
 
     @Override
-    public void bind(final Nifty nifty, final Screen screen) {
-        super.bind(nifty, screen);
+    public void onStartScreen() {
         if (game.getCurrentSession().isPresent()) {
             currentSession = game.getCurrentSession().get();
             currentSession.addGameSessionListener(new GameScreenUpdater());

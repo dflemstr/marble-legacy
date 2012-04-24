@@ -1,8 +1,6 @@
 package org.marble.ui;
 
-import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.elements.Element;
-import de.lessvoid.nifty.screen.Screen;
 
 import org.marble.Game;
 
@@ -13,8 +11,7 @@ public class WinScreen extends AbstractScreenController {
     }
 
     @Override
-    public void bind(final Nifty nifty, final Screen screen) {
-        super.bind(nifty, screen);
+    public void onStartScreen() {
         if (!game.hasNextLevel()) {
             final Element button =
                     screen.findElementByName("next-level-button");

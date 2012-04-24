@@ -28,10 +28,10 @@ public class LevelScreen extends AbstractScreenController {
                 .setText(getLevelPackDescription());
 
         final Element levelList = screen.findElementByName("level-list");
-        final CustomControlCreator levelButtonCreator =
-                new CustomControlCreator("level-button");
         levelList.getElements().clear();
         for (final MetaLevel level : game.getCurrentLevelPack().getLevels()) {
+            final CustomControlCreator levelButtonCreator =
+                    new CustomControlCreator("level-button");
             final Element levelButton =
                     levelButtonCreator.create(nifty, screen, levelList);
             levelButton.findElementByName("level-name")

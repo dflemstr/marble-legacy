@@ -109,7 +109,7 @@
     </effect>
   </style>
 
-  <controlDefinition name="level-button" controller="org.marble.ui.LevelButton">
+  <controlDefinition name="level-button">
     <panel style="menu-element" childLayout="center" height="64px"
       width="50%">
       <text id="level-name" style="menu-style" />
