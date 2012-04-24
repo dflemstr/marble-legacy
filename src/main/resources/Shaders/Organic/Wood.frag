@@ -6,6 +6,7 @@ uniform mat4 g_ViewMatrix;
 uniform vec4 g_LightPosition[NUM_LIGHTS];
 uniform vec4 g_LightColor[NUM_LIGHTS];
 uniform vec4 g_AmbientLightColor;
+uniform int m_NumLights;
 
 uniform vec4 m_Ambient;
 uniform vec4 m_Diffuse;
@@ -52,7 +53,7 @@ void main(void) {
     vec3 vi = normalize(viewIncident);
 
     int lightIndex;
-    for (lightIndex = 0; lightIndex < NUM_LIGHTS; lightIndex++) {
+    for (lightIndex = 0; lightIndex < m_NumLights; lightIndex++) {
         vec4 lightPosition = g_LightPosition[lightIndex];
         vec4 lightColor    = g_LightColor[lightIndex];
         vec3 lightVector;

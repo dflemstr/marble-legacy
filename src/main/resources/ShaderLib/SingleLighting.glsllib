@@ -10,7 +10,7 @@ void SingleLighting_CalculateLightVector(const in vec3 worldPosition, const in v
         float dist = length(lightVector);
         lightVector /= vec3(dist);
         attenuation = clamp(1.0 - lightPosition.w * dist, 0.0, 1.0);
-    }  
+    }
 }
 
 void SingleLighting_AddLightPhong(const in vec3 n, const in vec3 l, const in vec3 i,
