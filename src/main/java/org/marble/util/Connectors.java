@@ -1,6 +1,7 @@
 package org.marble.util;
 
 import com.jme3.math.FastMath;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
 
@@ -12,28 +13,48 @@ public final class Connectors {
     private Connectors() {
     }
 
-    public static ImmutableMap<String, Connector> fromSpiral(final float width,
-            final float height, final float depth, final float angle) {
+    public static ImmutableMap<String, Connector> fromSpiral(
+            final float radius, final float height, final float tubeRadius,
+            final float separation, final float angle,
+            final Vector3f direction, final float a, final float b) {
 
         final ImmutableMap.Builder<String, Connector> builder =
                 ImmutableMap.builder();
 
         final float pi = FastMath.PI;
 
-        builder.put("start_left",
-                offsetBy(width / 2 - height / 2, 0, 0, 0, 0, pi / 2));
-        builder.put("start_right",
-                offsetBy(width / 2 + height / 2, 0, 0, 0, 0, pi / 2));
-        builder.put("end_left",
-                offsetBy(width / 2, height / 2 - depth / 2, 0, 0, 0, 0));
-        builder.put("end_right",
-                offsetBy(width / 2, -(height / 2 - depth / 2), 0, 0, 0, 0));
+        Vector3f n;
+        Vector3f r;
+        Vector3f r1;
+        Vector3f r2;
+        if (direction.equals(Vector3f.UNIT_X)) {
+            n = direction.cross(Vector3f.UNIT_Y);
+            n.normalizeLocal();
+        } else {
+            n = direction.cross(Vector3f.UNIT_X);
+            n.normalizeLocal();
+        }
 
-        builder.put("start_middle", offsetBy(width / 2, 0, 0, -pi / 2, 0, 0));
-        builder.put(
-                "end_middle",
-                offsetBy(FastMath.cos(angle) * (width / 2), FastMath.sin(angle)
-                        * (width / 2), angle, angle + pi / 2, 0, 0));
+        r = n.mult(radius);
+        r1 = n.mult(radius - a / 2);
+        r1.addLocal(direction.mult(-b / 2));
+        r2 = n.mult(radius + a / 2);
+        r2.addLocal(direction.mult(b / 2));
+        builder.put("start_middle",
+                offsetBy(r.getX(), r.getY(), r.getZ(), 0, 0, 0));
+
+        final Matrix3f rot = new Matrix3f();
+        rot.fromAngleAxis(angle, direction);
+
+        rot.mult(n, n);
+        r = n.mult(radius);
+        r.addLocal(direction.mult(height));
+        r1 = n.mult(radius - a / 2);
+        r1.addLocal(direction.mult(-b / 2));
+        r2 = n.mult(radius + a / 2);
+        r2.addLocal(direction.mult(b / 2));
+        builder.put("end_middle",
+                offsetBy(r.getX(), r.getY(), r.getZ(), 0, 0, 0));
 
         return builder.build();
     }
@@ -46,17 +67,9 @@ public final class Connectors {
 
         final float pi = FastMath.PI;
 
-        builder.put("start_left",
-                offsetBy(-width / 2, height / 2 - depth / 2, 0, 0, 0, 0));
-        builder.put("start_right",
-                offsetBy(-width / 2, -(height / 2 - depth / 2), 0, 0, 0, 0));
-        builder.put("end_left",
-                offsetBy(width / 2, height / 2 - depth / 2, 0, 0, 0, 0));
-        builder.put("end_right",
-                offsetBy(width / 2, -(height / 2 - depth / 2), 0, 0, 0, 0));
+        builder.put("start_middle", offsetBy(width / 2, 0, 0, 0, 0, 0));
 
-        builder.put("start_middle", offsetBy(-width / 2, 0, 0, 0, 0, pi));
-        builder.put("end_middle", offsetBy(width / 2, 0, 0, 0, pi, 0));
+        builder.put("end_middle", offsetBy(-width / 2, 0, 0, 0, 0, pi));
 
         return builder.build();
     }
@@ -104,9 +117,9 @@ public final class Connectors {
         connectorBuilder.put("bottom_middle",
                 offsetBy(0, 0, -zhalf, 0, -pihalf, 0));
         connectorBuilder.put("north_middle",
-                offsetBy(0, yhalf, 0, pihalf, 0, 0));
+                offsetBy(0, yhalf, 0, 0, 0, pihalf));
         connectorBuilder.put("south_middle",
-                offsetBy(0, -yhalf, 0, -pihalf, 0, 0));
+                offsetBy(0, -yhalf, 0, 0, 0, -pihalf));
         for (int x = 0; x < xcount; x++) {
             final float xcoord = xborder + x - xhalf;
 
@@ -123,15 +136,15 @@ public final class Connectors {
             for (int z = 0; z < zcount; z++) {
                 final float zcoord = zborder + z - zhalf;
                 connectorBuilder.put(makeAnchorName("north", x, z),
-                        offsetBy(xcoord, yhalf, zcoord, pihalf, 0, 0));
+                        offsetBy(xcoord, yhalf, zcoord, 0, 0, pihalf));
                 connectorBuilder.put(makeAnchorName("south", x, z),
-                        offsetBy(xcoord, -yhalf, zcoord, -pihalf, 0, 0));
+                        offsetBy(xcoord, -yhalf, zcoord, 0, 0, -pihalf));
             }
         }
 
         // East/West
         connectorBuilder.put("east_middle", offsetBy(xhalf, 0, 0, 0, 0, 0));
-        connectorBuilder.put("west_middle", offsetBy(-xhalf, 0, 0, pi, 0, 0));
+        connectorBuilder.put("west_middle", offsetBy(-xhalf, 0, 0, 0, 0, pi));
         for (int y = 0; y < ycount; y++) {
             final float ycoord = yborder + y - yhalf;
             for (int z = 0; z < zcount; z++) {
@@ -139,7 +152,7 @@ public final class Connectors {
                 connectorBuilder.put(makeAnchorName("east", y, z),
                         offsetBy(xhalf, ycoord, zcoord, 0, 0, 0));
                 connectorBuilder.put(makeAnchorName("west", y, z),
-                        offsetBy(-xhalf, ycoord, zcoord, pi, 0, 0));
+                        offsetBy(-xhalf, ycoord, zcoord, 0, 0, pi));
             }
         }
 
@@ -148,7 +161,7 @@ public final class Connectors {
 
     public static Connector
             offsetBy(final float x, final float y, final float z,
-                    final float yaw, final float pitch, final float roll) {
+                    final float pitch, final float roll, final float yaw) {
         final Matrix4f transform = new Matrix4f();
 
         // TODO make more efficient; we don't need a temp matrix here.

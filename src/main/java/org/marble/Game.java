@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.input.ChaseCamera;
+import com.jme3.input.FlyByCamera;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.KeyTrigger;
@@ -70,6 +71,7 @@ public class Game {
     private final AssetManager assetManager;
 
     private ChaseCamera chaseCamera;
+    private FlyByCamera flyCamera;
     private Spatial skybox;
     private Spatial ambientLight;
 
@@ -334,7 +336,7 @@ public class Game {
      */
     public void update(final Timer timer) {
         chaseCamera.update(timer.getTimePerFrame());
-        System.out.println(timer.getFrameRate());
+        // System.out.println(timer.getFrameRate());
         for (final Engine<?> engine : engines) {
             engine.update(timer.getTimePerFrame());
         }
@@ -356,6 +358,9 @@ public class Game {
         chaseCamera.setChasingSensitivity(20);
         chaseCamera.setSmoothMotion(true);
         chaseCamera.setTrailingEnabled(false);
+
+        // flyCamera = new FlyByCamera(graphicsEngine.getCamera());
+        // flyCamera.registerWithInput(getInputEngine().getInputManager());
     }
 
     private void setupFilters() {
@@ -428,7 +433,7 @@ public class Game {
         addEntity(ball);
         track(ball.getSpatial());
 
-        // getPhysicsEngine().enableDebug(assetManager);
+        getPhysicsEngine().enableDebug(assetManager);
     }
 
     public void handleError(final String errorMessage, final Throwable t) {

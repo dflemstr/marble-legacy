@@ -35,7 +35,7 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
     private Node graphicalRails;
 
     public Rail(final float length) {
-        this(length, 0.7f, 0.3f, 0);
+        this(length, 1f, 0.2f, 0);
     }
 
     public Rail(final float width, final float height, final float depth,
