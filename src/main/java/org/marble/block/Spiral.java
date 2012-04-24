@@ -53,7 +53,7 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
             final float y, final float z, final float theta) {
         this.radius = radius;
         this.height = height;
-        this.angle = angle;
+        this.angle = angle * FastMath.DEG_TO_RAD;
         this.theta = theta;
         this.separation = separation;
         this.tubeRadius = tubeRadius;
