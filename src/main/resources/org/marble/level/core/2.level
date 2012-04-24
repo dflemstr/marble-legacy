@@ -6,6 +6,7 @@ using Lantern as org.marble.block.Lantern
 using Wall as org.marble.block.Wall
 using Rail as org.marble.block.Rail
 using Spiral as org.marble.block.Spiral
+using WinBlock as org.marble.special.WinBlock
 
 // Create some slabs
 let slab1 be Slab(15, 15, 1),

@@ -117,8 +117,6 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
 
         for (int i = 0; i < steps; i++) {
 
-            rotZ.mult(rotTot, rotTot);
-            rotZ2.mult(rotTot2, rotTot2);
             final float fraction = ((float) i) / steps;
             radialAxis = rotTot.mult(n);
             radialAxis.mult(radius - a / 2, leftMiddle);
@@ -141,6 +139,9 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
                     leftMiddle.add(direction.mult(-b / 2)), rotTot2);
             compound.addChildShape(rightCylinder,
                     rightMiddle.add(direction.mult(b / 2)), rotTot2);
+
+            rotZ.mult(rotTot, rotTot);
+            rotZ2.mult(rotTot2, rotTot2);
         }
 
         physicalBox = new RigidBodyControl(compound, 0);

@@ -100,8 +100,6 @@ public class Curve extends Mesh {
 
         for (int circleCount = 0; circleCount < _circleSamples; circleCount++) {
 
-            rotZ.mult(rotTot, rotTot);
-
             M = rotTot;
             // compute center point on torus circle at specified angle
             final float circleFraction = circleCount * inverseCircleSamples;
@@ -117,6 +115,7 @@ public class Curve extends Mesh {
             radialAxis.mult(_radius, torusMiddle);
             transTot.translateVect(torusMiddle);
             transTot.mult(transDir, transTot);
+            rotZ.mult(rotTot, rotTot);
             // compute slice vertices with duplication at end point
             final int iSave = i;
             for (int radialCount = 0; radialCount < _radialSamples; radialCount++) {
