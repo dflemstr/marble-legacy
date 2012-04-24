@@ -14,7 +14,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import com.jme3.math.FastMath;
-import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
@@ -34,8 +33,6 @@ public class Curve extends Mesh {
 
     protected final float _height;
 
-    protected final Vector3f _direction;
-
     /**
      * Constructs a new Torus. Center is the origin, but the Torus may be
      * transformed.
@@ -52,14 +49,13 @@ public class Curve extends Mesh {
      */
     public Curve(final int circleSamples, final int radialSamples,
             final float radius, final float height, final float angle,
-            final float tubeRadius, final Vector3f direction) {
+            final float tubeRadius) {
         _circleSamples = circleSamples;
         _radialSamples = radialSamples;
         _radius = radius;
         _tubeRadius = tubeRadius;
         _angle = angle;
         _height = height;
-        _direction = direction.normalize();
 
         setGeometryData();
         setIndexData();
@@ -67,62 +63,25 @@ public class Curve extends Mesh {
     }
 
     private void setGeometryData() {
-        // allocate vertices
         final int verts = ((_circleSamples + 1) * (_radialSamples + 1));
         final FloatBuffer vertexBuffer = BufferUtils.createVector3Buffer(verts);
-
-        // allocate normals if requested
         final FloatBuffer normalBuffer = BufferUtils.createVector3Buffer(verts);
-
-        // allocate texture coordinates
         final FloatBuffer texcoordBuffer =
                 BufferUtils.createVector2Buffer(verts);
+        final int i = 0;
 
-        // generate geometry
-        final float inverseCircleSamples = 1.0f / _circleSamples;
-        final float inverseRadialSamples = 1.0f / _radialSamples;
-        int i = 0;
-        // generate the cylinder itself
+        final float currentHeight = 0;
+        final Vector3f cylinderMiddle = new Vector3f();
 
-        final Matrix4f rotTot = new Matrix4f();
-        final Matrix4f rotZ = new Matrix4f();
-        rotZ.fromAngleAxis(_angle / _circleSamples, _direction);
+        for (final int circleCount = 0; circleCount < _circleSamples; circleCount++) {
+            final float fraction = circleCount / _circleSamples;
+            final float angleFraction = fraction * _angle;
+            cylinderMiddle.add(FastMath.cos(angleFraction) * _radius,
+                    FastMath.sin(angleFraction) * _radius, currentHeight);
 
-        Vector3f radialAxis = new Vector3f();
-        final Vector3f torusMiddle = new Vector3f();
-        Vector3f tempNormal = new Vector3f();
-
-        Matrix4f M = new Matrix4f();
-        final Matrix4f transTot = new Matrix4f();
-        transTot.loadIdentity();
-        final Matrix4f transDir = new Matrix4f();
-        transDir.setTranslation(_direction.mult(_height / (_circleSamples)));
-
-        for (int circleCount = 0; circleCount < _circleSamples; circleCount++) {
-
-            rotZ.mult(rotTot, rotTot);
-
-            M = rotTot;
-            // compute center point on torus circle at specified angle
-            final float circleFraction = circleCount * inverseCircleSamples;
-            Vector3f n;
-            if (_direction.equals(Vector3f.UNIT_X)) {
-                n = _direction.cross(Vector3f.UNIT_Y);
-                n.normalizeLocal();
-            } else {
-                n = _direction.cross(Vector3f.UNIT_X);
-                n.normalizeLocal();
-            }
-            radialAxis = M.mult(n);
-            radialAxis.mult(_radius, torusMiddle);
-            transTot.translateVect(torusMiddle);
-            transTot.mult(transDir, transTot);
             // compute slice vertices with duplication at end point
             final int iSave = i;
             for (int radialCount = 0; radialCount < _radialSamples; radialCount++) {
-                final float radialFraction = radialCount * inverseRadialSamples;
-                // in [0,1)
-                final float phi = FastMath.TWO_PI * radialFraction;
                 final float cosPhi = FastMath.cos(phi);
                 final float sinPhi = FastMath.sin(phi);
                 tempNormal = M.mult(new Vector3f(cosPhi, 0, sinPhi));
@@ -144,6 +103,7 @@ public class Curve extends Mesh {
             texcoordBuffer.put(1.0f).put(circleFraction);
 
             i++;
+            currentHeight += _height / _circleSamples;
         }
 
         // duplicate the cylinder ends to form a torus
