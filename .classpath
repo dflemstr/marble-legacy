@@ -62,10 +62,5 @@
 	<classpathentry kind="lib" path="lib/vecmath.jar"/>
 	<classpathentry kind="lib" path="lib/jME3-terrain.jar" sourcepath="lib/jME3-terrain-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jME3-blender.jar" sourcepath="lib/jME3-blender-sources.jar"/>
-	<classpathentry kind="lib" path="lib/commons-codec.jar" sourcepath="lib/commons-codec-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/marble/lib/commons-codec-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="output" path="target"/>
 </classpath>

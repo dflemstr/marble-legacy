@@ -456,6 +456,9 @@ public class Game {
         chaseCamera.setChasingSensitivity(20);
         chaseCamera.setSmoothMotion(true);
         chaseCamera.setTrailingEnabled(false);
+
+        // flyCamera = new FlyByCamera(graphicsEngine.getCamera());
+        // flyCamera.registerWithInput(getInputEngine().getInputManager());
     }
 
     private void setupFilters() {
