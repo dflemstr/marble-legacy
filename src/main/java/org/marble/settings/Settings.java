@@ -1,50 +1,23 @@
 package org.marble.settings;
 
-import java.util.Set;
+import java.util.UUID;
 import java.util.prefs.Preferences;
 
-import com.google.common.collect.Sets;
 
 import org.apache.commons.lang3.tuple.Pair;
+
+import org.marble.level.StatisticalMetaLevel;
+import org.marble.settings.specialized.BooleanEntry;
+import org.marble.settings.specialized.CompositeEntry;
+import org.marble.settings.specialized.EnumEntry;
+import org.marble.settings.specialized.IntegerEntry;
+import org.marble.settings.specialized.StatisticsEntryMap;
+import org.marble.util.Quality;
 
 /**
  * Controls the settings for the desktop version of the application.
  */
 public class Settings {
-    private final class CompositeEntry<A, B> implements Entry<Pair<A, B>> {
-        private final Entry<A> entryA;
-        private final Entry<B> entryB;
-        private final Set<EntryListener<Pair<A, B>>> listeners = Sets
-                .newHashSet();
-
-        public CompositeEntry(final Entry<A> entryA, final Entry<B> entryB) {
-            this.entryA = entryA;
-            this.entryB = entryB;
-        }
-
-        @Override
-        public Pair<A, B> getValue() {
-            return Pair.of(entryA.getValue(), entryB.getValue());
-        }
-
-        @Override
-        public void setValue(final Pair<A, B> value) {
-            entryA.setValue(value.getLeft());
-            entryB.setValue(value.getRight());
-        }
-
-        @Override
-        public void addEntryListener(final EntryListener<Pair<A, B>> listener) {
-            listeners.add(listener);
-        }
-
-        @Override
-        public void
-                removeEntryListener(final EntryListener<Pair<A, B>> listener) {
-            listeners.remove(listeners);
-        }
-    }
-
     protected final Preferences prefs = Preferences
             .userNodeForPackage(Settings.class);
 
@@ -95,6 +68,9 @@ public class Settings {
             "audio/music/enabled", true);
     public final Entry<Boolean> soundEffectsEnabled = new BooleanEntry(prefs,
             "audio/effects/enabled", true);
+
+    public final EntryMap<UUID, StatisticalMetaLevel> levelStatistics =
+            new StatisticsEntryMap(prefs, "statistics");
 
     public final Entry<Pair<Integer, Integer>> viewportResolution =
             new CompositeEntry<Integer, Integer>(viewportWidth, viewportHeight);

@@ -98,7 +98,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         // The lowest texture setting makes textures be 16x16; the size is
         // doubled for each step
         textureSizeMagnitude =
-                game.getSettings().environmentQuality.getValue().ordinal() + 4;
+                game.getSettings().environmentQuality.getValue().getIndex() + 4;
 
         final GeoSphere geometricalBall =
                 new GeoSphere(true, radius, 4, GeoSphere.TextureMode.Projected);
@@ -145,7 +145,10 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         switch (kind) {
         case Wood:
             disableEnvironment();
-            material = assetManager.loadMaterial("Materials/Organic/Wood.j3m");
+            material =
+                    new MaterialSP(
+                            assetManager
+                                    .loadMaterial("Materials/Organic/Wood.j3m"));
 
             final Vector3f vec = new Vector3f();
 
@@ -190,7 +193,10 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
             break;
         case Mercury:
             enableEnvironment();
-            material = assetManager.loadMaterial("Materials/Metal/Mercury.j3m");
+            material =
+                    new MaterialSP(
+                            assetManager
+                                    .loadMaterial("Materials/Metal/Mercury.j3m"));
             material.setTexture("EnvironmentMap", environmentNode.get()
                     .getEnvironment());
             break;

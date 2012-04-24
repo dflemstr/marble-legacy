@@ -1,6 +1,7 @@
 package org.marble.engine;
 
 import org.marble.entity.Entity;
+import org.marble.session.GameSession;
 
 /**
  * An engine that handles a particular trait of entities.
@@ -46,6 +47,9 @@ public class Engine<E extends Entity> {
     }
 
     public void resume() {
+    }
+
+    public void setPause(final GameSession.PauseState state) {
     }
 
     /**

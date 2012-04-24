@@ -1,19 +1,25 @@
 package org.marble.level;
 
 import java.net.URL;
+import java.util.UUID;
 
 import com.google.common.base.Optional;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MetaLevel {
     private final String name;
     private final URL uri;
     private final Optional<URL> previewURI;
+    private final UUID uuid;
 
     public MetaLevel(final String name, final URL uri,
-            final Optional<URL> previewURI) {
+            final Optional<URL> previewURI, final UUID uuid) {
         this.name = name;
         this.uri = uri;
         this.previewURI = previewURI;
+        this.uuid = uuid;
     }
 
     public String getName() {
@@ -28,4 +34,18 @@ public class MetaLevel {
         return uri;
     }
 
+    public UUID getUUID() {
+        return uuid;
+    }
+
+    public JSONObject toJSON() throws JSONException {
+        final JSONObject result = new JSONObject();
+        result.append("name", name);
+        result.append("uri", uri.toExternalForm());
+        if (previewURI.isPresent()) {
+            result.append("previewURI", previewURI.get().toExternalForm());
+        }
+        result.append("uuid", uuid.toString());
+        return result;
+    }
 }

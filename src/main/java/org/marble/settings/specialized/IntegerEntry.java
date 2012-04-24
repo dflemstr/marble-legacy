@@ -1,12 +1,14 @@
-package org.marble.settings;
+package org.marble.settings.specialized;
 
 import java.util.prefs.Preferences;
+
+import org.marble.settings.AbstractEntry;
 
 /**
  * An integer settings entry.
  */
-class IntegerEntry extends AbstractEntry<Integer> {
-    IntegerEntry(final Preferences prefs, final String node,
+public class IntegerEntry extends AbstractEntry<Integer> {
+    public IntegerEntry(final Preferences prefs, final String node,
             final Integer defaultValue) {
         super(prefs, node, defaultValue);
     }

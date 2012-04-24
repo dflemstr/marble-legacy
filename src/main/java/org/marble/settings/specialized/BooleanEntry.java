@@ -1,12 +1,14 @@
-package org.marble.settings;
+package org.marble.settings.specialized;
 
 import java.util.prefs.Preferences;
+
+import org.marble.settings.AbstractEntry;
 
 /**
  * A boolean settings entry.
  */
-class BooleanEntry extends AbstractEntry<Boolean> {
-    BooleanEntry(final Preferences prefs, final String node,
+public class BooleanEntry extends AbstractEntry<Boolean> {
+    public BooleanEntry(final Preferences prefs, final String node,
             final Boolean defaultValue) {
         super(prefs, node, defaultValue);
     }
@@ -20,5 +22,4 @@ class BooleanEntry extends AbstractEntry<Boolean> {
     public void putValue(final Boolean value) {
         prefs.putBoolean(node, value);
     }
-
 }

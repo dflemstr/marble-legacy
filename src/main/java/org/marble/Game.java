@@ -2,12 +2,15 @@ package org.marble;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.math.ColorRGBA;
@@ -25,10 +28,13 @@ import com.jme3.system.Timer;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import de.lessvoid.nifty.Nifty;
+
+import org.json.JSONException;
 
 import org.codehaus.jparsec.error.Location;
 import org.codehaus.jparsec.error.ParseErrorDetails;
@@ -48,12 +54,25 @@ import org.marble.graphics.filter.SSAOFilter;
 import org.marble.input.PlayerInput;
 import org.marble.level.LevelLoadException;
 import org.marble.level.LevelLoader;
+import org.marble.level.MetaLevel;
+import org.marble.level.MetaLevelPack;
+import org.marble.session.GameSession;
 import org.marble.settings.Settings;
+import org.marble.ui.GameScreen;
+import org.marble.ui.LevelPackScreen;
+import org.marble.ui.LevelScreen;
+import org.marble.ui.LossScreen;
+import org.marble.ui.PauseScreen;
+import org.marble.ui.SettingsScreen;
+import org.marble.ui.StartScreen;
+import org.marble.ui.WinScreen;
 
 /**
  * An abstracted game instance that handles a game session.
  */
 public class Game {
+    public static final BallKind DEFAULT_BALL_KIND = BallKind.Wood;
+
     // Handles rendering.
     private final GraphicsEngine graphicsEngine;
     // Handles keyboard input.
@@ -67,7 +86,12 @@ public class Game {
     private final Settings settings;
 
     // Entities that are present in our world.
+    private final LevelLoader levelLoader = new LevelLoader();
     private final Set<Entity> entities = Sets.newIdentityHashSet();
+    private URL currentLevelPackURL;
+    private MetaLevelPack currentLevelPack;
+    private Optional<MetaLevel> currentLevel;
+    private Optional<GameSession> currentSession = Optional.absent();
 
     // Engines to handle.
     private final ImmutableSet<Engine<?>> engines;
@@ -79,6 +103,8 @@ public class Game {
     private Nifty nifty;
     private Spatial skybox;
     private Spatial ambientLight;
+
+    private Optional<PlayerBall> playerBall = Optional.absent();
 
     /**
      * Creates a new game instance.
@@ -165,11 +191,12 @@ public class Game {
         setupControls();
         setupSkybox();
         setupLighting();
-        setupCamera();
         setupGUI();
+        setupCamera();
         setupFilters();
 
-        loadLevel(Game.class.getResource("level/menu.level"));
+        loadLevelPack(Game.class.getResource("level/core.pack"));
+        gotoMenu();
     }
 
     private void setupControls() {
@@ -182,11 +209,34 @@ public class Game {
                 KeyInput.KEY_LEFT));
         inputManager.addMapping(PlayerInput.MoveRight.getName(),
                 new KeyTrigger(KeyInput.KEY_RIGHT));
+
+        inputManager.addMapping(PlayerInput.Pause.getName(), new KeyTrigger(
+                KeyInput.KEY_ESCAPE));
+        inputManager.addListener(new ActionListener() {
+            @Override
+            public void onAction(final String name, final boolean isPressed,
+                    final float tpf) {
+                if (!isPressed) {
+                    togglePause();
+                }
+            }
+        }, PlayerInput.Pause.getName());
+    }
+
+    public void togglePause() {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void setPause(final GameSession.PauseState state) {
+        for (final Engine<?> engine : engines) {
+            engine.setPause(state);
+        }
     }
 
     private void setupLighting() {
         final AmbientLight ambient = new AmbientLight();
-        ambient.setColor(new ColorRGBA(0.8f, 0.8f, 0.8f, 1.0f));
+        ambient.setColor(new ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f));
         ambientLight = new LightNode("ambient", ambient);
         getGraphicsEngine().getRootNode().attachChild(ambientLight);
         getGraphicsEngine().getRootNode().addLight(ambient);
@@ -199,16 +249,49 @@ public class Game {
                         audioEngine.getAudioRenderer(),
                         graphicsEngine.getGuiViewPort());
         nifty = niftyDisplay.getNifty();
-        nifty.fromXml("Interface/Nifty/Menu.xml", "start");
+
+        final Properties globalProperties = new Properties();
+        globalProperties.setProperty("program.name",
+                Distribution.getProgramName());
+        globalProperties.setProperty("version.major",
+                Integer.toString(Distribution.getVersionMajor()));
+        globalProperties.setProperty("version.minor",
+                Integer.toString(Distribution.getVersionMinor()));
+        globalProperties.setProperty("copyright", Distribution.getCopyright());
+        globalProperties.setProperty("program.description",
+                Distribution.getProgramDescription());
+        nifty.setGlobalProperties(globalProperties);
+
+        nifty.fromXml("Interface/Nifty/Marble.xml", "start", new StartScreen(
+                this), new GameScreen(this), new SettingsScreen(this),
+                new LevelScreen(this), new LevelPackScreen(this),
+                new PauseScreen(this), new WinScreen(this),
+                new LossScreen(this));
 
         graphicsEngine.getGuiViewPort().addProcessor(niftyDisplay);
     }
 
-    private void loadLevel(final URL level) {
+    public void loadLevelPack(final URL levelPack) {
 
         String errorMessage = null;
         try {
-            load(new LevelLoader().loadLevel(level));
+            currentLevelPackURL = levelPack;
+            currentLevelPack = levelLoader.loadMetaLevelPack(levelPack);
+            return;
+        } catch (final IOException e) {
+            errorMessage = e.getMessage();
+        } catch (final JSONException e) {
+            errorMessage = e.getMessage();
+        }
+        throw new RuntimeException(errorMessage);
+    }
+
+    public void loadLevel(final MetaLevel level) {
+
+        String errorMessage = null;
+        try {
+            load(levelLoader.loadLevel(level.getUri()));
+            currentLevel = Optional.of(level);
         } catch (final ParserException e) {
             errorMessage =
                     describeParseError(e.getErrorDetails(), e.getLocation());
@@ -292,10 +375,11 @@ public class Game {
      *            The entity to stop managing.
      */
     public void removeEntity(final Entity entity) {
-        for (final Engine<?> engine : engines)
+        for (final Engine<?> engine : engines) {
             if (engine.shouldHandle(entity)) {
                 engine.removeEntity(entity);
             }
+        }
 
         entities.remove(entity);
         entity.destroy();
@@ -354,7 +438,6 @@ public class Game {
      */
     public void update(final Timer timer) {
         chaseCamera.update(timer.getTimePerFrame());
-        System.out.println(timer.getFrameRate());
         for (final Engine<?> engine : engines) {
             engine.update(timer.getTimePerFrame());
         }
@@ -364,13 +447,10 @@ public class Game {
         for (final Entity entity : ImmutableSet.copyOf(entities)) {
             removeEntity(entity);
         }
-        entities.clear();
     }
 
     private void setupCamera() {
-        chaseCamera =
-                new AlignedChaseCamera(graphicsEngine.getCamera(),
-                        inputEngine.getInputManager());
+        chaseCamera = new AlignedChaseCamera(graphicsEngine.getCamera());
         chaseCamera.setDefaultHorizontalRotation(FastMath.HALF_PI);
         chaseCamera.setDefaultDistance(10);
         chaseCamera.setChasingSensitivity(20);
@@ -388,7 +468,7 @@ public class Game {
         }
         if (settings.dof.getValue()) {
             final DepthOfFieldFilter advDofFilter = new DepthOfFieldFilter();
-            final int quality = settings.dofQuality.getValue().ordinal() + 1;
+            final int quality = settings.dofQuality.getValue().getIndex() + 1;
             advDofFilter.setVignetting(settings.dofVignetting.getValue());
             advDofFilter.setDepthBlur(settings.dofDepthBlur.getValue());
             advDofFilter.setPentagonBokeh(settings.dofPentagonBokeh.getValue());
@@ -405,7 +485,6 @@ public class Game {
             filters.addFilter(bloomFilter);
         }
         viewPort.addProcessor(filters);
-
     }
 
     private void setupSkybox() {
@@ -426,13 +505,50 @@ public class Game {
 
     private void start() {
         final Transform ballTransform = new Transform();
-        ballTransform.setTranslation(0, 0, 8);
-        final PlayerBall ball = new PlayerBall(BallKind.Glass);
+        ballTransform.setTranslation(0, 0, 2);
+        final PlayerBall ball = new PlayerBall(DEFAULT_BALL_KIND);
+        playerBall = Optional.of(ball);
         ball.setTransform(ballTransform);
         addEntity(ball);
         track(ball.getSpatial());
 
+        currentSession = Optional.of(new GameSession());
+
+        setPause(GameSession.PauseState.Running);
+
         // getPhysicsEngine().enableDebug(assetManager);
+    }
+
+    public void die() {
+        if (currentSession.isPresent()) {
+            final GameSession session = currentSession.get();
+            final int lives = session.getLives();
+            if (lives > 0) {
+                session.setLives(lives - 1);
+                respawn();
+            } else {
+                lose();
+            }
+        }
+    }
+
+    public void respawn() {
+        if (playerBall.isPresent() && currentSession.isPresent()) {
+            final PlayerBall ball = playerBall.get();
+            ball.setBallKind(DEFAULT_BALL_KIND);
+            ball.setTransform(new Transform(currentSession.get()
+                    .getRespawnPoint()));
+        }
+    }
+
+    public void lose() {
+        setPause(GameSession.PauseState.EnforcedPause);
+        nifty.gotoScreen("loss");
+    }
+
+    public void win() {
+        setPause(GameSession.PauseState.EnforcedPause);
+        nifty.gotoScreen("win");
     }
 
     public void handleError(final String errorMessage, final Throwable t) {
@@ -468,5 +584,54 @@ public class Game {
 
     public AssetManager getAssetManager() {
         return assetManager;
+    }
+
+    public MetaLevelPack getCurrentLevelPack() {
+        return currentLevelPack;
+    }
+
+    public void setCurrentLevelPack(final MetaLevelPack currentLevelPack) {
+        this.currentLevelPack = currentLevelPack;
+    }
+
+    public Optional<GameSession> getCurrentSession() {
+        return currentSession;
+    }
+
+    public boolean hasNextLevel() {
+        return currentLevel.isPresent()
+                && currentLevelPack.getLevels().indexOf(currentLevel.get()) + 1 < currentLevelPack
+                        .getLevels().size();
+    }
+
+    public void loadNextLevel() {
+        if (currentLevel.isPresent()) {
+            final int nextLevelIndex =
+                    currentLevelPack.getLevels().indexOf(currentLevel.get()) + 1;
+            if (nextLevelIndex < currentLevelPack.getLevels().size()) {
+                loadLevel(currentLevelPack.getLevels().get(nextLevelIndex));
+            } else
+                throw new RuntimeException("There is no next level");
+        }
+    }
+
+    public Optional<MetaLevel> getCurrentLevel() {
+        return currentLevel;
+    }
+
+    public void showHighscores(final MetaLevel level) {
+
+    }
+
+    public void gotoMenu() {
+        loadLevel(new MetaLevel("Menu level",
+                Game.class.getResource("level/menu.level"),
+                Optional.<URL> absent(),
+                UUID.fromString("a6f6b07a-5a95-4328-a73f-c848f4c52788")));
+        nifty.gotoScreen("start");
+    }
+
+    public URL getCurrentLevelPackURL() {
+        return currentLevelPackURL;
     }
 }

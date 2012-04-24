@@ -1,4 +1,4 @@
-package org.marble.settings;
+package org.marble.util;
 
 public enum DepthOfFieldType {
     None, Simple, Advanced;

@@ -7,6 +7,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.UUID;
 
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
@@ -18,6 +20,7 @@ import com.jme3.math.Vector3f;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 
@@ -324,33 +327,77 @@ public final class LevelLoader {
     MetaLevelPack loadMetaLevelPack(final JSONObject object, final URL packURL)
             throws JSONException {
         return new MetaLevelPack(object.getString("name"),
-                Optional.fromNullable(object.optString("version")),
-                Optional.fromNullable(object.optString("description")),
-                Optional.fromNullable(object.optString("author")),
-                loadMetaLevels(object.getJSONArray("levels"), packURL));
+                discardEmpty(object.optString("version")),
+                discardEmpty(object.optString("description")),
+                discardEmpty(object.optString("author")), loadMetaLevels(
+                        object.getJSONArray("levels"), packURL));
+    }
+
+    private Optional<String> discardEmpty(final String string) {
+        if (string.isEmpty())
+            return Optional.absent();
+        else
+            return Optional.fromNullable(string);
     }
 
     ImmutableList<MetaLevel> loadMetaLevels(final JSONArray array,
             final URL packURL) throws JSONException {
         final ImmutableList.Builder<MetaLevel> resultBuilder =
                 ImmutableList.builder();
+        final Optional<URL> definitelyPackURL = Optional.of(packURL);
         for (int i = 0; i < array.length(); i++) {
-            final JSONObject levelObject = array.getJSONObject(i);
-            try {
-                final String previewURIString =
-                        levelObject.optString("previewUri");
-                final Optional<URL> previewURI =
-                        previewURIString == null ? Optional.<URL> absent()
-                                : Optional
-                                        .of(new URL(packURL, previewURIString));
-                final URL url = new URL(packURL, levelObject.getString("uri"));
-                resultBuilder.add(new MetaLevel(levelObject.getString("name"),
-                        url, previewURI));
-            } catch (final MalformedURLException e) {
-                throw new RuntimeException("Invalid URI", e);
-            }
+            resultBuilder.add(loadMetaLevel(array.getJSONObject(i),
+                    definitelyPackURL));
         }
         return resultBuilder.build();
+    }
+
+    public StatisticalMetaLevel loadStatisticalMetaLevel(
+            final JSONObject levelObject, final Optional<URL> packURL)
+            throws JSONException {
+        final MetaLevel level = loadMetaLevel(levelObject, packURL);
+        final ImmutableMap<String, Integer> highscores =
+                loadHighscores(levelObject.getJSONObject("highscores"));
+        return new StatisticalMetaLevel(level, highscores);
+    }
+
+    ImmutableMap<String, Integer> loadHighscores(
+            final JSONObject highscoreObject) throws JSONException {
+        final ImmutableMap.Builder<String, Integer> resultBuilder =
+                ImmutableMap.builder();
+
+        final Iterator<?> keysIterator = highscoreObject.keys();
+        while (keysIterator.hasNext()) {
+            final String key = (String) keysIterator.next();
+            final Integer value = highscoreObject.getInt(key);
+            resultBuilder.put(key, value);
+        }
+        return resultBuilder.build();
+    }
+
+    MetaLevel loadMetaLevel(final JSONObject levelObject,
+            final Optional<URL> packURL) throws JSONException {
+        try {
+            final String previewURIString = levelObject.optString("previewUri");
+            final Optional<URL> previewURI =
+                    previewURIString == null ? Optional.<URL> absent()
+                            : Optional.of(makeRelativeURL(packURL,
+                                    previewURIString));
+            final URL url =
+                    makeRelativeURL(packURL, levelObject.getString("uri"));
+            return new MetaLevel(levelObject.getString("name"), url,
+                    previewURI, UUID.fromString(levelObject.getString("uuid")));
+        } catch (final MalformedURLException e) {
+            throw new RuntimeException("Invalid URI", e);
+        }
+    }
+
+    URL makeRelativeURL(final Optional<URL> baseURL,
+            final String relativeURLString) throws MalformedURLException {
+        if (baseURL.isPresent())
+            return new URL(baseURL.get(), relativeURLString);
+        else
+            return new URL(relativeURLString);
     }
 
     /**

@@ -1,17 +1,19 @@
-package org.marble.settings;
+package org.marble.settings.specialized;
 
 import java.util.prefs.Preferences;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.marble.settings.AbstractEntry;
+
 /**
  * A renderer settings entry.
  */
-class EnumEntry<E extends Enum<E>> extends AbstractEntry<E> {
+public class EnumEntry<E extends Enum<E>> extends AbstractEntry<E> {
     private final ImmutableMap<String, E> alternatives;
 
-    EnumEntry(final Preferences prefs, final String node, final E defaultValue,
-            final Class<E> enumClass) {
+    public EnumEntry(final Preferences prefs, final String node,
+            final E defaultValue, final Class<E> enumClass) {
         super(prefs, node, defaultValue);
 
         final ImmutableMap.Builder<String, E> alternativesBuilder =

@@ -6,6 +6,7 @@ import com.jme3.math.Vector3f;
 
 import com.google.common.collect.ImmutableSet;
 
+import org.marble.Game;
 import org.marble.entity.interactive.Interactive;
 import org.marble.entity.physical.Actor;
 import org.marble.input.PlayerInput;
@@ -19,6 +20,8 @@ public class PlayerBall extends Ball implements Interactive, Actor {
     private final Vector3f internalForce = new Vector3f();
     private final Vector3f addedForce = new Vector3f();
     private static final float FORCE_MAGNITUDE = 24.0f;
+    private boolean goingWest, goingEast, goingNorth, goingSouth;
+    private Game game;
 
     public PlayerBall(final BallKind kind) {
         this(kind, 0.5f);
@@ -59,18 +62,27 @@ public class PlayerBall extends Ball implements Interactive, Actor {
 
     @Override
     public void handleInput(final PlayerInput input, final boolean isActive) {
-        Direction direction;
+        final Direction direction;
+        final boolean alreadyActive;
         switch (input) {
         case MoveForward:
+            alreadyActive = goingNorth;
+            goingNorth = isActive;
             direction = Direction.North;
             break;
         case MoveBackward:
+            alreadyActive = goingSouth;
+            goingSouth = isActive;
             direction = Direction.South;
             break;
         case MoveLeft:
+            alreadyActive = goingWest;
+            goingWest = isActive;
             direction = Direction.West;
             break;
         case MoveRight:
+            alreadyActive = goingEast;
+            goingEast = isActive;
             direction = Direction.East;
             break;
         default:
@@ -79,11 +91,17 @@ public class PlayerBall extends Ball implements Interactive, Actor {
         }
         addedForce.set(direction.getPhysicalDirection());
         addedForce.multLocal(FORCE_MAGNITUDE);
-        if (isActive) {
+        if (isActive && !alreadyActive) {
             internalForce.addLocal(addedForce);
-        } else {
+        } else if (alreadyActive) {
             internalForce.subtractLocal(addedForce);
         }
+    }
+
+    @Override
+    public void initialize(final Game game) {
+        super.initialize(game);
+        this.game = game;
     }
 
     @Override
@@ -92,5 +110,9 @@ public class PlayerBall extends Ball implements Interactive, Actor {
         appliedForce.multLocal(getBallKind().getMass()
                 / getBallKind().getStability());
         getBody().applyCentralForce(appliedForce);
+
+        if (getBody().getPhysicsLocation().z < -64.0) {
+            game.die();
+        }
     }
 }

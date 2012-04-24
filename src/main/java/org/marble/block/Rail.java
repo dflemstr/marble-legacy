@@ -100,5 +100,4 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
     public Map<String, Connector> getConnectors() {
         return Connectors.fromRail(width, height, depth);
     }
-
 }
