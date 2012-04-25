@@ -28,6 +28,8 @@ public final class Connectors {
             n = direction.cross(Vector3f.UNIT_X);
         }
         n.normalizeLocal();
+        final float pi = (float) Math.PI;
+        final Vector3f t = n.cross(direction);
 
         Vector3f r;
         Vector3f r1;
@@ -35,10 +37,14 @@ public final class Connectors {
         r = n.mult(radius);
         r1 = n.mult(radius - a / 2);
         r1.addLocal(direction.mult(-b / 2));
-        r2 = n.mult(radius + a / 2);
+        r2 = n.mult(radius + a / 2 + tubeRadius);
         r2.addLocal(direction.mult(b / 2));
-        builder.put("start_middle", offsetBy(r));
-
+        builder.put("start_middle",
+                offsetBy(r.getX(), r.getY(), r.getZ(), 0, 0, 0));
+        builder.put("start_left",
+                offsetBy(r1.getX(), r1.getY(), r1.getZ(), 0, 0, 0));
+        builder.put("start_right",
+                offsetBy(r2.getX(), r2.getY(), r2.getZ(), 0, 0, 0));
         final Quaternion rotation = new Quaternion();
         rotation.fromAngleAxis(angle, direction);
 
@@ -46,11 +52,16 @@ public final class Connectors {
         r = n.mult(radius);
         r.addLocal(direction.mult(height));
         r1 = n.mult(radius - a / 2);
-        r1.addLocal(direction.mult(-b / 2));
+        r1.addLocal(direction.mult(height - b / 2));
         r2 = n.mult(radius + a / 2);
-        r2.addLocal(direction.mult(b / 2));
+        r2.addLocal(direction.mult(height + b / 2));
         rotation.fromAngleAxis(angle + FastMath.PI, direction);
-        builder.put("end_middle", offsetBy(r, rotation));
+        builder.put("end_middle",
+                offsetBy(r.getX(), r.getY(), r.getZ(), 0, 0, angle + pi));
+        builder.put("end_left",
+                offsetBy(r1.getX(), r1.getY(), r1.getZ(), 0, 0, angle + pi));
+        builder.put("end_right",
+                offsetBy(r2.getX(), r2.getY(), r2.getZ(), 0, 0, angle + pi));
 
         return builder.build();
     }
@@ -64,8 +75,16 @@ public final class Connectors {
         final float pi = FastMath.PI;
 
         builder.put("start_middle", offsetBy(width / 2, 0, 0, 0, 0, 0));
+        builder.put("start_right",
+                offsetBy(width / 2, (height / 2), 0, 0, 0, 0));
+        builder.put("start_left",
+                offsetBy(width / 2, -(height / 2), 0, 0, 0, 0));
 
         builder.put("end_middle", offsetBy(-width / 2, 0, 0, 0, 0, pi));
+        builder.put("end_right",
+                offsetBy(-width / 2, (height / 2), 0, 0, 0, pi));
+        builder.put("end_left",
+                offsetBy(-width / 2, -(height / 2), 0, 0, 0, pi));
 
         return builder.build();
     }

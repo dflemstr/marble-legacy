@@ -108,9 +108,10 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
         temp.fromAngleAxis(pi / 2 + FastMath.atan(height / (radius * angle)), n);
         temp.mult(rotTot2, rotTot2);
         final Matrix3f rotZ = new Matrix3f();
+        rotZ.fromAngleAxis(angle / steps / 2, direction);
+        rotZ.mult(rotTot, rotTot);
+        rotZ.mult(rotTot2, rotTot2);
         rotZ.fromAngleAxis(angle / steps, direction);
-        final Matrix3f rotZ2 = new Matrix3f();
-        rotZ2.fromAngleAxis(angle / steps, direction);
         Vector3f radialAxis = new Vector3f();
         final Vector3f leftMiddle = new Vector3f();
         final Vector3f rightMiddle = new Vector3f();
@@ -141,7 +142,7 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
                     rightMiddle.add(direction.mult(b / 2)), rotTot2);
 
             rotZ.mult(rotTot, rotTot);
-            rotZ2.mult(rotTot2, rotTot2);
+            rotZ.mult(rotTot2, rotTot2);
         }
 
         physicalBox = new RigidBodyControl(compound, 0);

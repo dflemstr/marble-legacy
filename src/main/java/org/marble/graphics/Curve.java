@@ -68,7 +68,7 @@ public class Curve extends Mesh {
 
     private void setGeometryData() {
         // allocate vertices
-        final int verts = ((_circleSamples + 1) * (_radialSamples + 1));
+        final int verts = ((_circleSamples + 2) * (_radialSamples + 1));
         final FloatBuffer vertexBuffer = BufferUtils.createVector3Buffer(verts);
 
         // allocate normals if requested
@@ -92,15 +92,13 @@ public class Curve extends Mesh {
         final Vector3f torusMiddle = new Vector3f();
         Vector3f tempNormal = new Vector3f();
 
-        Matrix4f M = new Matrix4f();
         final Matrix4f transTot = new Matrix4f();
         transTot.loadIdentity();
         final Matrix4f transDir = new Matrix4f();
         transDir.setTranslation(_direction.mult(_height / (_circleSamples)));
 
-        for (int circleCount = 0; circleCount < _circleSamples; circleCount++) {
+        for (int circleCount = 0; circleCount <= _circleSamples; circleCount++) {
 
-            M = rotTot;
             // compute center point on torus circle at specified angle
             final float circleFraction = circleCount * inverseCircleSamples;
             Vector3f n;
@@ -111,11 +109,10 @@ public class Curve extends Mesh {
                 n = _direction.cross(Vector3f.UNIT_X);
                 n.normalizeLocal();
             }
-            radialAxis = M.mult(n);
+            radialAxis = rotTot.mult(n);
             radialAxis.mult(_radius, torusMiddle);
             transTot.translateVect(torusMiddle);
-            transTot.mult(transDir, transTot);
-            rotZ.mult(rotTot, rotTot);
+
             // compute slice vertices with duplication at end point
             final int iSave = i;
             for (int radialCount = 0; radialCount < _radialSamples; radialCount++) {
@@ -124,7 +121,7 @@ public class Curve extends Mesh {
                 final float phi = FastMath.TWO_PI * radialFraction;
                 final float cosPhi = FastMath.cos(phi);
                 final float sinPhi = FastMath.sin(phi);
-                tempNormal = M.mult(new Vector3f(cosPhi, 0, sinPhi));
+                tempNormal = rotTot.mult(new Vector3f(0, cosPhi, sinPhi));
 
                 normalBuffer.put(tempNormal.getX()).put(tempNormal.getY())
                         .put(tempNormal.getZ());
@@ -141,16 +138,9 @@ public class Curve extends Mesh {
             BufferUtils.copyInternalVector3(normalBuffer, iSave, i);
 
             texcoordBuffer.put(1.0f).put(circleFraction);
-
+            transTot.mult(transDir, transTot);
+            rotZ.mult(rotTot, rotTot);
             i++;
-        }
-
-        // duplicate the cylinder ends to form a torus
-        for (int iR = 0; iR <= _radialSamples; iR++, i++) {
-            BufferUtils.copyInternalVector3(vertexBuffer, iR, i);
-            BufferUtils.copyInternalVector3(normalBuffer, iR, i);
-            BufferUtils.copyInternalVector2(texcoordBuffer, iR, i);
-            texcoordBuffer.put(i * 2 + 1, 1.0f);
         }
 
         setBuffer(Type.Position, 3, vertexBuffer);
@@ -164,7 +154,7 @@ public class Curve extends Mesh {
         int i;
         // generate connectivity
         int connectionStart = 0;
-        for (int circleCount = 0; circleCount < _circleSamples - 1; circleCount++) {
+        for (int circleCount = 0; circleCount < _circleSamples; circleCount++) {
             int i0 = connectionStart;
             int i1 = i0 + 1;
             connectionStart += _radialSamples + 1;
