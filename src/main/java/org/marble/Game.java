@@ -187,6 +187,7 @@ public class Game {
         for (final Engine<?> engine : engines) {
             engine.initialize();
         }
+        loadLevelPack(Game.class.getResource("level/core.pack"));
 
         setupControls();
         setupSkybox();
@@ -195,7 +196,6 @@ public class Game {
         setupCamera();
         setupFilters();
 
-        loadLevelPack(Game.class.getResource("level/core.pack"));
         gotoMenu();
     }
 
@@ -556,15 +556,7 @@ public class Game {
 
     public void handleError(final String errorMessage, final Throwable t) {
         if (errorMessage != null) {
-            /*
-             * final DialogBox dialog = new
-             * DialogBox("Error while loading the level", errorMessage,
-             * Optional.of(DialogBox.Icon.Critical), DialogBox.Button.Abort,
-             * DialogBox.Button.Retry, DialogBox.Button.Ignore);
-             * dialog.setDialogListener(new LevelReloadDialogListener(level));
-             * dialog.setLocationRelativeTo(getGraphicsEngine().getCanvas()
-             * .getCanvasRenderer().getCamera()); hud.add(dialog);
-             */
+            // DialogBox.showDialog(nifty, errorMessage);
         }
         t.printStackTrace();
     }
