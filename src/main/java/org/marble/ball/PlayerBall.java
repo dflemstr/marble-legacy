@@ -109,6 +109,7 @@ public class PlayerBall extends Ball implements Interactive, Actor {
         appliedForce.set(internalForce);
         appliedForce.multLocal(getBallKind().getMass()
                 / getBallKind().getStability());
+        getBody().activate();
         getBody().applyCentralForce(appliedForce);
 
         if (getBody().getPhysicsLocation().z < -64.0) {

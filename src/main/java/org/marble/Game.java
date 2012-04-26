@@ -71,7 +71,7 @@ import org.marble.ui.WinScreen;
  * An abstracted game instance that handles a game session.
  */
 public class Game {
-    public static final BallKind DEFAULT_BALL_KIND = BallKind.Wood;
+    public static final BallKind DEFAULT_BALL_KIND = BallKind.Glass;
 
     // Handles rendering.
     private final GraphicsEngine graphicsEngine;
@@ -519,7 +519,7 @@ public class Game {
 
         setPause(GameSession.PauseState.Running);
 
-        getPhysicsEngine().enableDebug(assetManager);
+        // getPhysicsEngine().enableDebug(assetManager);
     }
 
     public void die() {
