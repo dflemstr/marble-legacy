@@ -2,6 +2,7 @@ package org.marble.ball;
 
 import java.util.Set;
 
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 
 import com.google.common.collect.ImmutableSet;
@@ -114,5 +115,14 @@ public class PlayerBall extends Ball implements Interactive, Actor {
         if (getBody().getPhysicsLocation().z < -64.0) {
             game.die();
         }
+    }
+
+    public void respawnAt(final Vector3f respawnPoint) {
+        getBody().setPhysicsLocation(respawnPoint);
+        getBody().setPhysicsRotation(Quaternion.IDENTITY);
+        getBody().setAngularVelocity(Vector3f.ZERO);
+        getBody().setLinearVelocity(Vector3f.ZERO);
+        getSpatial().setLocalTranslation(respawnPoint);
+        getSpatial().setLocalRotation(Quaternion.IDENTITY);
     }
 }

@@ -518,8 +518,6 @@ public class Game {
         currentSession = Optional.of(new GameSession());
 
         setPause(GameSession.PauseState.Running);
-
-        getPhysicsEngine().enableDebug(assetManager);
     }
 
     public void die() {
@@ -539,8 +537,7 @@ public class Game {
         if (playerBall.isPresent() && currentSession.isPresent()) {
             final PlayerBall ball = playerBall.get();
             ball.setBallKind(DEFAULT_BALL_KIND);
-            ball.setTransform(new Transform(currentSession.get()
-                    .getRespawnPoint()));
+            ball.respawnAt(currentSession.get().getRespawnPoint());
         }
     }
 

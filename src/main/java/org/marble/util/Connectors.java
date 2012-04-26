@@ -1,5 +1,7 @@
 package org.marble.util;
 
+import java.util.Map;
+
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
@@ -204,5 +206,15 @@ public final class Connectors {
     private static String makeConnectorName(final String base,
             final int coord1, final int coord2) {
         return base + "_" + coord1 + "_" + coord2;
+    }
+
+    public static Map<String, Connector> fromWall(final float length) {
+        final ImmutableMap.Builder<String, Connector> connectorBuilder =
+                ImmutableMap.builder();
+        for (int i = 0; i < length; i++) {
+            connectorBuilder.put("position_" + i, offsetBy(0, length / 2, 0));
+        }
+        connectorBuilder.put("position_middle", offsetBy(0, length / 2, 0));
+        return connectorBuilder.build();
     }
 }
