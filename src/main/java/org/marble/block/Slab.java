@@ -29,21 +29,27 @@ import org.marble.util.Connectors;
 public class Slab extends AbstractEntity implements Connected, Graphical,
         Physical {
     private final float width, height, depth;
+    private final float slopeX, slopeY;
     private Spatial graphicalBox;
     private RigidBodyControl physicalBox;
 
-    /**
-     * Creates a new slab.
-     * 
-     * @param width
-     *            The size along the X-axis.
-     * @param height
-     *            The size along the Y-axis.
-     * @param depth
-     *            The size along the Z-axis.
-     */
     public Slab(final float width, final float height, final float depth) {
-        this(width, height, depth, Optional.<Float> absent());
+        this(width, height, depth, 0, 0);
+    }
+
+    /**
+     * Creates a new slab.
+     * 
+     * @param width
+     *            The size along the X-axis.
+     * @param height
+     *            The size along the Y-axis.
+     * @param depth
+     *            The size along the Z-axis.
+     */
+    public Slab(final float width, final float height, final float depth,
+            final float slopeX, final float slopeY) {
+        this(width, height, depth, slopeX, slopeY, Optional.<Float> absent());
     }
 
     /**
@@ -59,8 +65,8 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
      *            The mass.
      */
     public Slab(final float width, final float height, final float depth,
-            final float mass) {
-        this(width, height, depth, Optional.of(mass));
+            final float slopeX, final float slopeY, final float mass) {
+        this(width, height, depth, slopeX, slopeY, Optional.of(mass));
     }
 
     /**
@@ -76,10 +82,12 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
      *            The mass.
      */
     public Slab(final float width, final float height, final float depth,
-            final Optional<Float> mass) {
+            final float slopeX, final float slopeY, final Optional<Float> mass) {
         this.width = width;
         this.height = height;
         this.depth = depth;
+        this.slopeX = slopeX;
+        this.slopeY = slopeY;
     }
 
     @Override

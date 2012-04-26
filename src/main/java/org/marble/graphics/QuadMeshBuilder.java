@@ -189,6 +189,16 @@ public class QuadMeshBuilder {
                 v1, u4, v1, u1, v4, u4, v4, xn, yn, zn);
     }
 
+    public void addXQuadSlope(final boolean winding, final boolean flip,
+            final float x, final float y1, final float z1, final float y4,
+            final float z4, final float u1, final float v1, final float u4,
+            final float v4, final float xn, final float yn, final float zn,
+            final float slopeX, final float slopeY) {
+        addQuad(winding, flip, x, y1, z1, x, y4, z1 + slopeY * (y4 - y1), x,
+                y1, z4, x, y4, z4 + slopeY * (y4 - y1), u1, v1, u4, v1, u1, v4,
+                u4, v4, xn, yn, zn);
+    }
+
     /**
      * Adds a quad to this vertex builder whose geometrical normal is aligned
      * with the y axis.
@@ -232,6 +242,17 @@ public class QuadMeshBuilder {
                 u4, v1, u1, v4, u4, v4, xn, yn, zn);
     }
 
+    public void addYQuadSlope(final boolean spin, final boolean flip,
+            final float y, final float x1, final float z1, final float x4,
+            final float z4, final float u1, final float v1, final float u4,
+            final float v4, final float xn, final float yn, final float zn,
+            final float slopeX, final float slopeY) {
+
+        addQuad(spin, flip, x1, y, z1 + slopeX * (x4 - x1), x4, y, z1, x1, y,
+                z4 + slopeX * (x4 - x1), x4, y, z4, u1, v1, u4, v1, u1, v4, u4,
+                v4, xn, yn, zn);
+    }
+
     /**
      * Adds a quad to this vertex builder whose geometrical normal is aligned
      * with the z axis.
@@ -273,6 +294,17 @@ public class QuadMeshBuilder {
             final float v4, final float xn, final float yn, final float zn) {
         addQuad(winding, flip, x1, y1, z, x4, y1, z, x1, y4, z, x4, y4, z, u1,
                 v1, u4, v1, u1, v4, u4, v4, xn, yn, zn);
+    }
+
+    public void addZQuadSlope(final boolean winding, final boolean flip,
+            final float z, final float x1, final float y1, final float x4,
+            final float y4, final float u1, final float v1, final float u4,
+            final float v4, final float xn, final float yn, final float zn,
+            final float slopeX, final float slopeY) {
+        addQuad(winding, flip, x1, y1, z, x4, y1, z + slopeX * (x4 - x1), x1,
+                y4, z + slopeY * (y4 - y1), x4, y4, z + slopeX * (x4 - x1)
+                        + slopeY * (y4 - y1), u1, v1, u4, v1, u1, v4, u4, v4,
+                xn, yn, zn);
     }
 
     /**
