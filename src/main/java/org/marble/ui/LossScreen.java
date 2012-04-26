@@ -10,8 +10,7 @@ public class LossScreen extends AbstractScreenController {
 
     public void retry() {
         if (game.getCurrentLevel().isPresent()) {
-            game.loadLevel(game.getCurrentLevel().get());
-            game.gotoScreen(UIScreen.Game);
+            game.playLevel(game.getCurrentLevel().get());
         } else
             throw new RuntimeException("The current level has disappeared");
     }

@@ -114,11 +114,11 @@ public class PlayerBall extends Ball implements Interactive, Actor {
         getBody().applyCentralForce(appliedForce);
 
         if (getBody().getPhysicsLocation().z < -64.0) {
-            game.die();
+            game.killBall();
         }
     }
 
-    public void respawnAt(final Vector3f respawnPoint) {
+    public void resetMoveTo(final Vector3f respawnPoint) {
         getBody().setPhysicsLocation(respawnPoint);
         getBody().setPhysicsRotation(Quaternion.IDENTITY);
         getBody().setAngularVelocity(Vector3f.ZERO);

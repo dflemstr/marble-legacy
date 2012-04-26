@@ -54,7 +54,7 @@ public class GameScreen extends AbstractScreenController {
     }
 
     @Override
-    public void onStartScreen() {
+    public void onGoto() {
         if (game.getCurrentSession().isPresent()) {
             currentSession = game.getCurrentSession().get();
             currentSession.addGameSessionListener(new GameScreenUpdater());

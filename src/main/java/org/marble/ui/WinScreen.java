@@ -11,7 +11,7 @@ public class WinScreen extends AbstractScreenController {
     }
 
     @Override
-    public void onStartScreen() {
+    public void onGoto() {
         if (!game.hasNextLevel()) {
             final Element button =
                     screen.findElementByName("next-level-button");
@@ -28,8 +28,7 @@ public class WinScreen extends AbstractScreenController {
 
     public void retry() {
         if (game.getCurrentLevel().isPresent()) {
-            game.loadLevel(game.getCurrentLevel().get());
-            game.gotoScreen(UIScreen.Game);
+            game.playLevel(game.getCurrentLevel().get());
         } else
             throw new RuntimeException("The current level has disappeared");
     }

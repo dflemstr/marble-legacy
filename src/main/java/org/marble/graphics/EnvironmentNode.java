@@ -12,21 +12,31 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.TextureCubeMap;
 
+import org.marble.frp.FRPUtils;
+import org.marble.frp.Reactive;
+import org.marble.frp.ReactiveListener;
+import org.marble.frp.ReactiveReference;
+
 /**
  * A node that acts like a panorama camera, rendering to a cube map instead of a
  * texture.
  */
 public class EnvironmentNode extends Node {
+    private final class TextureSizeListener implements
+            ReactiveListener<Integer> {
+        @Override
+        public void valueChanged(final Integer value) {
+            updateRenderer(value);
+        }
+    }
+
     private final Spatial root;
     private final RenderManager renderManager;
-    private int textureSizeMagnitude;
+    private final TextureSizeListener listener = new TextureSizeListener();
 
-    private final TextureCubeMap environment;
+    private final ReactiveReference<TextureCubeMap> environment;
 
-    /**
-     * @return the environment
-     */
-    public TextureCubeMap getEnvironment() {
+    public Reactive<TextureCubeMap> getEnvironment() {
         return environment;
     }
 
@@ -45,36 +55,25 @@ public class EnvironmentNode extends Node {
                     Vector3f.UNIT_Z },
             { Vector3f.UNIT_X, Vector3f.UNIT_Y.negate(),
                     Vector3f.UNIT_Z.negate() } };
+    private final Reactive<Integer> textureSizeMagnitude;
 
     /**
      * Creates a new environment node.
      */
     public EnvironmentNode(final Spatial root,
-            final RenderManager renderManager, final int textureSizeMagnitude) {
+            final RenderManager renderManager,
+            final Reactive<Integer> textureSizeMagnitude) {
         this.root = root;
         this.renderManager = renderManager;
         this.textureSizeMagnitude = textureSizeMagnitude;
-
-        final int textureSize = 1 << textureSizeMagnitude;
-
-        environment = new TextureCubeMap(textureSize, textureSize, Format.RGB8);
-        environment.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-        environment.setMagFilter(Texture.MagFilter.Bilinear);
 
         environmentBuffers = new FrameBuffer[6];
         environmentCameras = new Camera[6];
         environmentViews = new ViewPort[6];
 
-        for (int i = 0; i < 6; i++) {
-            environmentCameras[i] = new Camera(textureSize, textureSize);
-            environmentCameras[i].setFrustum(0.0625f, 1024.0f, -0.0625f,
-                    0.0625f, 0.0625f, -0.0625f);
-            environmentCameras[i].setLocation(getWorldTranslation());
-            environmentCameras[i].setAxes(cameraAngles[i][0],
-                    cameraAngles[i][1], cameraAngles[i][2]);
-        }
+        environment = new ReactiveReference<TextureCubeMap>(null);
 
-        updateRenderer(textureSizeMagnitude);
+        FRPUtils.addAndCallReactiveListener(textureSizeMagnitude, listener);
     }
 
     @Override
@@ -88,10 +87,23 @@ public class EnvironmentNode extends Node {
     private void updateRenderer(final int textureSizeMagnitude) {
         final int textureSize = 1 << textureSizeMagnitude;
 
+        final TextureCubeMap env =
+                new TextureCubeMap(textureSize, textureSize, Format.RGB8);
+        env.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+        env.setMagFilter(Texture.MagFilter.Bilinear);
+        environment.setValue(env);
+
         for (int i = 0; i < 6; i++) {
+            environmentCameras[i] = new Camera(textureSize, textureSize);
+            environmentCameras[i].setFrustum(0.0625f, 1024.0f, -0.0625f,
+                    0.0625f, 0.0625f, -0.0625f);
+            environmentCameras[i].setLocation(getWorldTranslation());
+            environmentCameras[i].setAxes(cameraAngles[i][0],
+                    cameraAngles[i][1], cameraAngles[i][2]);
+
             environmentBuffers[i] =
                     new FrameBuffer(textureSize, textureSize, 1);
-            environmentBuffers[i].setColorTexture(environment,
+            environmentBuffers[i].setColorTexture(env,
                     TextureCubeMap.Face.values()[i]);
             environmentBuffers[i].setDepthBuffer(Format.Depth);
 
@@ -109,23 +121,17 @@ public class EnvironmentNode extends Node {
         }
     }
 
-    public int getTextureSizeMagnitude() {
-        return textureSizeMagnitude;
-    }
-
-    public void setTextureSizeMagnitude(final int textureSizeMagnitude) {
-        if (textureSizeMagnitude != this.textureSizeMagnitude) {
-            updateRenderer(textureSizeMagnitude);
-        }
-        this.textureSizeMagnitude = textureSizeMagnitude;
-    }
-
-    @Override
-    protected void finalize() {
+    public void destroy() {
         if (renderManager != null) {
             for (final ViewPort view : environmentViews) {
                 renderManager.removePreView(view);
             }
         }
+        textureSizeMagnitude.removeReactiveListener(listener);
+    }
+
+    @Override
+    protected void finalize() {
+        destroy();
     }
 }

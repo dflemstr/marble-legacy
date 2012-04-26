@@ -140,7 +140,7 @@ public class WinBlock extends AbstractEntity implements Graphical, Physical,
     public void handleCollisionWith(final Physical other,
             final PhysicsCollisionEvent event) {
         if (other instanceof PlayerBall) {
-            game.win();
+            game.winLevel();
         }
     }
 

@@ -15,15 +15,29 @@ import org.marble.settings.Settings;
  * This application will run the game using the LWJGL renderer and input system.
  */
 public class Application implements Runnable, SystemListener {
+    // The jME application settings
     private final AppSettings appSettings;
+
+    // Our own reactive settings system
     private final Settings settings;
+
+    // The asset manager for loading data
     private final AssetManager assetManager;
 
+    // The abstract game instance
     private Game game;
+
+    // The jME context
     private JmeContext context;
 
+    /**
+     * Creates a new application that can be ran in different contexts
+     */
     public Application() {
         settings = new Settings();
+
+        // Copy relevant parts
+        // TODO add reactive listeners for this
         appSettings = new AppSettings(false);
         appSettings.setWidth(settings.viewportWidth.getValue());
         appSettings.setHeight(settings.viewportHeight.getValue());
@@ -43,6 +57,7 @@ public class Application implements Runnable, SystemListener {
         appSettings.setUseInput(true);
         appSettings.setUseJoysticks(false);
 
+        // Use default desktop asset manager
         assetManager =
                 JmeSystem.newAssetManager(Thread.currentThread()
                         .getContextClassLoader()
@@ -60,6 +75,12 @@ public class Application implements Runnable, SystemListener {
         new Application().run();
     }
 
+    /**
+     * Run this application in the given platform context.
+     * 
+     * @param contextType
+     *            The type of context that the application is running in.
+     */
     public void run(final JmeContext.Type contextType) {
         context = JmeSystem.newContext(appSettings, contextType);
         game = new Game(context, assetManager, settings);
