@@ -3,11 +3,12 @@ package org.marble.block;
 import java.util.Map;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.bullet.collision.shapes.BoxCollisionShape;
+import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Cylinder;
 
 import org.marble.Game;
 import org.marble.entity.AbstractEntity;
@@ -20,34 +21,28 @@ import org.marble.util.Connectors;
 public class Wall extends AbstractEntity implements Connected, Graphical,
         Physical {
 
-    private final float width, height, depth;
+    private final float length;
     private RigidBodyControl physicalBox;
     private Geometry graphicalBox;
 
-    public Wall(final float width) {
-        this(width, 0.5f, 1.0f);
-    }
-
-    public Wall(final float width, final float height, final float depth) {
-        this.width = width;
-        this.height = height;
-        this.depth = depth;
+    public Wall(final float length) {
+        this.length = length;
     }
 
     @Override
     public void initialize(final Game game) {
         final AssetManager assetManager = game.getAssetManager();
 
-        graphicalBox =
-                new Geometry("wall", new Box(Vector3f.ZERO, width / 2,
-                        height / 2, depth / 2));
+        graphicalBox = new Geometry("wall", new Cylinder(3, 8, 0.05f, length));
         graphicalBox.setMaterial(assetManager
-                .loadMaterial("Materials/Misc/Undefined.j3m"));
+                .loadMaterial("Materials/Metal/Aluminium.j3m"));
+        final Matrix3f rotation = new Matrix3f(0, 0, -1, 0, 1, 0, 1, 0, 0);
+        graphicalBox.setLocalRotation(rotation);
         getSpatial().attachChild(graphicalBox);
 
         physicalBox =
-                new RigidBodyControl(new BoxCollisionShape(new Vector3f(
-                        width / 2, height / 2, depth / 2)), 0);
+                new RigidBodyControl(new CylinderCollisionShape(new Vector3f(
+                        0.05f, 0.05f, length / 2)), 0);
         getSpatial().addControl(physicalBox);
     }
 
@@ -58,6 +53,6 @@ public class Wall extends AbstractEntity implements Connected, Graphical,
 
     @Override
     public Map<String, Connector> getConnectors() {
-        return Connectors.fromBox(width, height, depth);
+        return Connectors.fromWall(length);
     }
 }

@@ -67,13 +67,13 @@ public class LevelScreen extends AbstractScreenController {
         for (final MetaLevel level : game.getCurrentLevelPack().getLevels()) {
             if (level.getUUID().equals(uuid)) {
                 game.loadLevel(level);
-                nifty.gotoScreen("game");
+                game.gotoScreen(UIScreen.Game);
                 break;
             }
         }
     }
 
     public void goBack() {
-        nifty.gotoScreen("start");
+        game.gotoScreen(UIScreen.Start);
     }
 }

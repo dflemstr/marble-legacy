@@ -8,7 +8,6 @@ uniform float m_Intensity;
 uniform float m_Scale;
 uniform float m_Bias;
 uniform float m_Cutoff;
-uniform vec2[4] samples = { vec2(1.0, 0.0), vec2(-1.0, 0.0), vec2(0.0, 1.0), vec2(0.0, -1.0) };
 
 varying vec2 texCoord;
 
@@ -64,6 +63,12 @@ void main(void) {
 
     float ao = 0.0;
     float rad = m_SampleRadius / position.z;
+
+    vec2[4] samples;
+    samples[0] = vec2( 1.0,  0.0);
+    samples[1] = vec2(-1.0,  0.0);
+    samples[2] = vec2( 0.0,  1.0);
+    samples[3] = vec2( 0.0, -1.0);
 
     const int iterations = 4;
     int i;
