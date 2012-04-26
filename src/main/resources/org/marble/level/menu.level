@@ -20,7 +20,7 @@ let rail1 be Rail(50),
 	rail2 be Rail(30)
 
 // Create some spirals
-let spiral1 be Spiral(15,8,6,0,0,1,60)
+let spiral1 be Spiral(15,8,6,0,0,1,90)
 
 // Create some walls
 let wall1 be Wall(12),
@@ -49,14 +49,16 @@ position slab1 at (0, 0, 0)
 connect slab2.south_middle to slab1.north_1_0,
         slab3.south_middle to slab2.north_middle,
         slab4.west_middle to slab3.east_middle,
-        slab5.west_middle to slab4.east_middle,
-        wall1.south_0_0 to slab1.north_3_0,
-        wall2.north_0_0 to slab1.south_0_0,
-        wall3.north_middle to slab1.east_middle,
-        wall4.south_middle to slab1.west_middle,
-        wall5.south_middle to slab5.north_middle,
-        wall6.north_middle to slab5.south_middle,
-        rail1.start_middle to slab3.north_middle,
+        slab5.west_middle to slab4.east_middle
+
+connect wall1.position_0 to slab1.north_3_0,
+        wall2.position_0 to slab1.south_0_0,
+        wall3.position_middle to slab1.east_middle,
+        wall4.position_middle to slab1.west_middle,
+        wall5.position_middle to slab5.north_middle,
+        wall6.position_middle to slab5.south_middle
+
+connect rail1.start_middle to slab3.north_middle,
         spiral1.start_middle to rail1.end_middle,
         rail2.start_middle to spiral1.end_middle
                 

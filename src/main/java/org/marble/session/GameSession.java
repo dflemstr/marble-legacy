@@ -9,7 +9,7 @@ import com.google.common.collect.Sets;
 public class GameSession {
     private int points;
     private int lives = 3;
-    private final Vector3f respawnPoint = new Vector3f();
+    private final Vector3f respawnPoint = new Vector3f(0, 0, 2);
     private PauseState paused = PauseState.Running;
     private final Set<GameSessionListener> listeners = Sets.newHashSet();
 

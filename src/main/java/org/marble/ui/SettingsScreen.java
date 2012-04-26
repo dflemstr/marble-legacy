@@ -9,6 +9,6 @@ public class SettingsScreen extends AbstractScreenController {
     }
 
     public void goBack() {
-        nifty.gotoScreen("start");
+        game.gotoScreen(UIScreen.Start);
     }
 }

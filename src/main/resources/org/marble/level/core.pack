@@ -9,9 +9,19 @@
       "uuid": "03b88c7e-266b-47f1-917a-29b1e4198e0f"
     },
     {
+      "name": "Foobar",
+      "uri": "core/foobar.level",
+      "uuid": "62338850-8e39-11e1-b0c4-0800200c9a66"
+    },
+    {
       "name": "Spirals",
       "uri": "core/spirals.level",
       "uuid": "d6e41148-a552-40fd-a670-1a7613bca837"
+    },
+    {
+      "name": "Dizzling heights",
+      "uri": "core/dizzling-heights.level",
+      "uuid": "5c674d7e-9829-4e67-821e-84690ea6013f"
     }
   ]
 }

@@ -23,13 +23,13 @@ public class WinScreen extends AbstractScreenController {
 
     public void gotoNextLevel() {
         game.loadNextLevel();
-        nifty.gotoScreen("game");
+        game.gotoScreen(UIScreen.Game);
     }
 
     public void retry() {
         if (game.getCurrentLevel().isPresent()) {
             game.loadLevel(game.getCurrentLevel().get());
-            nifty.gotoScreen("game");
+            game.gotoScreen(UIScreen.Game);
         } else
             throw new RuntimeException("The current level has disappeared");
     }

@@ -5,6 +5,7 @@ import java.util.Map;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -18,6 +19,7 @@ import org.marble.entity.connected.Connected;
 import org.marble.entity.connected.Connector;
 import org.marble.entity.graphical.Graphical;
 import org.marble.entity.physical.Physical;
+import org.marble.graphics.MaterialSP;
 import org.marble.graphics.SegmentedBox;
 import org.marble.util.Connectors;
 
@@ -94,8 +96,33 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
         graphicalBox =
                 new Geometry("slab", new SegmentedBox(1, 3, 0.3f,
                         Vector3f.ZERO, width / 2, height / 2, depth / 2));
-        graphicalBox.setMaterial(assetManager
-                .loadMaterial("Materials/Misc/Undefined.j3m"));
+        final Material material =
+                new MaterialSP(
+                        assetManager.loadMaterial("Materials/Organic/Wood.j3m"));
+
+        final Vector3f vec = new Vector3f();
+
+        // The trunkCenter vectors define a line that is the center of the
+        // trunk that our wood was cut from - all the "rings" will be around
+        // this axis.
+        randomize(vec);
+        // material.setVector3("TrunkCenter1", vec);
+
+        randomize(vec);
+        // material.setVector3("TrunkCenter2", vec);
+
+        // The noiseSeed vector seeds the random noise generator. The
+        // generator has a period of 289.
+        randomize(vec);
+        vec.multLocal(289);
+        material.setVector3("NoiseSeed", vec);
+
+        // The variation is a value between 0.0 and 1.0 that determines
+        // which column of the wood gradient texture that is used for
+        // tinting the material.
+        material.setFloat("Variation", (float) Math.random());
+        graphicalBox.setMaterial(material);
+
         getSpatial().attachChild(graphicalBox);
 
         physicalBox =
@@ -119,5 +146,11 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
         return Objects.toStringHelper(this).add("name", getName())
                 .add("width", width).add("height", height).add("depth", depth)
                 .toString();
+    }
+
+    private void randomize(final Vector3f vec) {
+        vec.setX((float) Math.random());
+        vec.setY((float) Math.random());
+        vec.setZ((float) Math.random());
     }
 }

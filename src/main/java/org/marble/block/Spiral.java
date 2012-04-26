@@ -72,13 +72,13 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
                 new Geometry("left rail", new Curve(steps, 10, radius - a / 2,
                         height, angle, tubeRadius, direction));
         left.setMaterial(assetManager
-                .loadMaterial("Materials/Misc/Undefined.j3m"));
+                .loadMaterial("Materials/Metal/Aluminium.j3m"));
 
         final Spatial right =
                 new Geometry("right rail", new Curve(steps, 10, radius + a / 2,
                         height, angle, tubeRadius, direction));
         right.setMaterial(assetManager
-                .loadMaterial("Materials/Misc/Undefined.j3m"));
+                .loadMaterial("Materials/Metal/Aluminium.j3m"));
         left.setLocalTranslation(direction.mult(-b / 2));
         right.setLocalTranslation(direction.mult(b / 2));
         graphicalRails = new Node("rails");
@@ -108,17 +108,16 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
         temp.fromAngleAxis(pi / 2 + FastMath.atan(height / (radius * angle)), n);
         temp.mult(rotTot2, rotTot2);
         final Matrix3f rotZ = new Matrix3f();
+        rotZ.fromAngleAxis(angle / steps / 2, direction);
+        rotZ.mult(rotTot, rotTot);
+        rotZ.mult(rotTot2, rotTot2);
         rotZ.fromAngleAxis(angle / steps, direction);
-        final Matrix3f rotZ2 = new Matrix3f();
-        rotZ2.fromAngleAxis(angle / steps, direction);
         Vector3f radialAxis = new Vector3f();
         final Vector3f leftMiddle = new Vector3f();
         final Vector3f rightMiddle = new Vector3f();
 
         for (int i = 0; i < steps; i++) {
 
-            rotZ.mult(rotTot, rotTot);
-            rotZ2.mult(rotTot2, rotTot2);
             final float fraction = ((float) i) / steps;
             radialAxis = rotTot.mult(n);
             radialAxis.mult(radius - a / 2, leftMiddle);
@@ -141,6 +140,9 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
                     leftMiddle.add(direction.mult(-b / 2)), rotTot2);
             compound.addChildShape(rightCylinder,
                     rightMiddle.add(direction.mult(b / 2)), rotTot2);
+
+            rotZ.mult(rotTot, rotTot);
+            rotZ.mult(rotTot2, rotTot2);
         }
 
         physicalBox = new RigidBodyControl(compound, 0);
