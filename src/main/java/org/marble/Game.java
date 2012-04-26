@@ -65,13 +65,14 @@ import org.marble.ui.LossScreen;
 import org.marble.ui.PauseScreen;
 import org.marble.ui.SettingsScreen;
 import org.marble.ui.StartScreen;
+import org.marble.ui.UIScreen;
 import org.marble.ui.WinScreen;
 
 /**
  * An abstracted game instance that handles a game session.
  */
 public class Game {
-    public static final BallKind DEFAULT_BALL_KIND = BallKind.Wood;
+    public static final BallKind DEFAULT_BALL_KIND = BallKind.Glass;
 
     // Handles rendering.
     private final GraphicsEngine graphicsEngine;
@@ -87,11 +88,12 @@ public class Game {
 
     // Entities that are present in our world.
     private final LevelLoader levelLoader = new LevelLoader();
-    private final Set<Entity> entities = Sets.newIdentityHashSet();
+
     private URL currentLevelPackURL;
     private MetaLevelPack currentLevelPack;
     private Optional<MetaLevel> currentLevel;
     private Optional<GameSession> currentSession = Optional.absent();
+    private final Set<Entity> entities = Sets.newIdentityHashSet();
 
     // Engines to handle.
     private final ImmutableSet<Engine<?>> engines;
@@ -224,13 +226,27 @@ public class Game {
     }
 
     public void togglePause() {
-        // TODO Auto-generated method stub
-
+        if (currentSession.isPresent()) {
+            final GameSession session = currentSession.get();
+            if (session.isPaused() == GameSession.PauseState.Running) {
+                setPause(GameSession.PauseState.PlayerPaused);
+            } else if (session.isPaused() == GameSession.PauseState.PlayerPaused) {
+                setPause(GameSession.PauseState.Running);
+            }
+        }
     }
 
     public void setPause(final GameSession.PauseState state) {
-        for (final Engine<?> engine : engines) {
-            engine.setPause(state);
+        if (currentSession.isPresent()) {
+            for (final Engine<?> engine : engines) {
+                engine.setPause(state);
+            }
+            currentSession.get().setPaused(state);
+            if (state == GameSession.PauseState.PlayerPaused) {
+                gotoScreen(UIScreen.Pause);
+            } else if (state == GameSession.PauseState.Running) {
+                gotoScreen(UIScreen.Game);
+            }
         }
     }
 
@@ -518,6 +534,8 @@ public class Game {
         currentSession = Optional.of(new GameSession());
 
         setPause(GameSession.PauseState.Running);
+
+        // getPhysicsEngine().enableDebug(assetManager);
     }
 
     public void die() {
@@ -543,12 +561,12 @@ public class Game {
 
     public void lose() {
         setPause(GameSession.PauseState.EnforcedPause);
-        nifty.gotoScreen("loss");
+        gotoScreen(UIScreen.Loss);
     }
 
     public void win() {
         setPause(GameSession.PauseState.EnforcedPause);
-        nifty.gotoScreen("win");
+        gotoScreen(UIScreen.Win);
     }
 
     public void handleError(final String errorMessage, final Throwable t) {
@@ -615,12 +633,16 @@ public class Game {
 
     }
 
+    public void gotoScreen(final UIScreen screen) {
+        nifty.gotoScreen(screen.getName());
+    }
+
     public void gotoMenu() {
         loadLevel(new MetaLevel("Menu level",
                 Game.class.getResource("level/menu.level"),
                 Optional.<URL> absent(),
                 UUID.fromString("a6f6b07a-5a95-4328-a73f-c848f4c52788")));
-        nifty.gotoScreen("start");
+        gotoScreen(UIScreen.Start);
     }
 
     public URL getCurrentLevelPackURL() {

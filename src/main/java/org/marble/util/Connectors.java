@@ -31,7 +31,6 @@ public final class Connectors {
         }
         n.normalizeLocal();
         final float pi = (float) Math.PI;
-        final Vector3f t = n.cross(direction);
 
         Vector3f r;
         Vector3f r1;

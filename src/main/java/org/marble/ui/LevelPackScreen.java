@@ -27,11 +27,11 @@ public class LevelPackScreen extends AbstractScreenController {
             game.loadLevelPack(new URL(screen.findNiftyControl(
                     "level-pack-url", TextField.class).getText()));
         } catch (final MalformedURLException e) {
-            game.handleError("Could not load level pack", e);
+            game.handleError("Could not load level pack: invalid URL", e);
         }
     }
 
     public void goBack() {
-        nifty.gotoScreen("start");
+        game.gotoScreen(UIScreen.Start);
     }
 }

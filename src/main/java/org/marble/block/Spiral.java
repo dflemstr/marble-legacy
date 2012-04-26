@@ -72,13 +72,13 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
                 new Geometry("left rail", new Curve(steps, 10, radius - a / 2,
                         height, angle, tubeRadius, direction));
         left.setMaterial(assetManager
-                .loadMaterial("Materials/Misc/Undefined.j3m"));
+                .loadMaterial("Materials/Metal/Aluminium.j3m"));
 
         final Spatial right =
                 new Geometry("right rail", new Curve(steps, 10, radius + a / 2,
                         height, angle, tubeRadius, direction));
         right.setMaterial(assetManager
-                .loadMaterial("Materials/Misc/Undefined.j3m"));
+                .loadMaterial("Materials/Metal/Aluminium.j3m"));
         left.setLocalTranslation(direction.mult(-b / 2));
         right.setLocalTranslation(direction.mult(b / 2));
         graphicalRails = new Node("rails");
