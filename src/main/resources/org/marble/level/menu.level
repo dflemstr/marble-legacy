@@ -20,7 +20,7 @@ let rail1 be Rail(50),
 	rail2 be Rail(30)
 
 // Create some spirals
-let spiral1 be Spiral(15,8,6,0,0,1,60)
+let spiral1 be Spiral(15,8,6,0,0,1,90)
 
 // Create some walls
 let wall1 be Wall(12),

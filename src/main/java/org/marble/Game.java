@@ -519,7 +519,7 @@ public class Game {
 
         setPause(GameSession.PauseState.Running);
 
-        // getPhysicsEngine().enableDebug(assetManager);
+        getPhysicsEngine().enableDebug(assetManager);
     }
 
     public void die() {

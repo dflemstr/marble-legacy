@@ -9,9 +9,9 @@
       "uuid": "03b88c7e-266b-47f1-917a-29b1e4198e0f"
     },
     {
-      "name": "Spirals",
-      "uri": "core/spirals.level",
-      "uuid": "d6e41148-a552-40fd-a670-1a7613bca837"
+      "name":"Spin",
+      "uri":"core/2.level",
+      "uuid": "62338850-8e39-11e1-b0c4-0800200c9a66"
     }
   ]
 }
