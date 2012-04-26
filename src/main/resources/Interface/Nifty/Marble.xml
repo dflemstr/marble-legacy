@@ -117,6 +117,7 @@
     </panel>
   </controlDefinition>
 
+  <!--
   <popup id="dialog" childLayout="center" backgroundColor="#000a">
     <panel style="nifty-panel-red" childLayout="vertical" width="50%">
       <panel childLayout="horizontal">
@@ -129,6 +130,7 @@
       </panel>
     </panel>
   </popup>
+  -->
 
   <screen id="start" controller="org.marble.ui.StartScreen">
     <layer style="menu-layout">

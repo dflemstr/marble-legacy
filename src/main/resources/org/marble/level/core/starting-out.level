@@ -2,7 +2,7 @@ using Slab as org.marble.block.Slab
 using WinBlock as org.marble.special.WinBlock
 
 let spawnPlatform be Slab(5, 5, 1),
-    bridge be Slab(2, 5, 1),
+    bridge be Slab(2, 5, 1, 0, 0.5),
     winPlatform be Slab(5, 5, 1)
 
 position spawnPlatform at (0, 0, 0)
