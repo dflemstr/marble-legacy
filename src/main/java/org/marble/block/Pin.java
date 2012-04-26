@@ -3,9 +3,9 @@ package org.marble.block;
 import java.util.Map;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
-import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
@@ -22,25 +22,23 @@ import org.marble.entity.graphical.Graphical;
 import org.marble.entity.physical.Physical;
 import org.marble.util.Connectors;
 
-public class Rail extends AbstractEntity implements Connected, Graphical,
+public class Pin extends AbstractEntity implements Graphical, Connected,
         Physical {
 
-    final float width;
-    final float height;
-    final float depth;
+    final float length;
+    final float radius;
 
     private RigidBodyControl physicalBox;
 
     private Node graphicalRails;
 
-    public Rail(final float length) {
-        this(length, 1f, 0.2f);
+    public Pin(final float length) {
+        this(length, 0.1f);
     }
 
-    public Rail(final float width, final float height, final float depth) {
-        this.width = width;
-        this.height = height;
-        this.depth = depth;
+    public Pin(final float length, final float radius) {
+        this.length = length;
+        this.radius = radius;
     }
 
     @Override
@@ -48,41 +46,22 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
         final AssetManager assetManager = game.getAssetManager();
 
         final Spatial left =
-                new Geometry("left rail",
-                        new Cylinder(10, 10, depth / 2, width));
+                new Geometry("pin", new Cylinder(10, 10, radius, length));
         left.setMaterial(assetManager
-                .loadMaterial("Materials/Metal/Aluminium.j3m"));
-
-        final Spatial right =
-                new Geometry("right rail", new Cylinder(10, 10, depth / 2,
-                        width));
-        right.setMaterial(assetManager
                 .loadMaterial("Materials/Metal/Aluminium.j3m"));
 
         final Matrix3f rotation = new Matrix3f(0, 0, -1, 0, 1, 0, 1, 0, 0);
         left.setLocalRotation(rotation);
-        right.setLocalRotation(rotation);
-
-        left.setLocalTranslation(0, height / 2, 0);
-        right.setLocalTranslation(0, -height / 2, 0);
 
         graphicalRails = new Node("rails");
         graphicalRails.attachChild(left);
-        graphicalRails.attachChild(right);
         getSpatial().attachChild(graphicalRails);
 
         final CollisionShape leftCylinder =
-                new CylinderCollisionShape(new Vector3f(depth / 2, depth / 2,
-                        width / 2));
-        final CollisionShape rightCylinder =
-                new CylinderCollisionShape(new Vector3f(depth / 2, depth / 2,
-                        width / 2));
+                new BoxCollisionShape(new Vector3f(radius, radius, length / 2));
 
         final CompoundCollisionShape compound = new CompoundCollisionShape();
-        compound.addChildShape(leftCylinder, new Vector3f(0, height / 2, 0),
-                rotation);
-        compound.addChildShape(rightCylinder, new Vector3f(0, -height / 2, 0),
-                rotation);
+        compound.addChildShape(leftCylinder, new Vector3f(0, 0, 0), rotation);
 
         physicalBox = new RigidBodyControl(compound, 0);
         getSpatial().addControl(physicalBox);
@@ -95,6 +74,7 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
 
     @Override
     public Map<String, Connector> getConnectors() {
-        return Connectors.fromRail(width, height, depth);
+        return Connectors.fromRail(length, 0, radius * 2);
     }
+
 }
