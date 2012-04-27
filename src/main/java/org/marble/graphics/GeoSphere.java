@@ -36,10 +36,10 @@ public class GeoSphere extends Mesh {
         Original, Projected;
     }
 
-    private int _maxlevels;
-    private boolean _usingIcosahedron = true;
-    private TextureMode _textureMode = TextureMode.Original;
-    private final float _radius;
+    private final int maxlevels;
+    private boolean usingIcosahedron = true;
+    private TextureMode textureMode = TextureMode.Original;
+    private float radius;
 
     /**
      * @param useIcosahedron
@@ -54,38 +54,42 @@ public class GeoSphere extends Mesh {
      */
     public GeoSphere(final boolean useIcosahedron, final float radius,
             final int maxlevels, final TextureMode textureMode) {
-        _maxlevels = maxlevels;
-        _radius = radius;
-        _maxlevels = maxlevels;
-        _usingIcosahedron = useIcosahedron;
-        _textureMode = textureMode;
+        this.radius = radius;
+        this.maxlevels = maxlevels;
+        usingIcosahedron = useIcosahedron;
+        this.textureMode = textureMode;
         updateGeometry();
     }
 
     public float getRadius() {
-        return _radius;
+        return radius;
+    }
+
+    public void setRadius(final float radius) {
+        this.radius = radius;
+        updateGeometry();
     }
 
     public boolean isUsingIcosahedron() {
-        return _usingIcosahedron;
+        return usingIcosahedron;
     }
 
     public void setTextureMode(final TextureMode textureMode) {
-        if (textureMode != _textureMode) {
-            _textureMode = textureMode;
+        if (this.textureMode != textureMode) {
+            this.textureMode = textureMode;
             updateGeometry();
         }
     }
 
     public TextureMode getTextureMode() {
-        return _textureMode;
+        return textureMode;
     }
 
     private void updateGeometry() {
-        final int initialTriangleCount = _usingIcosahedron ? 20 : 8;
-        final int initialVertexCount = _usingIcosahedron ? 12 : 6;
+        final int initialTriangleCount = usingIcosahedron ? 20 : 8;
+        final int initialVertexCount = usingIcosahedron ? 12 : 6;
         // number of triangles = initialTriangleCount * 4^(maxlevels-1)
-        final int tris = initialTriangleCount << ((_maxlevels - 1) * 2);
+        final int tris = initialTriangleCount << ((maxlevels - 1) * 2);
 
         // number of vertBuf = (initialVertexCount + initialTriangleCount*4 +
         // initialTriangleCount*4*4 + ...)
@@ -93,9 +97,9 @@ public class GeoSphere extends Mesh {
         // initialVertexCount
         final int verts =
                 initialTriangleCount
-                        * (((1 << (_maxlevels * 2)) - 1) / (4 - 1) - 1)
+                        * (((1 << (maxlevels * 2)) - 1) / (4 - 1) - 1)
                         + initialVertexCount
-                        + calculateBorderTriangles(_maxlevels);
+                        + calculateBorderTriangles(maxlevels);
 
         final FloatBuffer vertBuf = BufferUtils.createVector3Buffer(verts);
         final FloatBuffer normBuf = BufferUtils.createVector3Buffer(verts);
@@ -107,7 +111,7 @@ public class GeoSphere extends Mesh {
         int pos = 0;
 
         Triangle[] old;
-        if (_usingIcosahedron) {
+        if (usingIcosahedron) {
             final int[] indices =
                     new int[] { pos + 0, pos + 1, pos + 2, pos + 0, pos + 2,
                             pos + 3, pos + 0, pos + 3, pos + 4, pos + 0,
@@ -121,14 +125,14 @@ public class GeoSphere extends Mesh {
                             pos + 11, pos + 7, pos + 6, pos + 11, pos + 8,
                             pos + 7, pos + 11, pos + 9, pos + 8, pos + 11,
                             pos + 10, pos + 9, pos + 11, pos + 6, pos + 10 };
-            final float y = 0.4472f * _radius;
-            final float a = 0.8944f * _radius;
-            final float b = 0.2764f * _radius;
-            final float c = 0.7236f * _radius;
-            final float d = 0.8507f * _radius;
-            final float e = 0.5257f * _radius;
+            final float y = 0.4472f * radius;
+            final float a = 0.8944f * radius;
+            final float b = 0.2764f * radius;
+            final float c = 0.7236f * radius;
+            final float d = 0.8507f * radius;
+            final float e = 0.5257f * radius;
             pos++;
-            put(new Vector3f(0, _radius, 0));
+            put(new Vector3f(0, radius, 0));
             pos++;
             put(new Vector3f(a, y, 0));
             pos++;
@@ -150,7 +154,7 @@ public class GeoSphere extends Mesh {
             pos++;
             put(new Vector3f(c, -y, e));
             pos++;
-            put(new Vector3f(0, -_radius, 0));
+            put(new Vector3f(0, -radius, 0));
             final Triangle[] ikosaedron = new Triangle[indices.length / 3];
             for (int i = 0; i < ikosaedron.length; i++) {
                 final Triangle triangle = ikosaedron[i] = new Triangle();
@@ -162,12 +166,12 @@ public class GeoSphere extends Mesh {
             old = ikosaedron;
         } else {
             /* Six equidistant points lying on the unit sphere */
-            final Vector3f XPLUS = new Vector3f(_radius, 0, 0); /* X */
-            final Vector3f XMIN = new Vector3f(-_radius, 0, 0); /* -X */
-            final Vector3f YPLUS = new Vector3f(0, _radius, 0); /* Y */
-            final Vector3f YMIN = new Vector3f(0, -_radius, 0); /* -Y */
-            final Vector3f ZPLUS = new Vector3f(0, 0, _radius); /* Z */
-            final Vector3f ZMIN = new Vector3f(0, 0, -_radius); /* -Z */
+            final Vector3f XPLUS = new Vector3f(radius, 0, 0); /* X */
+            final Vector3f XMIN = new Vector3f(-radius, 0, 0); /* -X */
+            final Vector3f YPLUS = new Vector3f(0, radius, 0); /* Y */
+            final Vector3f YMIN = new Vector3f(0, -radius, 0); /* -Y */
+            final Vector3f ZPLUS = new Vector3f(0, 0, radius); /* Z */
+            final Vector3f ZMIN = new Vector3f(0, 0, -radius); /* -Z */
 
             final int xplus = pos++;
             put(XPLUS);
@@ -200,7 +204,7 @@ public class GeoSphere extends Mesh {
         final Vector3f pt2 = new Vector3f();
 
         /* Subdivide each starting triangle (maxlevels - 1) times */
-        for (int level = 1; level < _maxlevels; level++) {
+        for (int level = 1; level < maxlevels; level++) {
             /* Allocate a next triangle[] */
             final Triangle[] next = new Triangle[old.length * 4];
             for (int i = 0; i < next.length; i++) {
@@ -241,13 +245,13 @@ public class GeoSphere extends Mesh {
                 BufferUtils.populateFromBuffer(pt2, vertBuf, oldt.pt[2]);
                 final Vector3f av =
                         createMidpoint(pt0, pt2).normalizeLocal().multLocal(
-                                _radius);
+                                radius);
                 final Vector3f bv =
                         createMidpoint(pt0, pt1).normalizeLocal().multLocal(
-                                _radius);
+                                radius);
                 final Vector3f cv =
                         createMidpoint(pt1, pt2).normalizeLocal().multLocal(
-                                _radius);
+                                radius);
                 final int a = pos++;
                 put(av);
                 final int b = pos++;
@@ -339,7 +343,7 @@ public class GeoSphere extends Mesh {
         }
 
         float vPos = 0;
-        switch (_textureMode) {
+        switch (textureMode) {
         case Original:
             vPos = .5f * (zNorm + 1);
             break;

@@ -91,7 +91,8 @@ public final class Connectors {
     }
 
     public static ImmutableMap<String, Connector> fromBox(final float width,
-            final float height, final float depth) {
+            final float height, final float depth, final float slopeX,
+            final float slopeY) {
         final float verticalOffset = 0.5f;
         final int xcount = (int) width, ycount = (int) height, zcount =
                 (int) depth;
@@ -106,10 +107,14 @@ public final class Connectors {
         connectorBuilder.put("top_middle", offsetBy(0, 0, zhalf, 0, pihalf, 0));
         connectorBuilder.put("bottom_middle",
                 offsetBy(0, 0, -zhalf, 0, -pihalf, 0));
-        connectorBuilder.put("north_middle",
-                offsetBy(0, yhalf, verticalOffset, 0, 0, pihalf));
-        connectorBuilder.put("south_middle",
-                offsetBy(0, -yhalf, verticalOffset, 0, 0, -pihalf));
+        connectorBuilder.put(
+                "north_middle",
+                offsetBy(0, yhalf, verticalOffset + yhalf * slopeY, 0, 0,
+                        pihalf));
+        connectorBuilder.put(
+                "south_middle",
+                offsetBy(0, -yhalf, verticalOffset - yhalf * slopeY, 0, 0,
+                        -pihalf));
         for (int x = 0; x < xcount; x++) {
             final float xcoord = xborder + x - xhalf;
 
@@ -118,12 +123,12 @@ public final class Connectors {
                 final float ycoord = yborder + y - yhalf;
                 connectorBuilder.put(
                         makeConnectorName("top", x, y),
-                        offsetBy(xcoord, ycoord, zhalf, verticalOffset, pihalf,
-                                0));
+                        offsetBy(xcoord, ycoord, zhalf + xcoord * slopeX
+                                + ycoord * slopeY, verticalOffset, pihalf, 0));
                 connectorBuilder.put(
                         makeConnectorName("bottom", x, y),
-                        offsetBy(xcoord, ycoord, -zhalf, verticalOffset,
-                                -pihalf, 0));
+                        offsetBy(xcoord, ycoord, -zhalf + xcoord * slopeX
+                                + ycoord * slopeY, verticalOffset, -pihalf, 0));
             }
 
             // North/South
@@ -131,32 +136,32 @@ public final class Connectors {
                 final float zcoord = zborder + z - zhalf;
                 connectorBuilder.put(
                         makeConnectorName("north", x, z),
-                        offsetBy(xcoord, yhalf, zcoord + verticalOffset, 0, 0,
-                                pihalf));
+                        offsetBy(xcoord, yhalf, zcoord + verticalOffset
+                                + xcoord * slopeX, 0, 0, pihalf));
                 connectorBuilder.put(
                         makeConnectorName("south", x, z),
-                        offsetBy(xcoord, -yhalf, zcoord + verticalOffset, 0, 0,
-                                -pihalf));
+                        offsetBy(xcoord, -yhalf, zcoord + verticalOffset
+                                + xcoord * slopeX, 0, 0, -pihalf));
             }
         }
 
         // East/West
         connectorBuilder.put("east_middle",
-                offsetBy(xhalf, 0, verticalOffset, 0, 0, 0));
+                offsetBy(xhalf, 0, verticalOffset + xhalf * slopeX, 0, 0, 0));
         connectorBuilder.put("west_middle",
-                offsetBy(-xhalf, 0, verticalOffset, 0, 0, pi));
+                offsetBy(-xhalf, 0, verticalOffset - xhalf * slopeX, 0, 0, pi));
         for (int y = 0; y < ycount; y++) {
             final float ycoord = yborder + y - yhalf;
             for (int z = 0; z < zcount; z++) {
                 final float zcoord = zborder + z - yhalf;
                 connectorBuilder.put(
                         makeConnectorName("east", y, z),
-                        offsetBy(xhalf, ycoord, zcoord + verticalOffset, 0, 0,
-                                0));
+                        offsetBy(xhalf, ycoord, zcoord + verticalOffset
+                                + ycoord * slopeY, 0, 0, 0));
                 connectorBuilder.put(
                         makeConnectorName("west", y, z),
-                        offsetBy(-xhalf, ycoord, zcoord + verticalOffset, 0, 0,
-                                pi));
+                        offsetBy(-xhalf, ycoord, zcoord + verticalOffset
+                                + ycoord * slopeY, 0, 0, pi));
             }
         }
 

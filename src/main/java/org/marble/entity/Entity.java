@@ -36,6 +36,15 @@ public interface Entity {
     public void initialize(Game game);
 
     /**
+     * Updates the state of the entity. Will not be called while the game is
+     * paused.
+     * 
+     * @param tpf
+     *            Time that has passed since the last update.
+     */
+    public void update(float tpf);
+
+    /**
      * Sets the debug name of this entity.
      */
     public void setName(String name);

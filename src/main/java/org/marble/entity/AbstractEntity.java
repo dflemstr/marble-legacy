@@ -27,6 +27,11 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
+    public void update(final float tpf) {
+        // Do nothing
+    }
+
+    @Override
     public String getName() {
         return centerNode.getName();
     }

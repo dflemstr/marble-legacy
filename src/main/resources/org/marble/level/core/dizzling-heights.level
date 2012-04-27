@@ -14,6 +14,6 @@ connect spiral.start_middle to spawnPlatform.north_middle,
 let winBlock be WinBlock()
 position winBlock at (0, 0, 1) from winPlatform
 
-let fabricTransformer be Transformer([Fabric])
+let fabricTransformer be Transformer([Mercury])
 
 position fabricTransformer at (-3, 0, 1) from spawnPlatform

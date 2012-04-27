@@ -6,11 +6,13 @@ import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.TextureCubeMap;
+import com.jme3.util.TempVars;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
@@ -34,6 +36,8 @@ import org.marble.util.Quality;
  */
 public class Ball extends AbstractEntity implements Graphical, Physical,
         Collidable {
+    private static final float MERCURY_REDUCTION_RPS = 1f / 40f;
+
     private static final class QualityToInteger implements
             Function<Quality, Integer> {
         @Override
@@ -42,8 +46,12 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         }
     }
 
+    protected Game game;
     private BallKind kind;
     private final float radius;
+    private float currentRadius;
+
+    private GeoSphere geometricalBall;
 
     private RigidBodyControl physicalBall;
     private Spatial graphicalBall;
@@ -75,6 +83,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     public Ball(final BallKind kind, final float radius) {
         this.kind = kind;
         this.radius = radius;
+        currentRadius = radius;
     }
 
     /**
@@ -105,6 +114,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
 
     @Override
     public void initialize(final Game game) {
+        this.game = game;
         rootNode = game.getGraphicsEngine().getRootNode();
         renderManager = game.getGraphicsEngine().getRenderManager();
         assetManager = game.getAssetManager();
@@ -115,7 +125,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
                 FRPUtils.map(game.getSettings().environmentQuality,
                         new QualityToInteger());
 
-        final GeoSphere geometricalBall =
+        geometricalBall =
                 new GeoSphere(true, radius, 4, GeoSphere.TextureMode.Projected);
 
         graphicalBall = new Geometry("ball", geometricalBall);
@@ -245,6 +255,23 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     }
 
     @Override
+    public void update(final float timePerFrame) {
+        if (kind == BallKind.Mercury) {
+            currentRadius -= timePerFrame * MERCURY_REDUCTION_RPS;
+            if (currentRadius <= 0) {
+                die();
+            } else {
+                final float scale = currentRadius / radius;
+                final TempVars vars = TempVars.get();
+                vars.vect1.set(scale, scale, scale);
+                physicalBall.getCollisionShape().setScale(vars.vect1);
+                vars.release();
+                getSpatial().setLocalScale(scale);
+            }
+        }
+    }
+
+    @Override
     public void destroy() {
         disableEnvironment();
     }
@@ -264,5 +291,20 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     @Override
     public void handleCollisionWith(final Physical other,
             final PhysicsCollisionEvent event) {
+        // TODO die if glass and too strong impulse
+    }
+
+    protected void die() {
+        game.removeEntity(this);
+    }
+
+    protected void reset() {
+        getBody().setPhysicsRotation(Quaternion.IDENTITY);
+        getBody().setAngularVelocity(Vector3f.ZERO);
+        getBody().setLinearVelocity(Vector3f.ZERO);
+        getBody().getCollisionShape().setScale(Vector3f.UNIT_XYZ);
+        getSpatial().setLocalRotation(Quaternion.IDENTITY);
+        getSpatial().setLocalScale(1);
+        currentRadius = radius;
     }
 }

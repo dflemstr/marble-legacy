@@ -88,7 +88,7 @@ public class Game {
     private static Logger log = Logger.getLogger(Game.class.getName());
 
     // The kind of ball that the player should start with on each level
-    public static final BallKind DEFAULT_BALL_KIND = BallKind.Glass;
+    public static final BallKind DEFAULT_BALL_KIND = BallKind.Wood;
 
     // Handles rendering.
     private final GraphicsEngine graphicsEngine;
@@ -563,6 +563,12 @@ public class Game {
         chaseCamera.update(timer.getTimePerFrame());
         for (final Engine<?> engine : engines) {
             engine.update(timer.getTimePerFrame());
+        }
+        if (!currentSession.isPresent()
+                || currentSession.get().isPaused() == GameSession.PauseState.Running) {
+            for (final Entity e : ImmutableSet.copyOf(entities)) {
+                e.update(timer.getTimePerFrame());
+            }
         }
     }
 

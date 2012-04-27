@@ -65,6 +65,8 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
     public void initialize(final Game game) {
         final AssetManager assetManager = game.getAssetManager();
         graphicalLantern = assetManager.loadModel("Models/lantern.obj");
+        graphicalLantern.setMaterial(assetManager
+                .loadMaterial("Materials/Mineral/Concrete.j3m"));
         getSpatial().attachChild(graphicalLantern);
 
         final ColorRGBA flameColor = color.clone();

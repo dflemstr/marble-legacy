@@ -4,11 +4,16 @@ import java.util.Map;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.collision.shapes.MeshCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Spatial;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.shape.Box;
+import com.jme3.util.TempVars;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -19,9 +24,9 @@ import org.marble.entity.connected.Connected;
 import org.marble.entity.connected.Connector;
 import org.marble.entity.graphical.Graphical;
 import org.marble.entity.physical.Physical;
-import org.marble.graphics.MaterialSP;
 import org.marble.graphics.SegmentedBox;
 import org.marble.util.Connectors;
+import org.marble.util.OfflineTransforms;
 
 /**
  * A box-shaped block.
@@ -30,7 +35,7 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
         Physical {
     private final float width, height, depth;
     private final float slopeX, slopeY;
-    private Spatial graphicalBox;
+    private Geometry graphicalBox;
     private RigidBodyControl physicalBox;
 
     public Slab(final float width, final float height, final float depth) {
@@ -93,20 +98,70 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
     @Override
     public void initialize(final Game game) {
         final AssetManager assetManager = game.getAssetManager();
-        graphicalBox =
-                new Geometry("slab", new SegmentedBox(1, 2, 0.25f,
-                        Vector3f.ZERO, width / 2, height / 2, depth / 2));
+        final Mesh graphicalMesh =
+                new SegmentedBox(1, 2, 0.25f, Vector3f.ZERO, width / 2,
+                        height / 2, depth / 2);
+        final Mesh physicalMesh =
+                new Box(Vector3f.ZERO, width / 2, height / 2, depth / 2);
+        boolean changed = false;
+
+        final TempVars vars = TempVars.get();
+        if (slopeX != 0.0f) {
+            vars.tempMat4.loadIdentity();
+            vars.tempMat4.set(2, 0, slopeX);
+            OfflineTransforms.transformNonLinear3D(
+                    graphicalMesh.getFloatBuffer(Type.Position), vars.tempMat4);
+            OfflineTransforms.transformNonLinear3D(
+                    physicalMesh.getFloatBuffer(Type.Position), vars.tempMat4);
+
+            vars.tempMat4.loadIdentity();
+            vars.tempMat4.set(0, 3, -slopeX);
+            OfflineTransforms.transformNonLinear3DNorm(
+                    graphicalMesh.getFloatBuffer(Type.Normal), vars.tempMat4);
+            OfflineTransforms.transformNonLinear3DNorm(
+                    physicalMesh.getFloatBuffer(Type.Normal), vars.tempMat4);
+            changed = true;
+        }
+
+        if (slopeY != 0.0f) {
+            vars.tempMat4.loadIdentity();
+            vars.tempMat4.set(2, 1, slopeY);
+            OfflineTransforms.transformNonLinear3D(
+                    graphicalMesh.getFloatBuffer(Type.Position), vars.tempMat4);
+            OfflineTransforms.transformNonLinear3D(
+                    physicalMesh.getFloatBuffer(Type.Position), vars.tempMat4);
+
+            vars.tempMat4.loadIdentity();
+            vars.tempMat4.set(1, 3, -slopeY);
+            OfflineTransforms.transformNonLinear3DNorm(
+                    graphicalMesh.getFloatBuffer(Type.Normal), vars.tempMat4);
+            OfflineTransforms.transformNonLinear3DNorm(
+                    physicalMesh.getFloatBuffer(Type.Normal), vars.tempMat4);
+            changed = true;
+        }
+        vars.release();
+
+        if (changed) {
+            graphicalMesh.updateBound();
+            physicalMesh.updateBound();
+        }
+
+        graphicalBox = new Geometry("slab", graphicalMesh);
         final Material material =
-                new MaterialSP(
-                        assetManager
-                                .loadMaterial("Materials/Mineral/Concrete.j3m"));
+                assetManager.loadMaterial("Materials/Mineral/Concrete.j3m");
         graphicalBox.setMaterial(material);
 
         getSpatial().attachChild(graphicalBox);
 
-        physicalBox =
-                new RigidBodyControl(new BoxCollisionShape(new Vector3f(
-                        width / 2, height / 2, depth / 2)), 0);
+        final CollisionShape shape;
+        if (changed) {
+            shape = new MeshCollisionShape(physicalMesh);
+        } else {
+            shape =
+                    new BoxCollisionShape(new Vector3f(width / 2, height / 2,
+                            depth / 2));
+        }
+        physicalBox = new RigidBodyControl(shape, 0);
         getSpatial().addControl(physicalBox);
     }
 
@@ -117,7 +172,7 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
 
     @Override
     public Map<String, Connector> getConnectors() {
-        return Connectors.fromBox(width, height, depth);
+        return Connectors.fromBox(width, height, depth, slopeX, slopeY);
     }
 
     @Override

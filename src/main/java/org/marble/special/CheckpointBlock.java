@@ -5,6 +5,7 @@ import java.util.Set;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
+import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
@@ -18,11 +19,13 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
+import com.jme3.scene.shape.Box;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -35,8 +38,8 @@ import org.marble.entity.physical.Collidable;
 import org.marble.entity.physical.Physical;
 import org.marble.util.Direction;
 
-public class WinBlock extends AbstractEntity implements Graphical, Physical,
-        Collidable, Emitter {
+public class CheckpointBlock extends AbstractEntity implements Graphical,
+        Physical, Collidable, Emitter {
     private final class VerticalSpinner extends AbstractControl {
         private final float radialVelocity;
         private float angle;
@@ -70,7 +73,7 @@ public class WinBlock extends AbstractEntity implements Graphical, Physical,
     }
 
     private Game game;
-    private Node graphicalBox;
+    private Geometry graphicalBox;
     private RigidBodyControl physicalBox;
     private Node graphicalSpinner;
     private PointLight light;
@@ -84,15 +87,19 @@ public class WinBlock extends AbstractEntity implements Graphical, Physical,
     public void initialize(final Game game) {
         this.game = game;
         final AssetManager assetManager = game.getAssetManager();
-        graphicalBox = new Node("invisible");
+        graphicalBox = new Geometry("respawnBlock", new Box(0.5f, 0.5f, 0.1f));
+        graphicalBox.setLocalTranslation(0, 0, -0.45f);
+        graphicalBox.setMaterial(assetManager
+                .loadMaterial("Materials/Mineral/Concrete.j3m"));
         getSpatial().attachChild(graphicalBox);
+        final CompoundCollisionShape shape = new CompoundCollisionShape();
+        shape.addChildShape(new BoxCollisionShape(
+                new Vector3f(0.5f, 0.5f, 0.1f)), new Vector3f(0, 0, -0.45f));
 
-        physicalBox =
-                new RigidBodyControl(new BoxCollisionShape(new Vector3f(0.5f,
-                        0.5f, 0.5f)), 0);
+        physicalBox = new RigidBodyControl(shape, 0);
         getSpatial().addControl(physicalBox);
         light = new PointLight();
-        light.setColor(ColorRGBA.Green);
+        light.setColor(ColorRGBA.Pink);
         light.setRadius(8);
         final LightNode lightNode = new LightNode("winning light", light);
         lightNode.setLocalTranslation(0, 0, 0.5f);
@@ -123,8 +130,8 @@ public class WinBlock extends AbstractEntity implements Graphical, Physical,
                 assetManager.loadTexture("Textures/flare.png"));
         material.getAdditionalRenderState().setBlendMode(BlendMode.Additive);
         particles.setMaterial(material);
-        particles.setStartColor(ColorRGBA.Green);
-        particles.setEndColor(ColorRGBA.Yellow);
+        particles.setStartColor(ColorRGBA.Pink);
+        particles.setEndColor(ColorRGBA.Red);
 
         particles.getParticleInfluencer().setInitialVelocity(
                 new Vector3f(0, 0, 2f));
@@ -141,7 +148,10 @@ public class WinBlock extends AbstractEntity implements Graphical, Physical,
     public void handleCollisionWith(final Physical other,
             final PhysicsCollisionEvent event) {
         if (other instanceof PlayerBall) {
-            game.winLevel();
+            game.getCurrentSession()
+                    .get()
+                    .setRespawnPoint(
+                            getSpatial().getWorldTranslation().add(0, 0, 2));
         }
     }
 
