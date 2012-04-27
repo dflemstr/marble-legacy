@@ -3,6 +3,8 @@ package org.marble.block;
 import java.util.Map;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.math.Matrix3f;
@@ -39,10 +41,14 @@ public class Wall extends AbstractEntity implements Connected, Graphical,
         final Matrix3f rotation = new Matrix3f(0, 0, -1, 0, 1, 0, 1, 0, 0);
         graphicalBox.setLocalRotation(rotation);
         getSpatial().attachChild(graphicalBox);
+        final CollisionShape wall =
+                new CylinderCollisionShape(new Vector3f(0.05f, 0.05f,
+                        length / 2));
 
-        physicalBox =
-                new RigidBodyControl(new CylinderCollisionShape(new Vector3f(
-                        0.05f, 0.05f, length / 2)), 0);
+        final CompoundCollisionShape compound = new CompoundCollisionShape();
+        compound.addChildShape(wall, new Vector3f(0, 0, 0), rotation);
+
+        physicalBox = new RigidBodyControl(compound, 0);
         getSpatial().addControl(physicalBox);
     }
 
