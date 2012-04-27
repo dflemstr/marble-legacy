@@ -10,7 +10,7 @@
     },
     {
       "name": "Rails",
-      "uri": "core/dizzling-heights.level",
+      "uri": "core/rails.level",
       "uuid": "ddbd0946-897d-4644-aa67-2bf9ce47149d"
     },
     {
@@ -19,9 +19,9 @@
       "uuid": "d6e41148-a552-40fd-a670-1a7613bca837"
     },
     {
-      "name": "Dizzling heights",
-      "uri": "core/dizzling-heights.level",
-      "uuid": "5c674d7e-9829-4e67-821e-84690ea6013f"
+      "name": "Foobar",
+      "uri": "core/foobar.level",
+      "uuid": "8f4ba45d-7c1f-448f-b5bc-d9911a461f2c"
     }
   ]
 }

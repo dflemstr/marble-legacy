@@ -4,6 +4,7 @@ using WinBlock as org.marble.special.WinBlock
 using PointOrb as org.marble.special.PointOrb
 using LifeOrb as org.marble.special.LifeOrb
 using Wall as org.marble.block.Wall
+using Lantern as org.marble.block.Lantern
 
 let spawnPlatform be Slab(5, 5, 1),
     bridge be Slab(3, 5, 1),
@@ -25,7 +26,12 @@ let wall_spawn_south be Wall(5),
 	wall_win_north be Wall(5),
 	wall_win_east be Wall(5)
 
+let lantern be Lantern((0.7,1,1))
+
 position spawnPlatform at (0, 0, 0)
+
+position lantern at (2,2,1) from spawnPlatform
+
 connect bridge.south_middle to spawnPlatform.north_middle,
         winPlatform.south_middle to bridge.north_middle,
        	wall_spawn_south.position_middle to spawnPlatform.south_middle,

@@ -19,10 +19,11 @@ let slab1 be Slab(15, 15, 1),
     slab6 be Slab(5,5,1),
     slab7 be Slab(5, 5, 1, 0.5, 0)
 
-// Create some pins
 
 // Create winblock
 let win be WinBlock ()
+
+let transform be Transformer([Glass])
 
 // Create some rails
 let rail1 be Rail (10),
@@ -34,7 +35,7 @@ let rail1 be Rail (10),
 let spiral1 be Spiral(4,4,720),
 	spiral2 be Spiral(4,3,360,0,0,1,0),
 	spiral3 be Spiral(60,3,4),
-	spiral4 be Spiral(1.5,50,9001,0,0,1,25)
+	spiral4 be Spiral(3,25,1080,0,0,1,30)
 
 // Create some bends
 let bend1 be Spiral(5,0,180),
@@ -53,7 +54,7 @@ let wall1 be Wall(12),
 // Create a lantern
 let lantern1 be Lantern((1,1,1)),
 	lantern2 be Lantern((0.9,1,1))
-
+		
 position slab1 at (0, 0, 0)
 connect slab2.south_middle to slab1.north_1_0,
         slab3.south_middle to slab2.north_middle,
@@ -79,8 +80,8 @@ connect slab2.south_middle to slab1.north_1_0,
 position win at (0,0,1) from slab6   
 position lantern1 at (-2,-2,1) from slab1
 position lantern2 at (0,0,2) from spiral1
+position transform at (0,1,1) from slab5
 
 let checkpoint be CheckpointBlock()
 
 position checkpoint at (0, 0, 1) from slab4
-

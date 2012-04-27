@@ -2,25 +2,49 @@ using Slab as org.marble.block.Slab
 using Spiral as org.marble.block.Spiral
 using WinBlock as org.marble.special.WinBlock
 using Wall as org.marble.block.Wall
+using Rail as org.marble.block.Rail
+using Pin as org.marble.block.Pin
+using Lantern as org.marble.block.Lantern
 
 let spawnPlatform be Slab(5, 5, 1),
-    spiral be Spiral(3, 4, 360),
+    rail be Rail(15),
+    pin be Pin(15),
     winPlatform be Slab(5, 5, 1)
     
 let wall_spawn_south be Wall(5),
 	wall_spawn_east be Wall(5),
-	wall_spawn_west be Wall(5),
-	wall_spawn_north_1 be Wall(2),
-	wall_spawn_north_2 be Wall(2)
+	wall_spawn_north be Wall(5),
+	wall_spawn_west_1 be Wall(2),
+	wall_spawn_west_2 be Wall(2)
+	
+let lantern be Lantern((1,1,0.7))
+	
+let wall_win_north be Wall(5),
+	wall_win_west be Wall(5),
+	wall_win_south be Wall(5),
+	wall_win_east_1 be Wall(2),
+	wall_win_east_2 be Wall(2)
 
 position spawnPlatform at (0, 0, 0)
-connect spiral.start_middle to spawnPlatform.north_middle,
-        winPlatform.south_middle to spiral.end_middle,
+
+position lantern at (2,2,1) from spawnPlatform
+
+connect rail.start_middle to spawnPlatform.west_middle
+
+position pin at (-7.5,0,-0.6) from rail
+
+connect winPlatform.east_middle to pin.end_middle,
         wall_spawn_south.position_middle to spawnPlatform.south_middle,
         wall_spawn_east.position_middle to spawnPlatform.east_middle,
-        wall_spawn_west.position_middle to spawnPlatform.west_middle,
-        wall_spawn_north_1.position_0 to spawnPlatform.north_0_0,
-        wall_spawn_north_2.position_0 to spawnPlatform.north_3_0
+        wall_spawn_north.position_middle to spawnPlatform.north_middle,
+        wall_spawn_west_1.position_0 to spawnPlatform.west_0_0,
+        wall_spawn_west_2.position_0 to spawnPlatform.west_3_0,
+        wall_win_north.position_middle to winPlatform.north_middle,
+        wall_win_south.position_middle to winPlatform.south_middle,
+        wall_win_west.position_middle to winPlatform.west_middle,
+        wall_win_east_1.position_1 to winPlatform.east_0_0,
+        wall_win_east_2.position_1 to winPlatform.east_3_0
 
 let winBlock be WinBlock()
 position winBlock at (0, 0, 1) from winPlatform
+
