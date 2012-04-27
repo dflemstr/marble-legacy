@@ -29,21 +29,27 @@ import org.marble.util.Connectors;
 public class Slab extends AbstractEntity implements Connected, Graphical,
         Physical {
     private final float width, height, depth;
+    private final float slopeX, slopeY;
     private Spatial graphicalBox;
     private RigidBodyControl physicalBox;
 
-    /**
-     * Creates a new slab.
-     * 
-     * @param width
-     *            The size along the X-axis.
-     * @param height
-     *            The size along the Y-axis.
-     * @param depth
-     *            The size along the Z-axis.
-     */
     public Slab(final float width, final float height, final float depth) {
-        this(width, height, depth, Optional.<Float> absent());
+        this(width, height, depth, 0, 0);
+    }
+
+    /**
+     * Creates a new slab.
+     * 
+     * @param width
+     *            The size along the X-axis.
+     * @param height
+     *            The size along the Y-axis.
+     * @param depth
+     *            The size along the Z-axis.
+     */
+    public Slab(final float width, final float height, final float depth,
+            final float slopeX, final float slopeY) {
+        this(width, height, depth, slopeX, slopeY, Optional.<Float> absent());
     }
 
     /**
@@ -59,8 +65,8 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
      *            The mass.
      */
     public Slab(final float width, final float height, final float depth,
-            final float mass) {
-        this(width, height, depth, Optional.of(mass));
+            final float slopeX, final float slopeY, final float mass) {
+        this(width, height, depth, slopeX, slopeY, Optional.of(mass));
     }
 
     /**
@@ -76,43 +82,24 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
      *            The mass.
      */
     public Slab(final float width, final float height, final float depth,
-            final Optional<Float> mass) {
+            final float slopeX, final float slopeY, final Optional<Float> mass) {
         this.width = width;
         this.height = height;
         this.depth = depth;
+        this.slopeX = slopeX;
+        this.slopeY = slopeY;
     }
 
     @Override
     public void initialize(final Game game) {
         final AssetManager assetManager = game.getAssetManager();
         graphicalBox =
-                new Geometry("slab", new SegmentedBox(1, 3, 0.3f,
+                new Geometry("slab", new SegmentedBox(1, 2, 0.25f,
                         Vector3f.ZERO, width / 2, height / 2, depth / 2));
         final Material material =
                 new MaterialSP(
-                        assetManager.loadMaterial("Materials/Organic/Wood.j3m"));
-
-        final Vector3f vec = new Vector3f();
-
-        // The trunkCenter vectors define a line that is the center of the
-        // trunk that our wood was cut from - all the "rings" will be around
-        // this axis.
-        randomize(vec);
-        // material.setVector3("TrunkCenter1", vec);
-
-        randomize(vec);
-        // material.setVector3("TrunkCenter2", vec);
-
-        // The noiseSeed vector seeds the random noise generator. The
-        // generator has a period of 289.
-        randomize(vec);
-        vec.multLocal(289);
-        material.setVector3("NoiseSeed", vec);
-
-        // The variation is a value between 0.0 and 1.0 that determines
-        // which column of the wood gradient texture that is used for
-        // tinting the material.
-        material.setFloat("Variation", (float) Math.random());
+                        assetManager
+                                .loadMaterial("Materials/Mineral/Concrete.j3m"));
         graphicalBox.setMaterial(material);
 
         getSpatial().attachChild(graphicalBox);
@@ -138,11 +125,5 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
         return Objects.toStringHelper(this).add("name", getName())
                 .add("width", width).add("height", height).add("depth", depth)
                 .toString();
-    }
-
-    private void randomize(final Vector3f vec) {
-        vec.setX((float) Math.random());
-        vec.setY((float) Math.random());
-        vec.setZ((float) Math.random());
     }
 }

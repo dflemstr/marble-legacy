@@ -12,8 +12,8 @@
     <attributes childLayout="vertical" />
     <effect>
       <onStartScreen name="fade" start="#0" end="#f"
-        length="500" inherit="true" />
-      <onEndScreen name="fade" start="#f" end="#0" length="500"
+        length="250" inherit="true" />
+      <onEndScreen name="fade" start="#f" end="#0" length="250"
         inherit="true" />
     </effect>
   </style>
@@ -22,9 +22,7 @@
       align="center" textHAlign="left" width="75%"
       imageMode="resize:31,2,31,31,31,2,31,2,31,2,31,31" padding="16px,16px" />
   </style>
-  <style id="menu-inactive" base="menu-element">
-    <attributes color="#222f" />
-  </style>
+
   <style id="menu-button" base="menu-element">
     <attributes focusable="true" visibleToMouse="true"
       controller="de.lessvoid.nifty.controls.MenuItemControl"
@@ -34,6 +32,10 @@
   <controlDefinition name="menu-button">
     <panel style="menu-button" height="92px" childLayout="center">
       <text style="menu-style" text="$text" />
+      <effect>
+        <onFocus name="imageOverlay" filename="Images/menu-backdrop-highlight.png"
+          imageMode="resize:31,2,31,31,31,2,31,2,31,2,31,31" post="true" />
+      </effect>
     </panel>
   </controlDefinition>
 
@@ -110,13 +112,24 @@
   </style>
 
   <controlDefinition name="level-button">
-    <panel style="menu-element" childLayout="center" height="64px"
+    <panel style="menu-button" childLayout="center" height="64px"
       width="50%">
       <text id="level-name" style="menu-style" />
       <interact onClick="doNothing()" />
+      <effect>
+        <onFocus name="imageOverlay" filename="Images/menu-backdrop-highlight.png"
+          imageMode="resize:31,2,31,31,31,2,31,2,31,2,31,31" post="true" />
+      </effect>
     </panel>
   </controlDefinition>
 
+  <controlDefinition name="highscore-entry">
+    <panel style="menu-element" childLayout="center" height="64px"
+      width="50%">
+      <text id="highscore-text" style="menu-style" />
+    </panel>
+  </controlDefinition>
+  <!--
   <popup id="dialog" childLayout="center" backgroundColor="#000a">
     <panel style="nifty-panel-red" childLayout="vertical" width="50%">
       <panel childLayout="horizontal">
@@ -129,6 +142,7 @@
       </panel>
     </panel>
   </popup>
+  -->
 
   <screen id="start" controller="org.marble.ui.StartScreen">
     <layer style="menu-layout">
@@ -172,7 +186,7 @@
             <interact onClick="loadLevelPack()" />
           </control>
         </panel>
-        <control name="menu-button" text="Back">
+        <control id="back-button" name="menu-button" text="Back">
           <interact onClick="goBack()" />
         </control>
       </panel>
@@ -183,9 +197,9 @@
     <layer style="menu-layout">
       <panel childLayout="vertical" width="100%">
         <text id="level-pack-name" style="menu-style" align="center"
-          text="${CALL.getLevelPackName()}" />
+          text="" />
         <text id="level-pack-description" style="menu-style" align="center"
-          text="${CALL.getLevelPackDescription()}" />
+          text="" />
       </panel>
       <control name="scrollPanel" style="transparent-scrollpanel"
         horizontal="false" height="*">
@@ -200,8 +214,52 @@
 
   <screen id="settings" controller="org.marble.ui.SettingsScreen">
     <layer childLayout="center">
+      <interact></interact>
       <panel style="menu-layout">
-        <text style="menu-style" align="center" text="Not yet implemented" />
+        <panel style="menu-element" childLayout="horizontal"
+          height="64px">
+          <text style="menu-style" text="Resolution: " valign="center" />
+          <panel width="8px" />
+          <control id="resolutions" name="dropDown" valign="center" />
+        </panel>
+        <panel style="menu-element" childLayout="horizontal"
+          height="64px">
+          <control id="fullscreen" name="checkbox" valign="center" />
+          <panel width="8px" />
+          <text style="menu-style" text="Run application in full screen"
+            valign="center" />
+        </panel>
+        <panel style="menu-element" childLayout="horizontal"
+          height="64px">
+          <control id="bloom" name="checkbox" valign="center" />
+          <panel width="8px" />
+          <text style="menu-style" text="Enhance light intensity"
+            valign="center" />
+        </panel>
+        <panel style="menu-element" childLayout="horizontal"
+          height="64px">
+          <control id="ssao" name="checkbox" valign="center" />
+          <panel width="8px" />
+          <text style="menu-style" text="Simulate soft shadows around objects"
+            valign="center" />
+        </panel>
+        <panel style="menu-element" childLayout="horizontal"
+          height="64px">
+          <control id="dof" name="checkbox" valign="center" />
+          <panel width="8px" />
+          <text style="menu-style"
+            text="Simulate camera lens (Requires a fast graphics card)"
+            valign="center" />
+        </panel>
+        <panel style="menu-element" childLayout="horizontal"
+          height="64px">
+          <control id="dofPentagonBokeh" name="checkbox" valign="center" />
+          <panel width="8px" />
+          <text style="menu-style"
+            text="Simulate a pentagon aperture (For computers with death wishes)"
+            valign="center" />
+        </panel>
+
         <control name="menu-button" text="Back">
           <interact onClick="goBack()" />
         </control>
@@ -222,6 +280,9 @@
         <image filename="Images/marble-paused.png" align="center" />
         <control name="menu-button" text="Resume game">
           <interact onClick="resume()" />
+        </control>
+        <control name="menu-button" text="Back to menu">
+          <interact onClick="gotoMenu()" />
         </control>
       </panel>
     </layer>
@@ -261,7 +322,20 @@
     </layer>
   </screen>
 
-  <screen id="highscores">
-    <layer></layer>
+  <screen id="highscores" controller="org.marble.ui.HighscoreScreen">
+    <layer style="menu-layout">
+      <panel childLayout="vertical" width="100%">
+        <text id="level-name" style="menu-style" align="center"
+          text="" />
+      </panel>
+      <control name="scrollPanel" style="transparent-scrollpanel"
+        horizontal="false" height="*">
+        <panel id="highscore-list" childLayout="vertical" width="100%">
+        </panel>
+      </control>
+      <control name="menu-button" text="Back">
+        <interact onClick="goBack()" />
+      </control>
+    </layer>
   </screen>
 </nifty>

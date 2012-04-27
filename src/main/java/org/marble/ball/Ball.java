@@ -10,7 +10,9 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
+import com.jme3.texture.TextureCubeMap;
 
+import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 
@@ -19,15 +21,27 @@ import org.marble.entity.AbstractEntity;
 import org.marble.entity.graphical.Graphical;
 import org.marble.entity.physical.Collidable;
 import org.marble.entity.physical.Physical;
+import org.marble.frp.FRPUtils;
+import org.marble.frp.Reactive;
+import org.marble.frp.ReactiveListener;
 import org.marble.graphics.EnvironmentNode;
 import org.marble.graphics.GeoSphere;
 import org.marble.graphics.MaterialSP;
+import org.marble.util.Quality;
 
 /**
  * A physical ball that can have different materials and physical properties.
  */
 public class Ball extends AbstractEntity implements Graphical, Physical,
         Collidable {
+    private static final class QualityToInteger implements
+            Function<Quality, Integer> {
+        @Override
+        public Integer apply(final Quality input) {
+            return input.ordinal() + 4;
+        }
+    }
+
     private BallKind kind;
     private final float radius;
 
@@ -43,7 +57,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     private AssetManager assetManager;
 
     // How large (2^n) we will let our generated textures be.
-    private int textureSizeMagnitude;
+    private Reactive<Integer> textureSizeMagnitude;
 
     /**
      * Creates a new ball.
@@ -98,7 +112,8 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         // The lowest texture setting makes textures be 16x16; the size is
         // doubled for each step
         textureSizeMagnitude =
-                game.getSettings().environmentQuality.getValue().getIndex() + 4;
+                FRPUtils.map(game.getSettings().environmentQuality,
+                        new QualityToInteger());
 
         final GeoSphere geometricalBall =
                 new GeoSphere(true, radius, 4, GeoSphere.TextureMode.Projected);
@@ -129,6 +144,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     private void disableEnvironment() {
         if (environmentNode.isPresent()) {
             getSpatial().detachChild(environmentNode.get());
+            environmentNode.get().destroy();
             environmentNode = Optional.absent();
         }
     }
@@ -189,8 +205,14 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
                     new MaterialSP(
                             assetManager
                                     .loadMaterial("Materials/Mineral/Glass.j3m"));
-            material.setTexture("EnvironmentMap", environmentNode.get()
-                    .getEnvironment());
+            FRPUtils.addAndCallReactiveListener(environmentNode.get()
+                    .getEnvironment(), new ReactiveListener<TextureCubeMap>() {
+
+                @Override
+                public void valueChanged(final TextureCubeMap value) {
+                    material.setTexture("EnvironmentMap", value);
+                }
+            });
             break;
         case Mercury:
             enableEnvironment();
@@ -198,8 +220,14 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
                     new MaterialSP(
                             assetManager
                                     .loadMaterial("Materials/Metal/Mercury.j3m"));
-            material.setTexture("EnvironmentMap", environmentNode.get()
-                    .getEnvironment());
+            FRPUtils.addAndCallReactiveListener(environmentNode.get()
+                    .getEnvironment(), new ReactiveListener<TextureCubeMap>() {
+
+                @Override
+                public void valueChanged(final TextureCubeMap value) {
+                    material.setTexture("EnvironmentMap", value);
+                }
+            });
             break;
         default:
             throw new UnsupportedOperationException(
@@ -214,6 +242,11 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         physicalBall.setRestitution(kind.getRestitution());
 
         this.kind = kind;
+    }
+
+    @Override
+    public void destroy() {
+        disableEnvironment();
     }
 
     @Override

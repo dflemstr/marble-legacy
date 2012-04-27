@@ -353,12 +353,10 @@ public final class LevelLoader {
     }
 
     public StatisticalMetaLevel loadStatisticalMetaLevel(
-            final JSONObject levelObject, final Optional<URL> packURL)
-            throws JSONException {
-        final MetaLevel level = loadMetaLevel(levelObject, packURL);
+            final JSONObject levelObject) throws JSONException {
         final ImmutableMap<String, Integer> highscores =
                 loadHighscores(levelObject.getJSONObject("highscores"));
-        return new StatisticalMetaLevel(level, highscores);
+        return new StatisticalMetaLevel(highscores);
     }
 
     ImmutableMap<String, Integer> loadHighscores(

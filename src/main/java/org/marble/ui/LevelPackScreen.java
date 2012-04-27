@@ -3,9 +3,7 @@ package org.marble.ui;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.controls.TextField;
-import de.lessvoid.nifty.screen.Screen;
 
 import org.marble.Game;
 
@@ -16,8 +14,7 @@ public class LevelPackScreen extends AbstractScreenController {
     }
 
     @Override
-    public void bind(final Nifty nifty, final Screen screen) {
-        super.bind(nifty, screen);
+    public void onGoto() {
         screen.findNiftyControl("level-pack-url", TextField.class).setText(
                 game.getCurrentLevelPackURL().toExternalForm());
     }

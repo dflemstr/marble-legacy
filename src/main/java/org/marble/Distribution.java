@@ -1,43 +1,45 @@
 package org.marble;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-
+/**
+ * Information about this distribution of the program.
+ */
 public final class Distribution {
+    // TODO Make Maven/ANT tag these things automatically.
     private Distribution() {
     }
 
     private static final String programName = "Marble";
-    private static final int versionMajor = 1;
-    private static final int versionMinor = 0;
-    private static final ImmutableList<String> versionTags = ImmutableList
-            .of("snapshot");
+    private static final String version = "1.0-SNAPSHOT";
     private static String copyright =
             "\u00a9 David Flemström & Fabian Bergmark 2012";
 
+    /**
+     * The short name of this application.
+     */
     public static String getProgramName() {
         return programName;
     }
 
-    public static int getVersionMajor() {
-        return versionMajor;
-    }
-
-    public static int getVersionMinor() {
-        return versionMinor;
-    }
-
-    public static ImmutableList<String> getVersionTags() {
-        return versionTags;
-    }
-
+    /**
+     * The application's copyright information.
+     */
     public static String getCopyright() {
         return copyright;
     }
 
+    /**
+     * Formats a description of the program including all of the data in the
+     * distribution information.
+     */
     public static String getProgramDescription() {
-        return String.format("%s %d.%d-%s, %s", getProgramName(),
-                getVersionMajor(), getVersionMinor(),
-                Joiner.on('-').join(getVersionTags()), getCopyright());
+        return String.format("%s %s, %s", getProgramName(), getVersion(),
+                getCopyright());
+    }
+
+    /**
+     * The application's version, in Maven-compatible format.
+     */
+    public static String getVersion() {
+        return version;
     }
 }

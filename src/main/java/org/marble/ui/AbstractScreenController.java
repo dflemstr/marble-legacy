@@ -21,6 +21,10 @@ public class AbstractScreenController implements ScreenController {
         this.screen = screen;
     }
 
+    public void onGoto() {
+        // Do nothing
+    }
+
     @Override
     public void onEndScreen() {
         // Do nothing
@@ -28,6 +32,7 @@ public class AbstractScreenController implements ScreenController {
 
     @Override
     public void onStartScreen() {
-        // Do nothing
+        nifty.resolutionChanged();
+        onGoto(); // TODO call this earlier
     }
 }

@@ -2,12 +2,10 @@ package org.marble.ui;
 
 import java.util.UUID;
 
-import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.NiftyMethodInvoker;
 import de.lessvoid.nifty.controls.dynamic.CustomControlCreator;
 import de.lessvoid.nifty.elements.Element;
 import de.lessvoid.nifty.elements.render.TextRenderer;
-import de.lessvoid.nifty.screen.Screen;
 
 import org.marble.Game;
 import org.marble.level.MetaLevel;
@@ -19,7 +17,7 @@ public class LevelScreen extends AbstractScreenController {
     }
 
     @Override
-    public void bind(final Nifty nifty, final Screen screen) {
+    public void onGoto() {
         super.bind(nifty, screen);
         screen.findElementByName("level-pack-name")
                 .getRenderer(TextRenderer.class).setText(getLevelPackName());
@@ -43,6 +41,7 @@ public class LevelScreen extends AbstractScreenController {
                             new NiftyMethodInvoker(nifty, "loadLevel("
                                     + level.getUUID().toString() + ")", this));
         }
+        screen.setDefaultFocusElement("back-button");
     }
 
     public String getLevelPackName() {
@@ -66,8 +65,7 @@ public class LevelScreen extends AbstractScreenController {
         final UUID uuid = UUID.fromString(uuidString);
         for (final MetaLevel level : game.getCurrentLevelPack().getLevels()) {
             if (level.getUUID().equals(uuid)) {
-                game.loadLevel(level);
-                game.gotoScreen(UIScreen.Game);
+                game.playLevel(level);
                 break;
             }
         }
