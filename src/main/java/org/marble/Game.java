@@ -30,8 +30,10 @@ import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import de.lessvoid.nifty.Nifty;
@@ -53,6 +55,7 @@ import org.marble.engine.PhysicsEngine;
 import org.marble.entity.Entity;
 import org.marble.frp.FRPUtils;
 import org.marble.frp.ReactiveListener;
+import org.marble.frp.mutable.MutableReactive;
 import org.marble.graphics.AlignedChaseCamera;
 import org.marble.graphics.filter.DepthOfFieldFilter;
 import org.marble.graphics.filter.SSAOFilter;
@@ -61,11 +64,13 @@ import org.marble.level.LevelLoadException;
 import org.marble.level.LevelLoader;
 import org.marble.level.MetaLevel;
 import org.marble.level.MetaLevelPack;
+import org.marble.level.StatisticalMetaLevel;
 import org.marble.session.GameSession;
 import org.marble.settings.Settings;
 import org.marble.ui.AbstractScreenController;
 import org.marble.ui.DialogBox;
 import org.marble.ui.GameScreen;
+import org.marble.ui.HighscoreScreen;
 import org.marble.ui.LevelPackScreen;
 import org.marble.ui.LevelScreen;
 import org.marble.ui.LossScreen;
@@ -344,6 +349,8 @@ public class Game {
         screenControllerBuilder.put(UIScreen.Pause, new PauseScreen(this));
         screenControllerBuilder.put(UIScreen.Win, new WinScreen(this));
         screenControllerBuilder.put(UIScreen.Loss, new LossScreen(this));
+        screenControllerBuilder.put(UIScreen.Highscores, new HighscoreScreen(
+                this));
 
         final ImmutableMap<UIScreen, AbstractScreenController> screenControllers =
                 screenControllerBuilder.build();
@@ -739,6 +746,27 @@ public class Game {
      */
     public void winLevel() {
         setPause(GameSession.PauseState.EnforcedPause);
+
+        final MutableReactive<StatisticalMetaLevel> entry =
+                settings.levelStatistics.getEntry(currentLevel.get().getUUID());
+        final StatisticalMetaLevel stats = entry.getValue();
+
+        final String playerName = "Player"; // TODO allow to be specified
+        final Integer score = currentSession.get().getPoints();
+
+        final ImmutableMap.Builder<String, Integer> highscoreBuilder =
+                ImmutableMap.builder();
+        if (!stats.getHighscores().containsKey(playerName)
+                || stats.getHighscores().get(playerName) < score) {
+            highscoreBuilder.put("Player", currentSession.get().getPoints());
+        }
+        highscoreBuilder.putAll(Maps.filterKeys(stats.getHighscores(),
+                Predicates.not(Predicates.equalTo(playerName))));
+
+        final StatisticalMetaLevel newStats =
+                new StatisticalMetaLevel(highscoreBuilder.build());
+        entry.setValue(newStats);
+
         gotoScreen(UIScreen.Win);
     }
 
@@ -873,7 +901,7 @@ public class Game {
      * Shows the highscore screen for the specified level.
      */
     public void showHighscores(final MetaLevel level) {
-
+        gotoScreen(UIScreen.Highscores);
     }
 
     public void gotoScreen(final UIScreen screen) {

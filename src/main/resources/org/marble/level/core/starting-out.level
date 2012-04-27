@@ -1,8 +1,9 @@
 using Slab as org.marble.block.Slab
 using WinBlock as org.marble.special.WinBlock
+using PointOrb as org.marble.special.PointOrb
 
 let spawnPlatform be Slab(5, 5, 1),
-    bridge be Slab(2, 5, 1, 0, 0.5),
+    bridge be Slab(2, 5, 1),
     winPlatform be Slab(5, 5, 1)
 
 position spawnPlatform at (0, 0, 0)
@@ -11,3 +12,12 @@ connect bridge.south_middle to spawnPlatform.north_middle,
 
 let winBlock be WinBlock()
 position winBlock at (0, 0, 1) from winPlatform
+
+let sideBridge be Slab(5, 2, 1),
+    sidePlatform be Slab(5, 5, 1)
+
+connect sideBridge.east_middle to spawnPlatform.west_middle,
+        sidePlatform.east_middle to sideBridge.west_middle
+
+let pointOrb be PointOrb()
+position pointOrb at (0, 0, 1) from sidePlatform

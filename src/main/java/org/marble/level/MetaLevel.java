@@ -40,12 +40,12 @@ public class MetaLevel {
 
     public JSONObject toJSON() throws JSONException {
         final JSONObject result = new JSONObject();
-        result.append("name", name);
-        result.append("uri", uri.toExternalForm());
+        result.put("name", name);
+        result.put("uri", uri.toExternalForm());
         if (previewURI.isPresent()) {
-            result.append("previewURI", previewURI.get().toExternalForm());
+            result.put("previewURI", previewURI.get().toExternalForm());
         }
-        result.append("uuid", uuid.toString());
+        result.put("uuid", uuid.toString());
         return result;
     }
 }

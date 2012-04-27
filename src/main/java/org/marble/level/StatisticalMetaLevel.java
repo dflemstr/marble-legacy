@@ -1,27 +1,15 @@
 package org.marble.level;
 
-import java.net.URL;
 import java.util.Map;
-import java.util.UUID;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class StatisticalMetaLevel extends MetaLevel {
+public class StatisticalMetaLevel {
 
-    public StatisticalMetaLevel(final MetaLevel level,
-            final ImmutableMap<String, Integer> highscores) {
-        this(level.getName(), level.getUri(), level.getPreviewURI(), level
-                .getUUID(), highscores);
-    }
-
-    public StatisticalMetaLevel(final String name, final URL uri,
-            final Optional<URL> previewURI, final UUID uuid,
-            final ImmutableMap<String, Integer> highscores) {
-        super(name, uri, previewURI, uuid);
+    public StatisticalMetaLevel(final ImmutableMap<String, Integer> highscores) {
         this.highscores = highscores;
     }
 
@@ -29,14 +17,13 @@ public class StatisticalMetaLevel extends MetaLevel {
         return highscores;
     }
 
-    @Override
     public JSONObject toJSON() throws JSONException {
-        final JSONObject result = super.toJSON();
+        final JSONObject result = new JSONObject();
         final JSONObject highscoresObject = new JSONObject();
         for (final Map.Entry<String, Integer> highscore : highscores.entrySet()) {
-            highscoresObject.append(highscore.getKey(), highscore.getValue());
+            highscoresObject.put(highscore.getKey(), highscore.getValue());
         }
-        result.append("highscores", highscoresObject);
+        result.put("highscores", highscoresObject);
         return result;
     }
 

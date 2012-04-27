@@ -123,6 +123,12 @@
     </panel>
   </controlDefinition>
 
+  <controlDefinition name="highscore-entry">
+    <panel style="menu-element" childLayout="center" height="64px"
+      width="50%">
+      <text id="highscore-text" style="menu-style" />
+    </panel>
+  </controlDefinition>
   <!--
   <popup id="dialog" childLayout="center" backgroundColor="#000a">
     <panel style="nifty-panel-red" childLayout="vertical" width="50%">
@@ -313,7 +319,7 @@
     </layer>
   </screen>
 
-  <screen id="highscores">
+  <screen id="highscores" controller="org.marble.ui.HighscoreScreen">
     <layer style="menu-layout">
       <panel childLayout="vertical" width="100%">
         <text id="level-name" style="menu-style" align="center"
