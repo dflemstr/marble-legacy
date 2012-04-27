@@ -42,9 +42,9 @@ public final class Connectors {
         r2.addLocal(direction.mult(b / 2));
         builder.put("start_middle",
                 offsetBy(r.getX(), r.getY(), r.getZ(), 0, 0, 0));
-        builder.put("start_left",
+        builder.put("start_inner",
                 offsetBy(r1.getX(), r1.getY(), r1.getZ(), 0, 0, 0));
-        builder.put("start_right",
+        builder.put("start_outer",
                 offsetBy(r2.getX(), r2.getY(), r2.getZ(), 0, 0, 0));
         final Quaternion rotation = new Quaternion();
         rotation.fromAngleAxis(angle, direction);
@@ -59,9 +59,9 @@ public final class Connectors {
         rotation.fromAngleAxis(angle + FastMath.PI, direction);
         builder.put("end_middle",
                 offsetBy(r.getX(), r.getY(), r.getZ(), 0, 0, angle + pi));
-        builder.put("end_left",
+        builder.put("end_inner",
                 offsetBy(r1.getX(), r1.getY(), r1.getZ(), 0, 0, angle + pi));
-        builder.put("end_right",
+        builder.put("end_outer",
                 offsetBy(r2.getX(), r2.getY(), r2.getZ(), 0, 0, angle + pi));
 
         return builder.build();
@@ -153,7 +153,7 @@ public final class Connectors {
         for (int y = 0; y < ycount; y++) {
             final float ycoord = yborder + y - yhalf;
             for (int z = 0; z < zcount; z++) {
-                final float zcoord = zborder + z - yhalf;
+                final float zcoord = zborder + z - zhalf;
                 connectorBuilder.put(
                         makeConnectorName("east", y, z),
                         offsetBy(xhalf, ycoord, zcoord + verticalOffset
@@ -213,12 +213,15 @@ public final class Connectors {
     }
 
     public static Map<String, Connector> fromWall(final float length) {
+        final float pi = (float) Math.PI;
         final ImmutableMap.Builder<String, Connector> connectorBuilder =
                 ImmutableMap.builder();
         for (int i = 0; i < length; i++) {
-            connectorBuilder.put("position_" + i, offsetBy(0, length / 2, 0));
+            connectorBuilder.put("position_" + i,
+                    offsetBy(length / 2 - i - 0.5f, 0, -0.6f, 0, 0, pi / 2));
         }
-        connectorBuilder.put("position_middle", offsetBy(0, length / 2, 0));
+        connectorBuilder.put("position_middle",
+                offsetBy(0, 0, -0.6f, 0, 0, pi / 2));
         return connectorBuilder.build();
     }
 }

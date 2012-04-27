@@ -28,22 +28,19 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
     final float width;
     final float height;
     final float depth;
-    final float angle;
 
     private RigidBodyControl physicalBox;
 
     private Node graphicalRails;
 
     public Rail(final float length) {
-        this(length, 1f, 0.2f, 0);
+        this(length, 1f, 0.2f);
     }
 
-    public Rail(final float width, final float height, final float depth,
-            final float angle) {
+    public Rail(final float width, final float height, final float depth) {
         this.width = width;
         this.height = height;
         this.depth = depth;
-        this.angle = angle;
     }
 
     @Override
