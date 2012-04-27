@@ -1,0 +1,5 @@
+Material Green color : Common/MatDefs/Misc/Unshaded.j3md {
+     MaterialParameters {
+         Color : 1 0 0 1
+     }
+}

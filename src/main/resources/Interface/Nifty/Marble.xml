@@ -281,6 +281,9 @@
         <control name="menu-button" text="Resume game">
           <interact onClick="resume()" />
         </control>
+        <control name="menu-button" text="Back to menu">
+          <interact onClick="gotoMenu()" />
+        </control>
       </panel>
     </layer>
   </screen>

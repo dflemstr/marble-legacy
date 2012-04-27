@@ -52,7 +52,7 @@ public class PointOrb extends AbstractEntity implements Graphical, Physical,
         getSpatial().attachChild(graphicalBall);
 
         final Spatial plus = assetManager.loadModel("Models/plus.obj");
-        plus.setMaterial(assetManager.loadMaterial("Materials/Misc/Green.j3m"));
+        plus.setMaterial(assetManager.loadMaterial("Materials/Misc/Blue.j3m"));
         getSpatial().attachChild(plus);
 
         physicalBall =
