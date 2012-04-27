@@ -211,7 +211,7 @@ public final class Connectors {
         final float pi = (float) Math.PI;
         final ImmutableMap.Builder<String, Connector> connectorBuilder =
                 ImmutableMap.builder();
-        for (int i = 0; i < length - 1; i++) {
+        for (int i = 0; i < length; i++) {
             connectorBuilder.put("position_" + i,
                     offsetBy(length / 2 - i - 0.5f, 0, -0.6f, 0, 0, pi / 2));
         }

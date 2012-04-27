@@ -52,7 +52,7 @@ connect slab2.south_middle to slab1.north_1_0,
         slab5.west_middle to slab4.east_middle
 
 connect wall1.position_0 to slab1.north_3_0,
-        wall2.position_0 to slab1.south_0_0,
+        wall2.position_middle to slab1.south_middle,
         wall3.position_middle to slab1.east_middle,
         wall4.position_middle to slab1.west_middle,
         wall5.position_middle to slab5.north_middle,

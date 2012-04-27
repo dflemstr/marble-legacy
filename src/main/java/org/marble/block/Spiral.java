@@ -128,13 +128,27 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
             final double theta = angle / steps;
 
             final CylinderCollisionShape leftCylinder =
-                    new CylinderCollisionShape(new Vector3f(tubeRadius,
-                            tubeRadius,
-                            (float) (Math.sin(theta) * (radius - a / 2)) / 2));
+                    new CylinderCollisionShape(
+                            new Vector3f(
+                                    tubeRadius,
+                                    tubeRadius,
+                                    (float) Math.sqrt((Math.sin(theta) * (radius - a / 2))
+                                            * (Math.sin(theta) * (radius - a / 2))
+                                            + direction.mult(height / steps)
+                                                    .getZ()
+                                            * direction.mult(height / steps)
+                                                    .getZ()) / 2));
             final CylinderCollisionShape rightCylinder =
-                    new CylinderCollisionShape(new Vector3f(tubeRadius,
-                            tubeRadius,
-                            (float) (Math.sin(theta) * (radius + a / 2)) / 2));
+                    new CylinderCollisionShape(
+                            new Vector3f(
+                                    tubeRadius,
+                                    tubeRadius,
+                                    (float) Math.sqrt((Math.sin(theta) * (radius + a / 2))
+                                            * (Math.sin(theta) * (radius + a / 2))
+                                            + direction.mult(height / steps)
+                                                    .getZ()
+                                            * direction.mult(height / steps)
+                                                    .getZ()) / 2));
 
             compound.addChildShape(leftCylinder,
                     leftMiddle.add(direction.mult(-b / 2)), rotTot2);

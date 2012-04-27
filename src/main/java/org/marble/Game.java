@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.AssetManager;
@@ -224,6 +225,9 @@ public class Game {
      * Performs deferred initialization of all subsystems.
      */
     public void initialize() {
+
+        Logger.getLogger("com.jme3").setLevel(Level.SEVERE);
+        Logger.getLogger("").setLevel(Level.SEVERE);
         for (final Engine<?> engine : engines) {
             engine.initialize();
         }
@@ -236,7 +240,6 @@ public class Game {
         setupLighting();
         setupCamera();
         setupFilters();
-
         gotoMenu();
     }
 

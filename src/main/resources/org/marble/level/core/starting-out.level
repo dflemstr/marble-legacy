@@ -2,21 +2,24 @@ using Slab as org.marble.block.Slab
 using WinBlock as org.marble.special.WinBlock
 using PointOrb as org.marble.special.PointOrb
 using LifeOrb as org.marble.special.LifeOrb
+using Wall as org.marble.block.Wall
 
 let spawnPlatform be Slab(5, 5, 1),
-    bridge be Slab(2, 5, 1),
+    bridge be Slab(3, 5, 1),
     winPlatform be Slab(5, 5, 1)
     
 // Create some walls
 let wall_spawn_south be Wall(5),
-	wall_spawn_east be Wall(5),
-	wall_spawn_west be Wall(5),
-	wall_spawn north_1 be Wall(1.5),
-	wall_spawn_north_2 be Wall(1.5),
+	wall_spawn_east_1 be Wall(2),
+	wall_spawn_east_2 be Wall(2),
+	wall_spawn_west_1 be Wall(2),
+	wall_spawn_west_2 be Wall(2),
+	wall_spawn_north_1 be Wall(1),
+	wall_spawn_north_2 be Wall(1),
 	wall_bridge_west be Wall(5),
 	wall_bridge_east be Wall(5),
-	wall_win_south_1 be Wall(1.5),
-	wall_win_south_2 be Wall(1.5),
+	wall_win_south_1 be Wall(1),
+	wall_win_south_2 be Wall(1),
 	wall_win_west be Wall(5),
 	wall_win_north be Wall(5),
 	wall_win_east be Wall(5)
@@ -25,14 +28,16 @@ position spawnPlatform at (0, 0, 0)
 connect bridge.south_middle to spawnPlatform.north_middle,
         winPlatform.south_middle to bridge.north_middle,
        	wall_spawn_south.position_middle to spawnPlatform.south_middle,
-       	wall_spawn_east.position_middle to spawnPlatform.east_middle,
-       	wall_spawn_west.position_middle to spawnPlatform.west_middle,
+       	wall_spawn_east_1.position_1 to spawnPlatform.east_0_0,
+       	wall_spawn_east_2.position_1 to spawnPlatform.east_3_0,
+       	wall_spawn_west_1.position_0 to spawnPlatform.west_0_0,
+       	wall_spawn_west_2.position_0 to spawnPlatform.west_3_0,
        	wall_spawn_north_1.position_0 to spawnPlatform.north_0_0,
-       	wall_spawn_north_2.position_0 to spawnPlatform.north_3_0,
+       	wall_spawn_north_2.position_0 to spawnPlatform.north_4_0,
        	wall_bridge_west.position_middle to bridge.west_middle,
        	wall_bridge_east.position_middle to bridge.east_middle,
        	wall_win_south_1.position_0 to winPlatform.south_0_0,
-       	wall_win_south_2.position_0 to winPlatform.south_3_0,
+       	wall_win_south_2.position_0 to winPlatform.south_4_0,
        	wall_win_west.position_middle to winPlatform.west_middle,
        	wall_win_east.position_middle to winPlatform.east_middle,
        	wall_win_north.position_middle to winPlatform.north_middle
@@ -40,20 +45,42 @@ connect bridge.south_middle to spawnPlatform.north_middle,
 let winBlock be WinBlock()
 position winBlock at (0, 0, 1) from winPlatform
 
-let westBridge be Slab(5, 2, 1),
+let westBridge be Slab(5, 1, 1),
     westPlatform be Slab(5, 5, 1)
+    
+let wall_west_north be Wall(5),
+	wall_west_west be Wall(5),
+	wall_west_south be Wall(5),
+	wall_west_east_1 be Wall(2),
+	wall_west_east_2 be Wall(2)
 
 connect westBridge.east_middle to spawnPlatform.west_middle,
-        westPlatform.east_middle to westBridge.west_middle
+        westPlatform.east_middle to westBridge.west_middle,
+        wall_west_north.position_middle to westPlatform.north_middle,
+        wall_west_west.position_middle to westPlatform.west_middle,
+        wall_west_south.position_middle to westPlatform.south_middle,
+        wall_west_east_1.position_1 to westPlatform.east_0_0,
+        wall_west_east_2.position_1 to westPlatform.east_3_0
 
 let pointOrb be PointOrb()
 position pointOrb at (0, 0, 1) from westPlatform
 
-let eastBridge be Slab(5, 2, 1),
+let eastBridge be Slab(5, 1, 1),
     eastPlatform be Slab(5, 5, 1)
+    
+let wall_east_north be Wall(5),
+	wall_east_east be Wall(5),
+	wall_east_south be Wall(5),
+	wall_east_west_1 be Wall(2),
+	wall_east_west_2 be Wall(2)
 
 connect eastBridge.west_middle to spawnPlatform.east_middle,
-        eastPlatform.west_middle to eastBridge.east_middle
+        eastPlatform.west_middle to eastBridge.east_middle,
+        wall_east_north.position_middle to eastPlatform.north_middle,
+        wall_east_east.position_middle to eastPlatform.east_middle,
+        wall_east_south.position_middle to eastPlatform.south_middle,
+        wall_east_west_1.position_0 to eastPlatform.west_0_0,
+        wall_east_west_2.position_0 to eastPlatform.west_3_0
 
 let lifeOrb be LifeOrb()
 position lifeOrb at (0, 0, 1) from eastPlatform
