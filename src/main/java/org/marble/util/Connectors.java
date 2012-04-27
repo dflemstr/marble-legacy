@@ -153,8 +153,6 @@ public final class Connectors {
                         makeConnectorName("east", y, z),
                         offsetBy(xhalf, ycoord, zcoord + verticalOffset, 0, 0,
                                 0));
-                System.err.println("CHUCK: " + (zcoord + verticalOffset) + " "
-                        + width + " " + height + " " + depth);
                 connectorBuilder.put(
                         makeConnectorName("west", y, z),
                         offsetBy(-xhalf, ycoord, zcoord + verticalOffset, 0, 0,

@@ -4,10 +4,36 @@ using WinBlock as org.marble.special.WinBlock
 let spawnPlatform be Slab(5, 5, 1),
     bridge be Slab(2, 5, 1),
     winPlatform be Slab(5, 5, 1)
+    
+// Create some walls
+let wall_spawn_south be Wall(5),
+	wall_spawn_east be Wall(5),
+	wall_spawn_west be Wall(5),
+	wall_spawn north_1 be Wall(1.5),
+	wall_spawn_north_2 be Wall(1.5),
+	wall_bridge_west be Wall(5),
+	wall_bridge_east be Wall(5),
+	wall_win_south_1 be Wall(1.5),
+	wall_win_south_2 be Wall(1.5),
+	wall_win_west be Wall(5),
+	wall_win_north be Wall(5),
+	wall_win_east be Wall(5)
 
 position spawnPlatform at (0, 0, 0)
 connect bridge.south_middle to spawnPlatform.north_middle,
-        winPlatform.south_middle to bridge.north_middle
+        winPlatform.south_middle to bridge.north_middle,
+       	wall_spawn_south.position_middle to spawnPlatform.south_middle,
+       	wall_spawn_east.position_middle to spawnPlatform.east_middle,
+       	wall_spawn_west.position_middle to spawnPlatform.west_middle,
+       	wall_spawn_north_1.position_0 to spawnPlatform.north_0_0,
+       	wall_spawn_north_2.position_0 to spawnPlatform.north_3_0,
+       	wall_bridge_west.position_middle to bridge.west_middle,
+       	wall_bridge_east.position_middle to bridge.east_middle,
+       	wall_win_south_1.position_0 to winPlatform.south_0_0,
+       	wall_win_south_2.position_0 to winPlatform.south_3_0,
+       	wall_win_west.position_middle to winPlatform.west_middle,
+       	wall_win_east.position_middle to winPlatform.east_middle,
+       	wall_win_north.position_middle to winPlatform.north_middle
 
 let winBlock be WinBlock()
 position winBlock at (0, 0, 1) from winPlatform
