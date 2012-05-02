@@ -119,7 +119,7 @@ public class Game {
     private Optional<GameSession> currentSession = Optional.absent();
 
     // Currently loaded entities
-    private final Set<Entity> entities = Sets.newIdentityHashSet();
+    private ImmutableSet<Entity> entities = ImmutableSet.of();
 
     // Engines to handle.
     private final ImmutableSet<Engine<?>> engines;
@@ -164,29 +164,31 @@ public class Game {
     }
 
     /**
-     * Starts managing an entity.
+     * Starts managing a set of entities.
      * 
-     * @param entity
-     *            The entity to manage.
+     * @param entities
+     *            The set of entities to manage.
      */
-    public void addEntity(final Entity entity) {
-        entity.initialize(this);
-        for (final Engine<?> engine : engines) {
-            if (engine.shouldHandle(entity)) {
-                engine.addEntity(entity);
+    public void addEntities(final Set<Entity> entities) {
+        for (final Entity entity : entities) {
+            entity.initialize(this);
+            for (final Engine<?> engine : engines) {
+                if (engine.shouldHandle(entity)) {
+                    engine.addEntity(entity);
+                }
             }
         }
 
-        entities.add(entity);
+        this.entities =
+                ImmutableSet.<Entity> builder().addAll(this.entities)
+                        .addAll(entities).build();
     }
 
     /**
      * Performs deferred destruction of all subsystems.
      */
     public void destroy() {
-        for (final Entity entity : ImmutableSet.copyOf(entities)) {
-            removeEntity(entity);
-        }
+        removeAllEntities();
 
         for (final Engine<?> engine : engines) {
             engine.destroy();
@@ -225,21 +227,22 @@ public class Game {
      * Performs deferred initialization of all subsystems.
      */
     public void initialize() {
-
         Logger.getLogger("com.jme3").setLevel(Level.SEVERE);
         Logger.getLogger("").setLevel(Level.SEVERE);
+
         for (final Engine<?> engine : engines) {
             engine.initialize();
         }
+
         setupGUI();
-
-        loadLevelPack(Game.class.getResource("level/core.pack"));
-
         setupControls();
         setupSkybox();
         setupLighting();
         setupCamera();
         setupFilters();
+
+        loadLevelPack(Game.class.getResource("level/core.pack"));
+
         gotoMenu();
     }
 
@@ -372,18 +375,15 @@ public class Game {
      *            The URL to the level pack to try to load.
      */
     public void loadLevelPack(final URL levelPack) {
-
-        String errorMessage = null;
         try {
             currentLevelPackURL = levelPack;
             currentLevelPack = levelLoader.loadMetaLevelPack(levelPack);
             return;
         } catch (final IOException e) {
-            errorMessage = e.getMessage();
+            handleError(e.getMessage(), e);
         } catch (final JSONException e) {
-            errorMessage = e.getMessage();
+            handleError(e.getMessage(), e);
         }
-        throw new RuntimeException(errorMessage);
     }
 
     /**
@@ -465,17 +465,19 @@ public class Game {
             final Set<String> messages) {
         if (messages.isEmpty())
             return;
+
         final int size = messages.size();
         int i = 0;
 
         for (final String message : messages) {
-            if (i++ > 0) {
+            if (i > 0) {
                 if (i == size) {
                     builder.append(" or ");
                 } else {
                     builder.append(", ");
                 }
             }
+            i++;
             builder.append(message);
         }
     }
@@ -488,9 +490,7 @@ public class Game {
      */
     private void load(final ImmutableSet<Entity> level) {
         removeAllEntities();
-        for (final Entity entity : level) {
-            addEntity(entity);
-        }
+        addEntities(level);
         start();
     }
 
@@ -500,22 +500,25 @@ public class Game {
      * @param entity
      *            The entity to stop managing.
      */
-    public void removeEntity(final Entity entity) {
-        for (final Engine<?> engine : engines) {
-            if (engine.shouldHandle(entity)) {
-                engine.removeEntity(entity);
+    public void removeEntities(final Set<Entity> entities) {
+        for (final Entity entity : entities) {
+            for (final Engine<?> engine : engines) {
+                if (engine.shouldHandle(entity)) {
+                    engine.removeEntity(entity);
+                }
             }
+            entity.destroy();
         }
 
-        entities.remove(entity);
-        entity.destroy();
+        this.entities =
+                ImmutableSet.copyOf(Sets.difference(this.entities, entities));
     }
 
     /**
      * Tells the game to halt immediately.
      */
     public void stop() {
-        context.destroy(false);
+        context.destroy(true);
     }
 
     /**
@@ -579,9 +582,7 @@ public class Game {
      * Removes all entities safely.
      */
     private void removeAllEntities() {
-        for (final Entity entity : ImmutableSet.copyOf(entities)) {
-            removeEntity(entity);
-        }
+        removeEntities(entities);
     }
 
     /**
@@ -703,12 +704,14 @@ public class Game {
     private void start() {
         final Transform ballTransform = new Transform();
         ballTransform.setTranslation(0, 0, 2);
+
         final PlayerBall ball = new PlayerBall(DEFAULT_BALL_KIND);
-        playerBall = Optional.of(ball);
         ball.setTransform(ballTransform);
-        addEntity(ball);
+
+        addEntities(ImmutableSet.<Entity> of(ball));
         trackSpatial(ball.getSpatial());
 
+        playerBall = Optional.of(ball);
         currentSession = Optional.of(new GameSession());
 
         setPause(GameSession.PauseState.Running);
@@ -927,5 +930,13 @@ public class Game {
 
     public URL getCurrentLevelPackURL() {
         return currentLevelPackURL;
+    }
+
+    public void removeEntity(final Entity entity) {
+        removeEntities(ImmutableSet.of(entity));
+    }
+
+    public void addEntity(final Entity entity) {
+        addEntities(ImmutableSet.of(entity));
     }
 }
