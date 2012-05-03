@@ -32,7 +32,7 @@ public class LevelScreen extends AbstractScreenController {
                     new CustomControlCreator("level-button");
             final Element levelButton =
                     levelButtonCreator.create(nifty, screen, levelList);
-            levelButton.findElementByName("level-name")
+            levelButton.findElementByName("#level-name")
                     .getRenderer(TextRenderer.class).setText(level.getName());
             levelButton
                     .getElementInteraction()

@@ -48,7 +48,7 @@ public class Pin extends AbstractEntity implements Graphical, Connected,
         final Spatial left =
                 new Geometry("pin", new Cylinder(10, 10, radius, length));
         left.setMaterial(assetManager
-                .loadMaterial("Materials/Metal/Aluminium.j3m"));
+                .loadMaterial("Materials/Metal/Chrome.j3m"));
 
         final Matrix3f rotation = new Matrix3f(0, 0, -1, 0, 1, 0, 1, 0, 0);
         left.setLocalRotation(rotation);
