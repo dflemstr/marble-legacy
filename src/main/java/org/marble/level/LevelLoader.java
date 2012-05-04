@@ -92,7 +92,7 @@ public final class LevelLoader {
     }
 
     public MetaLevelPack loadMetaLevelPack(final URL url) throws IOException,
-            JSONException {
+            JSONException, LevelLoadException {
         final String input = Resources.toString(url, Charsets.UTF_8);
         final JSONObject packObject = new JSONObject(input);
         return loadMetaLevelPack(packObject, url);
@@ -325,7 +325,7 @@ public final class LevelLoader {
     }
 
     MetaLevelPack loadMetaLevelPack(final JSONObject object, final URL packURL)
-            throws JSONException {
+            throws JSONException, LevelLoadException {
         return new MetaLevelPack(object.getString("name"),
                 discardEmpty(object.optString("version")),
                 discardEmpty(object.optString("description")),
@@ -341,7 +341,7 @@ public final class LevelLoader {
     }
 
     ImmutableList<MetaLevel> loadMetaLevels(final JSONArray array,
-            final URL packURL) throws JSONException {
+            final URL packURL) throws JSONException, LevelLoadException {
         final ImmutableList.Builder<MetaLevel> resultBuilder =
                 ImmutableList.builder();
         final Optional<URL> definitelyPackURL = Optional.of(packURL);
@@ -374,7 +374,8 @@ public final class LevelLoader {
     }
 
     MetaLevel loadMetaLevel(final JSONObject levelObject,
-            final Optional<URL> packURL) throws JSONException {
+            final Optional<URL> packURL) throws JSONException,
+            LevelLoadException {
         try {
             final String previewURIString = levelObject.optString("previewUri");
             final Optional<URL> previewURI =
@@ -386,7 +387,8 @@ public final class LevelLoader {
             return new MetaLevel(levelObject.getString("name"), url,
                     previewURI, UUID.fromString(levelObject.getString("uuid")));
         } catch (final MalformedURLException e) {
-            throw new RuntimeException("Invalid URI", e);
+            throw new LevelLoadException("Invalid URI",
+                    LevelLoadException.Kind.INVALID_URI, -1, e);
         }
     }
 

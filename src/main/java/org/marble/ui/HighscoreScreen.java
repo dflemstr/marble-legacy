@@ -48,7 +48,6 @@ public class HighscoreScreen extends AbstractScreenController {
     }
 
     public void goBack() {
-        System.out.println("BLAJGAJ");
         game.gotoScreen(UIScreen.Win);
     }
 }

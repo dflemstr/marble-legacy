@@ -6,6 +6,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
@@ -73,17 +74,17 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
         final int steps = (int) (angle / (pi / 6) * (radius));
         final AssetManager assetManager = game.getAssetManager();
 
+        final Material material =
+                assetManager.loadMaterial("Materials/Metal/Chrome.j3m");
         final Spatial left =
                 new Geometry("left rail", new Curve(steps, 10, radius - a / 2,
                         height, angle, tubeRadius, direction));
-        left.setMaterial(assetManager
-                .loadMaterial("Materials/Metal/Aluminium.j3m"));
+        left.setMaterial(material);
 
         final Spatial right =
                 new Geometry("right rail", new Curve(steps, 10, radius + a / 2,
                         height, angle, tubeRadius, direction));
-        right.setMaterial(assetManager
-                .loadMaterial("Materials/Metal/Aluminium.j3m"));
+        right.setMaterial(material);
         left.setLocalTranslation(direction.mult(-b / 2));
         right.setLocalTranslation(direction.mult(b / 2));
         graphicalRails = new Node("rails");

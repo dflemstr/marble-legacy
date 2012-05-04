@@ -8,6 +8,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
+
 import com.jme3.asset.AssetManager;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.InputManager;
@@ -69,7 +71,6 @@ import org.marble.level.StatisticalMetaLevel;
 import org.marble.session.GameSession;
 import org.marble.settings.Settings;
 import org.marble.ui.AbstractScreenController;
-import org.marble.ui.DialogBox;
 import org.marble.ui.GameScreen;
 import org.marble.ui.HighscoreScreen;
 import org.marble.ui.LevelPackScreen;
@@ -227,8 +228,8 @@ public class Game {
      * Performs deferred initialization of all subsystems.
      */
     public void initialize() {
-        Logger.getLogger("com.jme3").setLevel(Level.SEVERE);
-        Logger.getLogger("").setLevel(Level.SEVERE);
+        Logger.getLogger("com.jme3").setLevel(Level.WARNING);
+        Logger.getLogger("").setLevel(Level.WARNING);
 
         for (final Engine<?> engine : engines) {
             engine.initialize();
@@ -383,6 +384,8 @@ public class Game {
             handleError(e.getMessage(), e);
         } catch (final JSONException e) {
             handleError(e.getMessage(), e);
+        } catch (final LevelLoadException e) {
+            handleError(e.getMessage(), e);
         }
     }
 
@@ -412,7 +415,7 @@ public class Game {
                     describeParseError(e.getErrorDetails(), e.getLocation()), e);
         } catch (final LevelLoadException e) {
             handleError(e.getMessage(), e);
-        } catch (final IOException e) {
+        } catch (final Exception e) {
             handleError(e.getMessage(), e);
         }
     }
@@ -572,7 +575,7 @@ public class Game {
         }
         if (!currentSession.isPresent()
                 || currentSession.get().isPaused() == GameSession.PauseState.Running) {
-            for (final Entity e : ImmutableSet.copyOf(entities)) {
+            for (final Entity e : entities) {
                 e.update(timer.getTimePerFrame());
             }
         }
@@ -682,17 +685,9 @@ public class Game {
      * Initialize the graphical skybox.
      */
     private void setupSkybox() {
-        final String dir = "Textures/Sky/Lagoon/";
-        final Texture north = assetManager.loadTexture(dir + "north.jpg");
-        final Texture south = assetManager.loadTexture(dir + "south.jpg");
-        final Texture east = assetManager.loadTexture(dir + "east.jpg");
-        final Texture west = assetManager.loadTexture(dir + "west.jpg");
-        final Texture up = assetManager.loadTexture(dir + "up.jpg");
-        final Texture down = assetManager.loadTexture(dir + "down.jpg");
-
-        skybox =
-                SkyFactory.createSky(assetManager, west, east, north, south,
-                        down, up);
+        final Texture texture =
+                assetManager.loadTexture("Textures/Sky/Islands/Islands.dds");
+        skybox = SkyFactory.createSky(assetManager, texture, false);
         skybox.rotate(FastMath.HALF_PI, 0, 0);
         graphicsEngine.getRootNode().attachChild(skybox);
     }
@@ -792,9 +787,14 @@ public class Game {
      */
     public void handleError(final String errorMessage, final Throwable t) {
         logStackTrace(t);
-        if (errorMessage != null) {
-            DialogBox.showDialog(nifty, errorMessage);
+        final String message;
+        if (errorMessage == null) {
+            message = t.getLocalizedMessage();
+        } else {
+            message = errorMessage;
         }
+        JOptionPane.showMessageDialog(null, message, "An error has occurred",
+                JOptionPane.ERROR_MESSAGE);
     }
 
     /**

@@ -73,7 +73,7 @@ public class WinBlock extends AbstractEntity implements Graphical, Physical,
     private Node graphicalBox;
     private RigidBodyControl physicalBox;
     private Node graphicalSpinner;
-    private PointLight light;
+    private PointLight light1, light2;
 
     @Override
     public RigidBodyControl getBody() {
@@ -87,30 +87,49 @@ public class WinBlock extends AbstractEntity implements Graphical, Physical,
         graphicalBox = new Node("invisible");
         getSpatial().attachChild(graphicalBox);
 
+        final ColorRGBA color = ColorRGBA.Green.mult(0.66f);
+
         physicalBox =
                 new RigidBodyControl(new BoxCollisionShape(new Vector3f(0.5f,
                         0.5f, 0.5f)), 0);
         getSpatial().addControl(physicalBox);
-        light = new PointLight();
-        light.setColor(ColorRGBA.Green);
-        light.setRadius(8);
-        final LightNode lightNode = new LightNode("winning light", light);
-        lightNode.setLocalTranslation(0, 0, 0.5f);
-        getSpatial().attachChild(lightNode);
 
         graphicalSpinner = new Node("spinner");
         graphicalSpinner.addControl(new VerticalSpinner(FastMath.PI));
-        getSpatial().attachChild(graphicalSpinner);
+
+        final Node emitter1 = new Node("emitter 1");
+        emitter1.setLocalTranslation(FastMath.sqrt(2) / 2, 0, -0.4f);
 
         final ParticleEmitter particles1 = makeWinParticles(assetManager);
-        particles1.setLocalTranslation(FastMath.sqrt(2) / 2, 0, -0.4f);
         particles1.updateLogicalState(20);
-        graphicalSpinner.attachChild(particles1);
+        emitter1.attachChild(particles1);
+
+        light1 = new PointLight();
+        light1.setColor(color);
+        light1.setRadius(8);
+        final LightNode lightNode1 = new LightNode("winning light 1", light1);
+        lightNode1.setLocalTranslation(0, 0, 0.5f);
+        emitter1.attachChild(lightNode1);
+
+        graphicalSpinner.attachChild(emitter1);
+
+        final Node emitter2 = new Node("emitter 1");
+        emitter2.setLocalTranslation(-FastMath.sqrt(2) / 2, 0, -0.4f);
 
         final ParticleEmitter particles2 = makeWinParticles(assetManager);
-        particles2.setLocalTranslation(-FastMath.sqrt(2) / 2, 0, -0.4f);
         particles2.updateLogicalState(20);
-        graphicalSpinner.attachChild(particles2);
+        emitter2.attachChild(particles2);
+
+        light2 = new PointLight();
+        light2.setColor(color);
+        light2.setRadius(8);
+        final LightNode lightNode2 = new LightNode("winning light 1", light2);
+        lightNode2.setLocalTranslation(0, 0, 0.5f);
+        emitter2.attachChild(lightNode2);
+
+        graphicalSpinner.attachChild(emitter2);
+
+        getSpatial().attachChild(graphicalSpinner);
     }
 
     private ParticleEmitter makeWinParticles(final AssetManager assetManager) {
@@ -147,6 +166,6 @@ public class WinBlock extends AbstractEntity implements Graphical, Physical,
 
     @Override
     public Set<Light> getLights() {
-        return ImmutableSet.<Light> of(light);
+        return ImmutableSet.<Light> of(light1, light2);
     }
 }

@@ -11,6 +11,7 @@ public class LevelLoadException extends Exception {
     private final int failureLocation;
 
     private final Kind kind;
+
     public LevelLoadException(final String message, final Kind kind,
             final int failureLocation) {
         super(message);
@@ -44,6 +45,8 @@ public class LevelLoadException extends Exception {
      * The kind of failure that occurred (for machine-readability)
      */
     public enum Kind {
+        /** Could not find level */
+        INVALID_URI,
         /** The specified class is not an usable class */
         INVALID_CLASS,
         /** The specified class is a class, but of the wrong kind. */

@@ -37,7 +37,7 @@ public class Wall extends AbstractEntity implements Connected, Graphical,
 
         graphicalBox = new Geometry("wall", new Cylinder(3, 8, 0.05f, length));
         graphicalBox.setMaterial(assetManager
-                .loadMaterial("Materials/Metal/Aluminium.j3m"));
+                .loadMaterial("Materials/Metal/Chrome.j3m"));
         final Matrix3f rotation = new Matrix3f(0, 0, -1, 0, 1, 0, 1, 0, 0);
         graphicalBox.setLocalRotation(rotation);
         getSpatial().attachChild(graphicalBox);

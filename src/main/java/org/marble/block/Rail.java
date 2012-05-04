@@ -7,6 +7,7 @@ import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.material.Material;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -47,17 +48,17 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
     public void initialize(final Game game) {
         final AssetManager assetManager = game.getAssetManager();
 
+        final Material material =
+                assetManager.loadMaterial("Materials/Metal/Chrome.j3m");
         final Spatial left =
                 new Geometry("left rail",
                         new Cylinder(10, 10, depth / 2, width));
-        left.setMaterial(assetManager
-                .loadMaterial("Materials/Metal/Aluminium.j3m"));
+        left.setMaterial(material);
 
         final Spatial right =
                 new Geometry("right rail", new Cylinder(10, 10, depth / 2,
                         width));
-        right.setMaterial(assetManager
-                .loadMaterial("Materials/Metal/Aluminium.j3m"));
+        right.setMaterial(material);
 
         final Matrix3f rotation = new Matrix3f(0, 0, -1, 0, 1, 0, 1, 0, 0);
         left.setLocalRotation(rotation);

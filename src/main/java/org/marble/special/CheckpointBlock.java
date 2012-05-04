@@ -76,7 +76,8 @@ public class CheckpointBlock extends AbstractEntity implements Graphical,
     private Geometry graphicalBox;
     private RigidBodyControl physicalBox;
     private Node graphicalSpinner;
-    private PointLight light;
+    private PointLight light1;
+    private PointLight light2;
 
     @Override
     public RigidBodyControl getBody() {
@@ -87,6 +88,9 @@ public class CheckpointBlock extends AbstractEntity implements Graphical,
     public void initialize(final Game game) {
         this.game = game;
         final AssetManager assetManager = game.getAssetManager();
+
+        final ColorRGBA color = ColorRGBA.Yellow.mult(0.66f);
+
         graphicalBox = new Geometry("respawnBlock", new Box(0.5f, 0.5f, 0.1f));
         graphicalBox.setLocalTranslation(0, 0, -0.45f);
         graphicalBox.setMaterial(assetManager
@@ -98,26 +102,43 @@ public class CheckpointBlock extends AbstractEntity implements Graphical,
 
         physicalBox = new RigidBodyControl(shape, 0);
         getSpatial().addControl(physicalBox);
-        light = new PointLight();
-        light.setColor(ColorRGBA.Pink);
-        light.setRadius(8);
-        final LightNode lightNode = new LightNode("winning light", light);
-        lightNode.setLocalTranslation(0, 0, 0.5f);
-        getSpatial().attachChild(lightNode);
 
         graphicalSpinner = new Node("spinner");
         graphicalSpinner.addControl(new VerticalSpinner(FastMath.PI));
-        getSpatial().attachChild(graphicalSpinner);
+
+        final Node emitter1 = new Node("emitter 1");
+        emitter1.setLocalTranslation(FastMath.sqrt(2) / 2, 0, -0.4f);
 
         final ParticleEmitter particles1 = makeWinParticles(assetManager);
-        particles1.setLocalTranslation(FastMath.sqrt(2) / 2, 0, -0.4f);
         particles1.updateLogicalState(20);
-        graphicalSpinner.attachChild(particles1);
+        emitter1.attachChild(particles1);
+
+        light1 = new PointLight();
+        light1.setColor(color);
+        light1.setRadius(8);
+        final LightNode lightNode1 = new LightNode("winning light 1", light1);
+        lightNode1.setLocalTranslation(0, 0, 0.5f);
+        emitter1.attachChild(lightNode1);
+
+        graphicalSpinner.attachChild(emitter1);
+
+        final Node emitter2 = new Node("emitter 1");
+        emitter2.setLocalTranslation(-FastMath.sqrt(2) / 2, 0, -0.4f);
 
         final ParticleEmitter particles2 = makeWinParticles(assetManager);
-        particles2.setLocalTranslation(-FastMath.sqrt(2) / 2, 0, -0.4f);
         particles2.updateLogicalState(20);
-        graphicalSpinner.attachChild(particles2);
+        emitter2.attachChild(particles2);
+
+        light2 = new PointLight();
+        light2.setColor(color);
+        light2.setRadius(8);
+        final LightNode lightNode2 = new LightNode("winning light 1", light2);
+        lightNode2.setLocalTranslation(0, 0, 0.5f);
+        emitter2.attachChild(lightNode2);
+
+        graphicalSpinner.attachChild(emitter2);
+
+        getSpatial().attachChild(graphicalSpinner);
     }
 
     private ParticleEmitter makeWinParticles(final AssetManager assetManager) {
@@ -157,6 +178,6 @@ public class CheckpointBlock extends AbstractEntity implements Graphical,
 
     @Override
     public Set<Light> getLights() {
-        return ImmutableSet.<Light> of(light);
+        return ImmutableSet.<Light> of(light1, light2);
     }
 }
