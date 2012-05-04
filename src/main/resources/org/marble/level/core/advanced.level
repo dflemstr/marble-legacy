@@ -1,0 +1,56 @@
+// Import our slab class
+using Slab as org.marble.block.Slab
+using Ball as org.marble.ball.Ball
+using Transformer as org.marble.block.Transformer
+using Lantern as org.marble.block.Lantern
+using Wall as org.marble.block.Wall
+using Rail as org.marble.block.Rail
+using Spiral as org.marble.block.Spiral
+using CheckpointBlock as org.marble.special.CheckpointBlock
+using WinBlock as org.marble.special.WinBlock
+using Pin as org.marble.block.Pin
+using PointOrb as org.marble.special.PointOrb
+using LifeOrb as org.marble.special.LifeOrb
+
+let spawnBlock be Slab(10,10,1)
+
+position spawnBlock at (0,0,0)
+
+let rail be Rail(7)
+
+connect rail.start_middle to spawnBlock.north_middle
+
+let point1 be PointOrb(),
+	point2 be PointOrb(),
+	point3 be PointOrb()
+
+position point1 at (-2, 0, 1) from rail
+position point2 at (0, 0, 1) from rail
+position point3 at (2, 0, 1) from rail
+
+let spiral be Spiral(8,30,360,45)
+let lantern be Lantern((0.5,0.5,0.5))
+
+connect spiral.end_middle to rail.end_middle
+
+let stoneBall  be Ball([Stone])
+
+position stoneBall at (-6.8,3.7,28.5) from spiral
+
+position lantern at (0,0,25) from spiral
+
+let rightSlope be Slab(5,300,1,0.45,-0.25),
+	leftSlope be Slab(5,300,1,0.45,0.25)
+	
+let p4 be PointOrb(),
+	p5 be PointOrb(),
+	p6 be PointOrb(),
+	p7 be PointOrb()
+
+connect rightSlope.south_0_0 to spiral.start_inner,
+		leftSlope.north_0_0 to spiral.start_inner
+		
+position p4 at (0,0,1) from rightSlope
+position p5 at (0,0,2) from rightSlope
+position p6 at (0,0,3) from rightSlope
+position p7 at (0,0,4) from rightSlope

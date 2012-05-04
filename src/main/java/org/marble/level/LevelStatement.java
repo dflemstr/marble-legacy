@@ -214,7 +214,8 @@ public abstract class LevelStatement {
         private final Optional<String> relativeTo;
 
         public Position(final Integer location, final String name,
-                final Vector3f position, final Optional<String> relativeTo) {
+                final Vector3f position, final Optional<String> relativeTo,
+                final Optional<String> connectorName) {
             super(location);
             this.name = name;
             this.position = position;
@@ -252,6 +253,10 @@ public abstract class LevelStatement {
          */
         public Optional<String> getRelativeTo() {
             return relativeTo;
+        }
+
+        public Optional<String> getConnector() {
+            retr
         }
 
         @Override
