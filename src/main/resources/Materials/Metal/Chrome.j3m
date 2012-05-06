@@ -1,11 +1,9 @@
-Material Chrome : Common/MatDefs/Light/Lighting.j3md {
+Material Chrome : MatDefs/Optics/Reflection.j3md {
     MaterialParameters {
-        Ambient : 0.02 0.02 0.02 1.0
-        Diffuse : 0.01 0.01 0.01 1.0
-        Specular : 0.4 0.4 0.4 1.0
-        Shininess : 0.07
-
-        FresnelParams : 0 0.2 0
-        EnvMap : Textures/Sky/Stormydays/Stormydays.dds
+        EnvironmentMap : Textures/Sky/Stormydays/Stormydays.dds
+        Ambient : 1.0 1.0 1.0 1.0
+        Diffuse : 1.0 1.0 1.0 1.0
+        Specular : 2.0 2.0 2.0 1.0
+        Shininess: 0.4
     }
 }

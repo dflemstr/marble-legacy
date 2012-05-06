@@ -46,8 +46,7 @@ public class PointOrb extends AbstractEntity implements Graphical, Physical,
 
         graphicalBall = new Geometry("ball", geometricalBall);
         final Material transparent =
-                assetManager.loadMaterial("Materials/Misc/Greyish.j3m");
-        transparent.getAdditionalRenderState().setWireframe(true);
+                assetManager.loadMaterial("Materials/Misc/Mesh.j3m");
         graphicalBall.setMaterial(transparent);
         getSpatial().attachChild(graphicalBall);
 

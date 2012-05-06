@@ -5,7 +5,6 @@ import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -28,7 +27,6 @@ import org.marble.frp.Reactive;
 import org.marble.frp.ReactiveListener;
 import org.marble.graphics.EnvironmentNode;
 import org.marble.graphics.GeoSphere;
-import org.marble.graphics.MaterialSP;
 import org.marble.util.Quality;
 
 /**
@@ -172,10 +170,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         switch (kind) {
         case Wood:
             disableEnvironment();
-            material =
-                    new MaterialSP(
-                            assetManager
-                                    .loadMaterial("Materials/Organic/Wood.j3m"));
+            material = assetManager.loadMaterial("Materials/Organic/Wood.j3m");
 
             final Vector3f vec = new Vector3f();
 
@@ -207,14 +202,10 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
             disableEnvironment();
             material =
                     assetManager.loadMaterial("Materials/Organic/Fabric.j3m");
-            material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
             break;
         case Glass:
             enableEnvironment();
-            material =
-                    new MaterialSP(
-                            assetManager
-                                    .loadMaterial("Materials/Mineral/Glass.j3m"));
+            material = assetManager.loadMaterial("Materials/Mineral/Glass.j3m");
             FRPUtils.addAndCallReactiveListener(environmentNode.get()
                     .getEnvironment(), new ReactiveListener<TextureCubeMap>() {
 
@@ -226,10 +217,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
             break;
         case Mercury:
             enableEnvironment();
-            material =
-                    new MaterialSP(
-                            assetManager
-                                    .loadMaterial("Materials/Metal/Mercury.j3m"));
+            material = assetManager.loadMaterial("Materials/Metal/Mercury.j3m");
             FRPUtils.addAndCallReactiveListener(environmentNode.get()
                     .getEnvironment(), new ReactiveListener<TextureCubeMap>() {
 

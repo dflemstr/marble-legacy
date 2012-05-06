@@ -12,7 +12,6 @@ import com.jme3.effect.ParticleMesh;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -149,7 +148,6 @@ public class CheckpointBlock extends AbstractEntity implements Graphical,
                 new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
         material.setTexture("Texture",
                 assetManager.loadTexture("Textures/flare.png"));
-        material.getAdditionalRenderState().setBlendMode(BlendMode.Additive);
         particles.setMaterial(material);
         particles.setStartColor(ColorRGBA.Pink);
         particles.setEndColor(ColorRGBA.Red);

@@ -2,4 +2,7 @@ Material Fabric : Common/MatDefs/Light/Lighting.j3md {
     MaterialParameters {
         DiffuseMap : Textures/fabric.png
     }
+    AdditionalRenderState {
+        Blend Alpha
+    }
 }

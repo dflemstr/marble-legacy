@@ -1,12 +1,8 @@
-#ifndef NUM_LIGHTS
-#define NUM_LIGHTS 1
-#endif
 
 uniform mat4 g_ViewMatrix;
-uniform vec4 g_LightPosition[NUM_LIGHTS];
-uniform vec4 g_LightColor[NUM_LIGHTS];
+uniform vec4 g_LightPosition;
+uniform vec4 g_LightColor;
 uniform vec4 g_AmbientLightColor;
-uniform int m_NumLights;
 
 uniform samplerCube m_EnvironmentMap;
 
@@ -41,19 +37,16 @@ void main(void) {
     vec3 vn = normalize(viewNormal);
     vec3 vi = normalize(viewIncident);
 
-    int lightIndex;
-    for (lightIndex = 0; lightIndex < m_NumLights; lightIndex++) {
-        vec4 lightPosition = g_LightPosition[lightIndex];
-        vec4 lightColor    = g_LightColor[lightIndex];
-        vec3 lightVector;
-        float attenuation;
+    vec4 lightPosition = g_LightPosition;
+    vec4 lightColor    = g_LightColor;
+    vec3 lightVector;
+    float attenuation;
 
-        SingleLighting_CalculateLightVector(worldPosition, lightPosition, lightColor, lightVector, attenuation);
+    SingleLighting_CalculateLightVector(worldPosition, lightPosition, lightColor, lightVector, attenuation);
 
-        vec3 vl = normalize((g_ViewMatrix * vec4(lightVector, 0.0)).xyz);
+    vec3 vl = normalize((g_ViewMatrix * vec4(lightVector, 0.0)).xyz);
 
-        SingleLighting_AddLightPhong(vn, vl, vi, lightColor.rgb, attenuation, m_Shininess, diffuseLightSum, specularLightSum);
-    }
+    SingleLighting_AddLightPhong(vn, vl, vi, lightColor.rgb, attenuation, m_Shininess, diffuseLightSum, specularLightSum);
 
     gl_FragColor.rgb = diffuseColor * (ambientLightSum + diffuseLightSum) + specularColor * specularLightSum;
     gl_FragColor.a = alpha;

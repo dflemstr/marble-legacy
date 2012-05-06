@@ -18,7 +18,7 @@ MaterialDef Wood {
     }
 
     Technique {
-        LightMode SinglePass
+        LightMode MultiPass
         VertexShader   GLSL100: Shaders/Organic/Wood.vert
         FragmentShader GLSL100: Shaders/Organic/Wood.frag
 
