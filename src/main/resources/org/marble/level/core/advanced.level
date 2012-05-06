@@ -28,24 +28,25 @@ position point1 at (-2, 0, 1) from rail
 position point2 at (0, 0, 1) from rail
 position point3 at (2, 0, 1) from rail
 
-let spiral be Spiral(3,3,360,90)
+let spiral be Spiral(4,7,720,70)
 let lantern be Lantern((0.5,0.5,0.5))
 
+connect spiral.end_middle to rail.end_middle
 
 let stoneBall  be Ball([Stone])
 
-position stoneBall at (0,0,1) from spiral.end_middle
+position stoneBall at (0,0,0) from spiral.end_middle
 
 position lantern at (0,0,25) from spiral
 
-let rightSlope be Slab(5,30,1,0.45,-0.1),
-	leftSlope be Slab(5,30,1,0.45,0.1)
+let rightSlope be Slab(5,30,1,0.45,0),
+	leftSlope be Slab(5,30,1,0.45,0)
 	
 let p4 be PointOrb(),
 	p5 be PointOrb(),
 	p6 be PointOrb(),
 	p7 be PointOrb()
-
+	
 connect rightSlope.south_0_0 to spiral.start_inner,
 		leftSlope.north_0_0 to spiral.start_inner
 		
@@ -53,3 +54,40 @@ position p4 at (0,0,1) from rightSlope
 position p5 at (0,0,2) from rightSlope
 position p6 at (0,0,3) from rightSlope
 position p7 at (0,0,4) from rightSlope
+
+let leftWing be Slab(5,20,1,0.45,0),
+    rightWing be Slab(5,20,1,0.45,0)
+	
+	
+connect leftWing.north_middle to leftSlope.south_middle,
+		rightWing.south_0_0 to leftWing.south_0_0
+		
+let railwing be Rail(20)
+
+connect railwing.start_middle to rightWing.north_middle
+
+let p8 be PointOrb(),
+	p9 be PointOrb()
+
+position p8 at (0,0,1) from railwing
+position p9 at (0,1,1) from railwing
+
+let check1block be Slab(5,5,1)
+
+connect check1block.south_middle to railwing.end_middle
+
+let checkpoint1 be CheckpointBlock()
+
+position checkpoint1 at (0, 0, 1) from check1block
+
+let droprail be Rail(15),
+	dropraillwall be Wall(15),
+	droprailrwall be Wall(15)
+
+connect droprail.start_middle to check1block.north_middle,
+		dropraillwall.position_middle to droprail.middle_left,
+		droprailrwall.position_middle to droprail.middle_right
+
+let stoneRace be Ball([Stone])
+
+position stoneRace at (0,0,0) from droprail.start_middle
