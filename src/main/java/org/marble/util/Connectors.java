@@ -87,8 +87,10 @@ public final class Connectors {
         builder.put("end_left",
                 offsetBy(-width / 2, -(height / 2), 0, 0, 0, pi));
 
-        builder.put("middle_right", offsetBy(0, height / 2, 0, 0, 0, pi / 2));
-        builder.put("middle_left", offsetBy(0, -height / 2, 0, 0, 0, pi / 2));
+        builder.put("middle_right",
+                offsetBy(0, height / 2 + depth / 2, 0, 0, 0, pi / 2));
+        builder.put("middle_left",
+                offsetBy(0, -height / 2 - depth / 2, 0, 0, 0, pi / 2));
 
         return builder.build();
     }
