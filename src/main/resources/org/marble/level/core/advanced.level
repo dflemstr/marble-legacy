@@ -28,19 +28,18 @@ position point1 at (-2, 0, 1) from rail
 position point2 at (0, 0, 1) from rail
 position point3 at (2, 0, 1) from rail
 
-let spiral be Spiral(8,30,360,45)
+let spiral be Spiral(3,3,360,90)
 let lantern be Lantern((0.5,0.5,0.5))
 
-connect spiral.end_middle to rail.end_middle
 
 let stoneBall  be Ball([Stone])
 
-position stoneBall at (-6.8,3.7,28.5) from spiral
+position stoneBall at (0,0,1) from spiral.end_middle
 
 position lantern at (0,0,25) from spiral
 
-let rightSlope be Slab(5,300,1,0.45,-0.25),
-	leftSlope be Slab(5,300,1,0.45,0.25)
+let rightSlope be Slab(5,30,1,0.45,-0.1),
+	leftSlope be Slab(5,30,1,0.45,0.1)
 	
 let p4 be PointOrb(),
 	p5 be PointOrb(),

@@ -115,7 +115,7 @@ public class LevelParser {
                             at.next(vector3),
                             from.next(identifier).optional()
                                     .map(new Optionalizer<String>()),
-                            dot.next(identifier)
+                            dot.next(identifier).optional()
                                     .map(new Optionalizer<String>()))
                     .sepBy(comma).map(new ListImmutabilizer<Position>()));
     // Parses a sequence of statements
