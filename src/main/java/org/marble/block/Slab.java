@@ -106,39 +106,35 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
         boolean changed = false;
 
         final TempVars vars = TempVars.get();
-        if (slopeX != 0.0f) {
-            vars.tempMat4.loadIdentity();
-            vars.tempMat4.set(2, 0, slopeX);
-            OfflineTransforms.transformNonLinear3D(
-                    graphicalMesh.getFloatBuffer(Type.Position), vars.tempMat4);
-            OfflineTransforms.transformNonLinear3D(
-                    physicalMesh.getFloatBuffer(Type.Position), vars.tempMat4);
+        vars.tempMat4.loadIdentity();
+        vars.tempMat4.set(2, 0, slopeX);
+        OfflineTransforms.transformNonLinear3D(
+                graphicalMesh.getFloatBuffer(Type.Position), vars.tempMat4);
+        OfflineTransforms.transformNonLinear3D(
+                physicalMesh.getFloatBuffer(Type.Position), vars.tempMat4);
 
-            vars.tempMat4.loadIdentity();
-            vars.tempMat4.set(0, 3, -slopeX);
-            OfflineTransforms.transformNonLinear3DNorm(
-                    graphicalMesh.getFloatBuffer(Type.Normal), vars.tempMat4);
-            OfflineTransforms.transformNonLinear3DNorm(
-                    physicalMesh.getFloatBuffer(Type.Normal), vars.tempMat4);
-            changed = true;
-        }
+        vars.tempMat4.loadIdentity();
+        vars.tempMat4.set(0, 3, -slopeX);
+        OfflineTransforms.transformNonLinear3DNorm(
+                graphicalMesh.getFloatBuffer(Type.Normal), vars.tempMat4);
+        OfflineTransforms.transformNonLinear3DNorm(
+                physicalMesh.getFloatBuffer(Type.Normal), vars.tempMat4);
+        changed = true;
 
-        if (slopeY != 0.0f) {
-            vars.tempMat4.loadIdentity();
-            vars.tempMat4.set(2, 1, slopeY);
-            OfflineTransforms.transformNonLinear3D(
-                    graphicalMesh.getFloatBuffer(Type.Position), vars.tempMat4);
-            OfflineTransforms.transformNonLinear3D(
-                    physicalMesh.getFloatBuffer(Type.Position), vars.tempMat4);
+        vars.tempMat4.loadIdentity();
+        vars.tempMat4.set(2, 1, slopeY);
+        OfflineTransforms.transformNonLinear3D(
+                graphicalMesh.getFloatBuffer(Type.Position), vars.tempMat4);
+        OfflineTransforms.transformNonLinear3D(
+                physicalMesh.getFloatBuffer(Type.Position), vars.tempMat4);
 
-            vars.tempMat4.loadIdentity();
-            vars.tempMat4.set(1, 3, -slopeY);
-            OfflineTransforms.transformNonLinear3DNorm(
-                    graphicalMesh.getFloatBuffer(Type.Normal), vars.tempMat4);
-            OfflineTransforms.transformNonLinear3DNorm(
-                    physicalMesh.getFloatBuffer(Type.Normal), vars.tempMat4);
-            changed = true;
-        }
+        vars.tempMat4.loadIdentity();
+        vars.tempMat4.set(1, 3, -slopeY);
+        OfflineTransforms.transformNonLinear3DNorm(
+                graphicalMesh.getFloatBuffer(Type.Normal), vars.tempMat4);
+        OfflineTransforms.transformNonLinear3DNorm(
+                physicalMesh.getFloatBuffer(Type.Normal), vars.tempMat4);
+        changed = true;
         vars.release();
 
         if (changed) {

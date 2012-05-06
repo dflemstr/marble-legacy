@@ -45,6 +45,11 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
     }
 
     public Spiral(final float radius, final float height, final float angle,
+            final float theta) {
+        this(radius, height, angle, 0, 0, 1, theta);
+    }
+
+    public Spiral(final float radius, final float height, final float angle,
             final float x, final float y, final float z, final float theta) {
         this(radius, height, angle, 1, 0.1f, x, y, z, theta);
     }

@@ -242,7 +242,18 @@ public final class LevelLoader {
                     // entity's offset is relative to that rotation)
                     baseEntity.getTransform().getTranslation(translationVector);
                     translationVector.addLocal(position.getPosition());
+                    final Transform baseTransform = baseEntity.getTransform();
+
+                    if (position.getConnector().isPresent()) {
+                        final Connected connected = (Connected) baseEntity;
+                        final String relativeToConnector =
+                                position.getConnector().get();
+                        connected.getConnectors().get(relativeToConnector)
+                                .transform(translationVector);
+                    }
+
                     movedTransform.setTranslation(translationVector);
+                    movedTransform.setRotation(baseTransform.getRotation());
                 } else {
                     movedTransform.setTranslation(position.getPosition());
                 }
