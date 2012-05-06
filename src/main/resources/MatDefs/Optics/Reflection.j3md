@@ -9,7 +9,7 @@ MaterialDef Reflection {
     }
 
     Technique {
-        LightMode SinglePass
+        LightMode MultiPass
         VertexShader   GLSL100: Shaders/Optics/Reflection.vert
         FragmentShader GLSL100: Shaders/Optics/Reflection.frag
 
