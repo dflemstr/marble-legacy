@@ -106,9 +106,9 @@ public class LevelLoaderTest {
                                 .of()),
                         new Declaration(0, "e3", mockEntityClass, ImmutableList
                                 .of()), new Position(0, "e1", new Vector3f(0,
-                                1, 2), absent), new Connection(0, "e2", "c1",
-                                "e1", "c2"), new Connection(0, "e3", "c1",
-                                "e1", "c3")));
+                                1, 2), absent, absent), new Connection(0, "e2",
+                                "c1", "e1", "c2"), new Connection(0, "e3",
+                                "c1", "e1", "c3")));
         assertEquals(3, entities2.size());
         final UnmodifiableIterator<Entity> iter = entities2.iterator();
         final Vector3f pos = new Vector3f();
@@ -138,21 +138,19 @@ public class LevelLoaderTest {
         final ImmutableSet<Entity> entities1 =
                 loader.runStatements(ImmutableList.of(new Declaration(0, "e1",
                         mockEntityClass, ImmutableList.of()), new Position(0,
-                        "e1", new Vector3f(1, 2, 3), absent)));
+                        "e1", new Vector3f(1, 2, 3), absent, absent)));
         assertEquals(1, entities1.size());
         final Vector3f pos = new Vector3f();
         entities1.iterator().next().getTransform().getTranslation(pos);
         assertEquals(new Vector3f(1, 2, 3), pos);
 
         final ImmutableSet<Entity> entities2 =
-                loader.runStatements(ImmutableList.of(
-                        new Declaration(0, "e1", mockEntityClass, ImmutableList
-                                .of()),
-                        new Declaration(0, "e2", mockEntityClass, ImmutableList
-                                .of()),
-                        new Position(0, "e1", new Vector3f(0, 1, 2), absent),
-                        new Position(0, "e2", new Vector3f(3, 4, 5), Optional
-                                .of("e1"))));
+                loader.runStatements(ImmutableList.of(new Declaration(0, "e1",
+                        mockEntityClass, ImmutableList.of()), new Declaration(
+                        0, "e2", mockEntityClass, ImmutableList.of()),
+                        new Position(0, "e1", new Vector3f(0, 1, 2), absent,
+                                absent), new Position(0, "e2", new Vector3f(3,
+                                4, 5), Optional.of("e1"), absent)));
         assertEquals(2, entities2.size());
         final UnmodifiableIterator<Entity> iter = entities2.iterator();
         // Yes, ImmutableSet is guaranteed to iterate entries in insertion order
