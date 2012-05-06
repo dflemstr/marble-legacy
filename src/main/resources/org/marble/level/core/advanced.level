@@ -40,27 +40,26 @@ position stoneBall at (0,0,0) from spiral.end_middle
 position lantern at (0,0,25) from spiral
 
 let rightSlope be Slab(5,30,1,0.45,0),
-	leftSlope be Slab(5,30,1,0.45,0)
+	leftSlope be Slab(5,30,1,-0.45,0)
 	
 let p4 be PointOrb(),
 	p5 be PointOrb(),
 	p6 be PointOrb(),
 	p7 be PointOrb()
 	
-connect rightSlope.south_0_0 to spiral.start_inner,
-		leftSlope.north_0_0 to spiral.start_inner
+connect leftSlope.south_4_0 to spiral.start_inner,
+		rightSlope.west_middle to leftSlope.east_middle
 		
 position p4 at (0,0,1) from rightSlope
 position p5 at (0,0,2) from rightSlope
 position p6 at (0,0,3) from rightSlope
 position p7 at (0,0,4) from rightSlope
 
-let leftWing be Slab(5,20,1,0.45,0),
+let leftWing be Slab(5,20,1,-0.45,0),
     rightWing be Slab(5,20,1,0.45,0)
 	
-	
-connect leftWing.north_middle to leftSlope.south_middle,
-		rightWing.south_0_0 to leftWing.south_0_0
+connect leftWing.south_middle to leftSlope.north_middle,
+		rightWing.south_0_0 to leftWing.north_4_0
 		
 let railwing be Rail(20)
 
