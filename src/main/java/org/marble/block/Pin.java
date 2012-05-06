@@ -43,6 +43,7 @@ public class Pin extends AbstractEntity implements Graphical, Connected,
 
     @Override
     public void initialize(final Game game) {
+        super.initialize(game);
         final AssetManager assetManager = game.getAssetManager();
 
         final Spatial left =

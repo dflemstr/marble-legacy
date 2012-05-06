@@ -45,6 +45,12 @@ public interface Entity {
     public void update(float tpf);
 
     /**
+     * DIE.
+     */
+
+    public void die();
+
+    /**
      * Sets the debug name of this entity.
      */
     public void setName(String name);

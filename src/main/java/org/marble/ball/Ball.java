@@ -46,7 +46,6 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         }
     }
 
-    protected Game game;
     private BallKind kind;
     private final float radius;
     private float currentRadius;
@@ -114,7 +113,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
 
     @Override
     public void initialize(final Game game) {
-        this.game = game;
+        super.initialize(game);
         rootNode = game.getGraphicsEngine().getRootNode();
         renderManager = game.getGraphicsEngine().getRenderManager();
         assetManager = game.getAssetManager();
@@ -294,7 +293,8 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         // TODO die if glass and too strong impulse
     }
 
-    protected void die() {
+    @Override
+    public void die() {
         game.removeEntity(this);
     }
 

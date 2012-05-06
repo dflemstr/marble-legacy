@@ -72,7 +72,6 @@ public class CheckpointBlock extends AbstractEntity implements Graphical,
         }
     }
 
-    private Game game;
     private Geometry graphicalBox;
     private RigidBodyControl physicalBox;
     private Node graphicalSpinner;
@@ -86,7 +85,7 @@ public class CheckpointBlock extends AbstractEntity implements Graphical,
 
     @Override
     public void initialize(final Game game) {
-        this.game = game;
+        super.initialize(game);
         final AssetManager assetManager = game.getAssetManager();
 
         final ColorRGBA color = ColorRGBA.Yellow.mult(0.66f);

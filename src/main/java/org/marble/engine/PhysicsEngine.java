@@ -1,6 +1,5 @@
 package org.marble.engine;
 
-import java.util.Map;
 import java.util.Set;
 
 import com.jme3.asset.AssetManager;
@@ -13,6 +12,8 @@ import com.jme3.bullet.control.GhostControl;
 import com.jme3.math.Vector3f;
 import com.jme3.system.JmeContext;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -27,9 +28,9 @@ import org.marble.session.GameSession;
  */
 public class PhysicsEngine extends Engine<Physical> {
     private PhysicsSpace physicsSpace;
-    private final Set<Physical> physicals = Sets.newIdentityHashSet();
-    private final Map<PhysicsCollisionObject, Physical> associations = Maps
-            .newIdentityHashMap();
+    private ImmutableSet<Physical> physicals = ImmutableSet.of();
+    private ImmutableMap<PhysicsCollisionObject, Physical> associations =
+            ImmutableMap.of();
     private final Set<Actor> actors = Sets.newIdentityHashSet();
     private GameSession.PauseState pauseState = GameSession.PauseState.Running;
 
@@ -44,6 +45,8 @@ public class PhysicsEngine extends Engine<Physical> {
     public void disableDebug() {
         physicsSpace.disableDebug();
     }
+
+    float bound = 0;
 
     @Override
     public void initialize() {
@@ -79,6 +82,10 @@ public class PhysicsEngine extends Engine<Physical> {
     public void update(final float timePerFrame) {
         if (pauseState == GameSession.PauseState.Running) {
             for (final Physical entity : physicals) {
+                if (entity.getBody().getPhysicsLocation().getZ() < (bound - 64)) {
+                    entity.die();
+                }
+
                 entity.getBody().setPhysicsLocation(
                         entity.getTransform().getTranslation());
                 entity.getBody().setPhysicsRotation(
@@ -95,8 +102,16 @@ public class PhysicsEngine extends Engine<Physical> {
     @Override
     protected void entityAdded(final Physical entity) {
         physicsSpace.add(entity.getBody());
-        associations.put(entity.getBody(), entity);
-        physicals.add(entity);
+        associations =
+                ImmutableMap.<PhysicsCollisionObject, Physical> builder()
+                        .putAll(associations).put(entity.getBody(), entity)
+                        .build();
+        physicals =
+                ImmutableSet.<Physical> builder().addAll(physicals).add(entity)
+                        .build();
+        if (entity.getTransform().getTranslation().getZ() < bound) {
+            bound = entity.getTransform().getTranslation().getZ();
+        }
         if (entity instanceof Actor) {
             actors.add((Actor) entity);
             if (entity instanceof Sensor) {
@@ -115,8 +130,14 @@ public class PhysicsEngine extends Engine<Physical> {
     @Override
     protected void entityRemoved(final Physical entity) {
         physicsSpace.remove(entity.getBody());
-        associations.remove(entity.getBody());
-        physicals.remove(entity);
+
+        associations =
+                ImmutableMap.copyOf(Maps.difference(associations,
+                        ImmutableMap.of(entity.getBody(), entity))
+                        .entriesOnlyOnLeft());
+        physicals =
+                ImmutableSet.copyOf(Sets.difference(physicals,
+                        ImmutableSet.of(entity)));
         if (entity instanceof Actor) {
             actors.remove(entity);
             if (entity instanceof Sensor) {

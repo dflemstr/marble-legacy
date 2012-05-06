@@ -12,6 +12,7 @@ import org.marble.Game;
  */
 public abstract class AbstractEntity implements Entity {
     private final Node centerNode;
+    protected Game game = null;
 
     public AbstractEntity() {
         centerNode = new Node();
@@ -19,6 +20,12 @@ public abstract class AbstractEntity implements Entity {
 
     public Node getSpatial() {
         return centerNode;
+    }
+
+    @Override
+    public void die() {
+        System.out.println(game);
+        game.removeEntity(this);
     }
 
     @Override
@@ -38,7 +45,7 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void initialize(final Game game) {
-        // Do nothing
+        this.game = game;
     }
 
     @Override

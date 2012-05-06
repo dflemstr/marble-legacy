@@ -18,7 +18,6 @@ import org.marble.graphics.GeoSphere;
 
 public class LifeOrb extends AbstractEntity implements Graphical, Physical,
         Collidable {
-    private Game game;
     private RigidBodyControl physicalBall;
     private Spatial graphicalBall;
     private final float radius;
@@ -38,7 +37,7 @@ public class LifeOrb extends AbstractEntity implements Graphical, Physical,
 
     @Override
     public void initialize(final Game game) {
-        this.game = game;
+        super.initialize(game);
         final AssetManager assetManager = game.getAssetManager();
 
         final GeoSphere geometricalBall =

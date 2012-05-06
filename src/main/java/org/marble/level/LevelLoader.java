@@ -242,18 +242,22 @@ public final class LevelLoader {
                     // entity's offset is relative to that rotation)
                     baseEntity.getTransform().getTranslation(translationVector);
                     translationVector.addLocal(position.getPosition());
-                    final Transform baseTransform = baseEntity.getTransform();
 
                     if (position.getConnector().isPresent()) {
                         final Connected connected = (Connected) baseEntity;
                         final String relativeToConnector =
                                 position.getConnector().get();
-                        connected.getConnectors().get(relativeToConnector)
-                                .transform(translationVector);
+                        final Connector connector =
+                                connected.getConnectors().get(
+                                        relativeToConnector);
+                        final Vector3f translation =
+                                connector.getTranslation().clone();
+                        baseEntity.getTransform().getRotation()
+                                .mult(translation, translation);
+                        translationVector.addLocal(translation);
                     }
 
                     movedTransform.setTranslation(translationVector);
-                    movedTransform.setRotation(baseTransform.getRotation());
                 } else {
                     movedTransform.setTranslation(position.getPosition());
                 }
@@ -261,7 +265,11 @@ public final class LevelLoader {
             }
         }
 
-        return entityBuilder.build();
+        // Calculate the bounding box.
+
+        final ImmutableSet<Entity> set = entityBuilder.build();
+
+        return set;
     }
 
     /**

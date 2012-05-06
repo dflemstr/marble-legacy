@@ -35,7 +35,7 @@ connect spiral.end_middle to rail.end_middle
 
 let stoneBall  be Ball([Stone])
 
-position stoneBall at (0,0,0) from spiral.end_middle
+position stoneBall at (0,0.5,1) from spiral.end_middle
 
 position lantern at (0,0,25) from spiral
 
@@ -90,4 +90,4 @@ connect droprail.start_middle to check1block.north_middle,
 
 let stoneRace be Ball([Stone])
 
-position stoneRace at (0,0,0) from rail.end_middle
+position stoneRace at (0,0,1) from droprail.start_middle

@@ -21,7 +21,6 @@ public class PlayerBall extends Ball implements Interactive, Actor {
     private final Vector3f addedForce = new Vector3f();
     private static final float FORCE_MAGNITUDE = 24.0f;
     private boolean goingWest, goingEast, goingNorth, goingSouth;
-    private Game game;
 
     public PlayerBall(final BallKind kind) {
         this(kind, 0.5f);
@@ -101,11 +100,10 @@ public class PlayerBall extends Ball implements Interactive, Actor {
     @Override
     public void initialize(final Game game) {
         super.initialize(game);
-        this.game = game;
     }
 
     @Override
-    protected void die() {
+    public void die() {
         game.killBall();
     }
 
@@ -116,10 +114,6 @@ public class PlayerBall extends Ball implements Interactive, Actor {
                 / getBallKind().getStability());
         getBody().activate();
         getBody().applyCentralForce(appliedForce);
-
-        if (getBody().getPhysicsLocation().z < -64.0) {
-            game.killBall();
-        }
     }
 
     public void resetMoveTo(final Vector3f respawnPoint) {
