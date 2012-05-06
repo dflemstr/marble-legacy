@@ -521,7 +521,7 @@ public class Game {
      * Tells the game to halt immediately.
      */
     public void stop() {
-        context.destroy(true);
+        context.destroy(false);
     }
 
     /**
@@ -609,6 +609,7 @@ public class Game {
                 new FilterPostProcessor(assetManager);
         {
             final SSAOFilter ssaoFilter = new SSAOFilter();
+            ssaoFilter.setIntensity(6.0f);
             FRPUtils.addAndCallReactiveListener(settings.ssao,
                     new ReactiveListener<Boolean>() {
                         @Override
@@ -620,6 +621,12 @@ public class Game {
         }
         {
             final DepthOfFieldFilter advDofFilter = new DepthOfFieldFilter();
+            advDofFilter.setRings(3);
+            advDofFilter.setGain(8);
+            advDofFilter.setFocalDepth(3.0f);
+            advDofFilter.setDepthBlur(true);
+            advDofFilter.setDepthBlurSize(1.0f);
+            advDofFilter.setThreshold(0.9f);
             FRPUtils.addAndCallReactiveListener(settings.dof,
                     new ReactiveListener<Boolean>() {
                         @Override
@@ -659,7 +666,6 @@ public class Game {
                         }
                     });
 
-            advDofFilter.setRings(3);
             filters.addFilter(advDofFilter);
         }
         {
@@ -674,8 +680,8 @@ public class Game {
 
             bloomFilter.setDownSamplingFactor(2);
             bloomFilter.setBlurScale(1.37f);
-            bloomFilter.setExposurePower(3.30f);
-            bloomFilter.setBloomIntensity(2.45f);
+            bloomFilter.setExposurePower(2.0f);
+            bloomFilter.setBloomIntensity(0.5f);
             filters.addFilter(bloomFilter);
         }
         viewPort.addProcessor(filters);
@@ -686,7 +692,8 @@ public class Game {
      */
     private void setupSkybox() {
         final Texture texture =
-                assetManager.loadTexture("Textures/Sky/Islands/Islands.dds");
+                assetManager
+                        .loadTexture("Textures/Sky/Stormydays/Stormydays.dds");
         skybox = SkyFactory.createSky(assetManager, texture, false);
         skybox.rotate(FastMath.HALF_PI, 0, 0);
         graphicsEngine.getRootNode().attachChild(skybox);

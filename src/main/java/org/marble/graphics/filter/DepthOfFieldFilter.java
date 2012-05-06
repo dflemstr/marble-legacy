@@ -48,6 +48,10 @@ public class DepthOfFieldFilter extends Filter {
     protected void initFilter(final AssetManager manager,
             final RenderManager renderManager, final ViewPort vp, final int w,
             final int h) {
+        defaultPass = new Pass();
+        defaultPass.init(renderManager.getRenderer(), w, h,
+                getDefaultPassTextureFormat(), getDefaultPassDepthFormat());
+
         material =
                 new Material(manager, "MatDefs/DepthOfField/DepthOfField.j3md");
         final Camera cam = vp.getCamera();

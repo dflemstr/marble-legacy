@@ -12,13 +12,9 @@ public class WinScreen extends AbstractScreenController {
 
     @Override
     public void onGoto() {
-        if (!game.hasNextLevel()) {
-            final Element button =
-                    screen.findElementByName("next-level-button");
-            final Element parent = button.getParent();
-            parent.getElements().remove(button);
-            parent.layoutElements();
-        }
+        final Element button = screen.findElementByName("next-level-button");
+        button.setVisible(game.hasNextLevel());
+        button.getParent().layoutElements();
     }
 
     public void gotoNextLevel() {
