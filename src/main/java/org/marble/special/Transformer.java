@@ -1,7 +1,6 @@
 package org.marble.special;
 
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
@@ -17,7 +16,6 @@ import com.jme3.scene.Spatial;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import org.marble.Game;
 import org.marble.ball.Ball;
@@ -61,7 +59,6 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
     private final BallKind targetKind;
     private RigidBodyControl physicalBox;
     private Optional<EnvironmentNode> environmentNode = Optional.absent();
-    private final Queue<Ball> toTransform = Lists.newLinkedList();
 
     public Transformer(final BallKind targetKind) {
         this.targetKind = targetKind;
@@ -89,6 +86,7 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
                 new CreateEnvironmentNode(game);
         graphicalSphere.setMaterial(targetKind.createMaterial(assetManager,
                 getEnvironment));
+        getSpatial().attachChild(graphicalSphere);
 
         physicalBox =
                 new RigidBodyControl(new BoxCollisionShape(new Vector3f(0.5f,
@@ -113,14 +111,6 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
     }
 
     @Override
-    public void update(final float tpf) throws Exception {
-        for (final Ball ball : toTransform) {
-            ball.setBallKind(targetKind);
-            log.info("Transformed " + ball + " into material " + targetKind);
-        }
-    }
-
-    @Override
     public void destroy() {
         if (environmentNode.isPresent()) {
             environmentNode.get().destroy();
@@ -132,7 +122,13 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
             final PhysicsCollisionEvent event) {
 
         if (other instanceof Ball) {
-            toTransform.add((Ball) other);
+            final Ball ball = (Ball) other;
+            try {
+                ball.setBallKind(targetKind);
+            } catch (final Exception e) {
+                game.handleError(e);
+            }
+            log.info("Transformed " + ball + " into material " + targetKind);
         }
     }
 }

@@ -8,11 +8,11 @@ import com.jme3.util.TempVars;
 
 import com.google.common.collect.ImmutableSet;
 
-import org.marble.Game;
 import org.marble.entity.interactive.Interactive;
 import org.marble.entity.physical.Actor;
 import org.marble.input.PlayerInput;
 import org.marble.util.Direction;
+import org.marble.util.Physics;
 
 /**
  * A player-controlled ball.
@@ -101,34 +101,34 @@ public class PlayerBall extends Ball implements Interactive, Actor {
     }
 
     @Override
-    public void initialize(final Game game) throws Exception {
-        super.initialize(game);
-    }
-
-    @Override
     public void die() {
         game.killBall();
     }
 
-    private final Vector3f store = new Vector3f();
-
     @Override
     public void performActions(final float timePerFrame) {
         appliedForce.set(internalForce);
-        getBody().activate();
-        getBody().getLinearVelocity(store);
-        final float accX = (lastVelocity.getX() - store.getX()) * timePerFrame;
-        final float accY = (lastVelocity.getY() - store.getY()) * timePerFrame;
+
         final TempVars vars = TempVars.get();
-        final Vector3f impulse = vars.vect1;
-        impulse.set(appliedForce);
-        impulse.multLocal(getBallKind().getMass());
-        final float acc = FastMath.sqrt(accX * accX + accY * accY);
-        System.out.println(acc + " " + getBallKind().maxAcceleration());
-        if (acc > getBallKind().maxAcceleration()) {
-        } else {
-            getBody().applyCentralForce(impulse);
+        final Vector3f deltaV = vars.vect1;
+        getBody().getLinearVelocity(deltaV);
+        final Vector3f force = vars.vect2;
+        deltaV.subtract(lastVelocity, force);
+        force.divideLocal(timePerFrame * getBody().getMass()).subtractLocal(
+                Physics.GRAVITY);
+
+        appliedForce.addLocal(force);
+
+        final float planeForce =
+                FastMath.sqrt(appliedForce.x * appliedForce.x + appliedForce.y
+                        * appliedForce.y);
+        final float maxForce = getBallKind().getMaxForce();
+        if (planeForce > maxForce) {
+            appliedForce.divideLocal(planeForce / maxForce);
         }
+        appliedForce.subtractLocal(force);
+        getBody().activate();
+        getBody().applyCentralForce(appliedForce);
         getBody().getLinearVelocity(lastVelocity);
         vars.release();
     }

@@ -1,7 +1,7 @@
 // Import our slab class
 using Slab as org.marble.block.Slab
 using Ball as org.marble.ball.Ball
-using Transformer as org.marble.block.Transformer
+using Transformer as org.marble.special.Transformer
 using Lantern as org.marble.block.Lantern
 using Wall as org.marble.block.Wall
 using Rail as org.marble.block.Rail
@@ -43,7 +43,7 @@ let b1 be Slab(3,10,1,0.0,0.1),
     b15 be Slab(3,10,1,0.0,1.5),
     b16 be Slab(3,10,1,0.0,1.6),
     b17 be Slab(3,10,1,0.0,1.7),
-    b18 be Slab(3,10,1,0.0,1.8)
+    b18 be Slab(3,10,1,0.0,2.0)
     
 connect b1.south_middle to spawnblock.north_1_0,
 		b2.south_middle to spawnblock.north_5_0,

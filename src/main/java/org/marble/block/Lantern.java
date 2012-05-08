@@ -61,7 +61,7 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
     }
 
     @Override
-    public void initialize(final Game game) {
+    public void initialize(final Game game) throws Exception {
         super.initialize(game);
         final AssetManager assetManager = game.getAssetManager();
         graphicalLantern = assetManager.loadModel("Models/lantern.obj");

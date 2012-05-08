@@ -36,7 +36,7 @@ public class LifeOrb extends AbstractEntity implements Graphical, Physical,
     }
 
     @Override
-    public void initialize(final Game game) {
+    public void initialize(final Game game) throws Exception {
         super.initialize(game);
         final AssetManager assetManager = game.getAssetManager();
 

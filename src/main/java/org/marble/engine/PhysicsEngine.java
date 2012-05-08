@@ -22,6 +22,7 @@ import org.marble.entity.physical.Collidable;
 import org.marble.entity.physical.Physical;
 import org.marble.entity.physical.Sensor;
 import org.marble.session.GameSession;
+import org.marble.util.Physics;
 
 /**
  * The JBullet-based physics engine.
@@ -54,7 +55,7 @@ public class PhysicsEngine extends Engine<Physical> {
                 new PhysicsSpace(new Vector3f(-10000f, -10000f, -10000f),
                         new Vector3f(10000f, 10000f, 10000f),
                         BroadphaseType.DBVT);
-        physicsSpace.setGravity(new Vector3f(0, 0, -10));
+        physicsSpace.setGravity(Physics.GRAVITY);
         physicsSpace.addCollisionListener(new PhysicsCollisionListener() {
             @Override
             public void collision(final PhysicsCollisionEvent event) {
