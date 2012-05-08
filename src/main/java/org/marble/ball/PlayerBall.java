@@ -99,7 +99,7 @@ public class PlayerBall extends Ball implements Interactive, Actor {
     }
 
     @Override
-    public void initialize(final Game game) {
+    public void initialize(final Game game) throws Exception {
         super.initialize(game);
         this.game = game;
     }

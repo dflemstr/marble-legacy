@@ -171,13 +171,17 @@ public class Game {
      *            The set of entities to manage.
      */
     public void addEntities(final Set<Entity> entities) {
-        for (final Entity entity : entities) {
-            entity.initialize(this);
-            for (final Engine<?> engine : engines) {
-                if (engine.shouldHandle(entity)) {
-                    engine.addEntity(entity);
+        try {
+            for (final Entity entity : entities) {
+                entity.initialize(this);
+                for (final Engine<?> engine : engines) {
+                    if (engine.shouldHandle(entity)) {
+                        engine.addEntity(entity);
+                    }
                 }
             }
+        } catch (final Exception e) {
+            handleError(e);
         }
 
         this.entities =
@@ -381,11 +385,11 @@ public class Game {
             currentLevelPack = levelLoader.loadMetaLevelPack(levelPack);
             return;
         } catch (final IOException e) {
-            handleError(e.getMessage(), e);
+            handleError(e);
         } catch (final JSONException e) {
-            handleError(e.getMessage(), e);
+            handleError(e);
         } catch (final LevelLoadException e) {
-            handleError(e.getMessage(), e);
+            handleError(e);
         }
     }
 
@@ -414,9 +418,9 @@ public class Game {
             handleError(
                     describeParseError(e.getErrorDetails(), e.getLocation()), e);
         } catch (final LevelLoadException e) {
-            handleError(e.getMessage(), e);
+            handleError(e);
         } catch (final Exception e) {
-            handleError(e.getMessage(), e);
+            handleError(e);
         }
     }
 
@@ -510,7 +514,11 @@ public class Game {
                     engine.removeEntity(entity);
                 }
             }
-            entity.destroy();
+            try {
+                entity.destroy();
+            } catch (final Exception e) {
+                handleError(e);
+            }
         }
 
         this.entities =
@@ -575,8 +583,12 @@ public class Game {
         }
         if (!currentSession.isPresent()
                 || currentSession.get().isPaused() == GameSession.PauseState.Running) {
-            for (final Entity e : entities) {
-                e.update(timer.getTimePerFrame());
+            for (final Entity entity : entities) {
+                try {
+                    entity.update(timer.getTimePerFrame());
+                } catch (final Exception e) {
+                    handleError(e);
+                }
             }
         }
     }
@@ -742,7 +754,11 @@ public class Game {
     public void respawnBall() {
         if (playerBall.isPresent() && currentSession.isPresent()) {
             final PlayerBall ball = playerBall.get();
-            ball.setBallKind(DEFAULT_BALL_KIND);
+            try {
+                ball.setBallKind(DEFAULT_BALL_KIND);
+            } catch (final Exception e) {
+                handleError(e);
+            }
             ball.resetMoveTo(currentSession.get().getRespawnPoint());
         }
     }
@@ -784,6 +800,14 @@ public class Game {
         gotoScreen(UIScreen.Win);
     }
 
+    public void handleError(final Throwable t) {
+        handleError(Optional.<String> absent(), t);
+    }
+
+    public void handleError(final String errorMessage, final Throwable t) {
+        handleError(Optional.of(errorMessage), t);
+    }
+
     /**
      * Handles an exception in the program.
      * 
@@ -792,16 +816,18 @@ public class Game {
      * @param t
      *            The machine representation of the exception.
      */
-    public void handleError(final String errorMessage, final Throwable t) {
+    public void handleError(final Optional<String> errorMessage,
+            final Throwable t) {
         logStackTrace(t);
         final String message;
-        if (errorMessage == null) {
-            message = t.getLocalizedMessage();
+        if (errorMessage.isPresent()) {
+            message = errorMessage.get();
         } else {
-            message = errorMessage;
+            message = t.getLocalizedMessage();
         }
         JOptionPane.showMessageDialog(null, message, "An error has occurred",
                 JOptionPane.ERROR_MESSAGE);
+        gotoMenu();
     }
 
     /**

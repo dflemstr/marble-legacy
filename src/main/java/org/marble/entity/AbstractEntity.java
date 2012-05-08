@@ -22,12 +22,12 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
-    public void destroy() {
+    public void destroy() throws Exception {
         // Do nothing
     }
 
     @Override
-    public void update(final float tpf) {
+    public void update(final float tpf) throws Exception {
         // Do nothing
     }
 
@@ -37,7 +37,7 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
-    public void initialize(final Game game) {
+    public void initialize(final Game game) throws Exception {
         // Do nothing
     }
 
