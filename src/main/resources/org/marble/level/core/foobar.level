@@ -1,7 +1,7 @@
 // Import our slab class
 using Slab as org.marble.block.Slab
 using Ball as org.marble.ball.Ball
-using Transformer as org.marble.block.Transformer
+using Transformer as org.marble.special.Transformer
 using Lantern as org.marble.block.Lantern
 using Wall as org.marble.block.Wall
 using Rail as org.marble.block.Rail
