@@ -10,6 +10,7 @@ import com.jme3.texture.TextureCubeMap;
 import org.marble.frp.FRPUtils;
 import org.marble.frp.ReactiveListener;
 import org.marble.graphics.EnvironmentNode;
+import org.marble.util.Physics;
 
 /**
  * A kind of ball material.
@@ -145,7 +146,11 @@ public enum BallKind {
     private BallKind(final float mass, final float maxAngle) {
         this.mass = mass;
         this.maxAngle = maxAngle;
-        acceleration = maxAngle * 10;
+        acceleration =
+                (float) (-Physics.GRAVITY.getZ() / Math
+                        .cos(Math.atan(maxAngle)));
+        System.out.println("Max force: " + acceleration + ", mass: " + mass
+                + ", angle: " + maxAngle);
     }
 
     public float getMass() {
