@@ -1,31 +1,146 @@
 package org.marble.ball;
 
+import java.util.concurrent.Callable;
+
+import com.jme3.asset.AssetManager;
+import com.jme3.material.Material;
+import com.jme3.math.Vector3f;
+import com.jme3.texture.TextureCubeMap;
+
+import org.marble.frp.FRPUtils;
+import org.marble.frp.ReactiveListener;
+import org.marble.graphics.EnvironmentNode;
+
 /**
  * A kind of ball material.
  */
 public enum BallKind {
     /** A stone ball: heavy and slow */
-    Stone(2, 0.5f),
+    Stone(2, 0.5f) {
+        @Override
+        public Material createMaterial(final AssetManager assetManager,
+                final Callable<EnvironmentNode> getEnvironment)
+                throws Exception {
+            return assetManager.loadMaterial("Materials/Mineral/Stone.j3m");
+        }
+
+    },
 
     /** A wooden ball: light and agile */
-    Wood(1, 1),
+    Wood(1, 1) {
+        @Override
+        public Material createMaterial(final AssetManager assetManager,
+                final Callable<EnvironmentNode> getEnvironment)
+                throws Exception {
+
+            final Material material =
+                    assetManager.loadMaterial("Materials/Organic/Wood.j3m");
+
+            final Vector3f vec = new Vector3f();
+
+            // The trunkCenter vectors define a line that is the center of the
+            // trunk that our wood was cut from - all the "rings" will be around
+            // this axis.
+            randomize(vec);
+            // material.setVector3("TrunkCenter1", vec);
+
+            randomize(vec);
+            // material.setVector3("TrunkCenter2", vec);
+
+            // The noiseSeed vector seeds the random noise generator. The
+            // generator has a period of 289.
+            randomize(vec);
+            vec.multLocal(289);
+            material.setVector3("NoiseSeed", vec);
+
+            // The variation is a value between 0.0 and 1.0 that determines
+            // which column of the wood gradient texture that is used for
+            // tinting the material.
+            material.setFloat("Variation", (float) Math.random());
+            return material;
+        }
+    },
 
     /** A fabric ball: very light and flimsy */
-    Fabric(0.5f, 2.0f),
+    Fabric(0.5f, 2.0f) {
+
+        @Override
+        public Material createMaterial(final AssetManager assetManager,
+                final Callable<EnvironmentNode> getEnvironment)
+                throws Exception {
+            return assetManager.loadMaterial("Materials/Organic/Fabric.j3m");
+        }
+
+    },
 
     /** An easily controlled ball that might break when moved too quickly */
-    Glass(0.75f, 1),
+    Glass(0.75f, 1) {
+
+        @Override
+        public Material createMaterial(final AssetManager assetManager,
+                final Callable<EnvironmentNode> getEnvironment)
+                throws Exception {
+            final Material material =
+                    assetManager.loadMaterial("Materials/Mineral/Glass.j3m");
+            FRPUtils.addAndCallReactiveListener(getEnvironment.call()
+                    .getEnvironment(), new ReactiveListener<TextureCubeMap>() {
+
+                @Override
+                public void valueChanged(final TextureCubeMap value) {
+                    material.setTexture("EnvironmentMap", value);
+                }
+            });
+            return material;
+        }
+
+    },
 
     /**
      * A ball that leaves a trail of mercury as it moves, slowly growing smaller
      */
-    Mercury(4, 0.25f);
+    Mercury(4, 0.25f) {
+
+        @Override
+        public Material createMaterial(final AssetManager assetManager,
+                final Callable<EnvironmentNode> getEnvironment)
+                throws Exception {
+            final Material material =
+                    assetManager.loadMaterial("Materials/Metal/Mercury.j3m");
+            FRPUtils.addAndCallReactiveListener(getEnvironment.call()
+                    .getEnvironment(), new ReactiveListener<TextureCubeMap>() {
+
+                @Override
+                public void valueChanged(final TextureCubeMap value) {
+                    material.setTexture("EnvironmentMap", value);
+                }
+            });
+            return material;
+        }
+
+    };
 
     private float mass;
 
     private float maxAngle;
 
-    private double acceleration;
+    private float acceleration;
+
+    /**
+     * Creates a graphical material for this kind of ball.
+     * 
+     * @param assetManager
+     *            The asset manager to load resources from.
+     * @param getEnvironment
+     *            A closure that retrieves an environment node, if this material
+     *            requires it. If no environment is required, the closure won't
+     *            be called.
+     * @return The constructed material.
+     * @throws Exception
+     *             if the getEnvironment closure fails, or a resource loading
+     *             exception is thrown.
+     */
+    public abstract Material createMaterial(final AssetManager assetManager,
+            final Callable<EnvironmentNode> getEnvironment) throws Exception;
 
     private BallKind(final float mass, final float maxAngle) {
         this.mass = mass;
@@ -37,9 +152,14 @@ public enum BallKind {
         return mass;
     }
 
-    public double maxAcceleration() {
+    public float getMaxForce() {
         return acceleration;
 
     }
 
+    private static void randomize(final Vector3f vec) {
+        vec.setX((float) Math.random());
+        vec.setY((float) Math.random());
+        vec.setZ((float) Math.random());
+    }
 }

@@ -17,7 +17,7 @@ public interface Entity {
      * Destroys resources that were allocated in the {@link #initialize(Game)}
      * call.
      */
-    public void destroy();
+    public void destroy() throws Exception;
 
     /**
      * The debug name of this entity.
@@ -33,7 +33,7 @@ public interface Entity {
      * Performs allocation of resources. This method is called when the entity
      * is inserted into the world but before it is added to any engines.
      */
-    public void initialize(Game game);
+    public void initialize(Game game) throws Exception;
 
     /**
      * Updates the state of the entity. Will not be called while the game is
@@ -42,7 +42,7 @@ public interface Entity {
      * @param tpf
      *            Time that has passed since the last update.
      */
-    public void update(float tpf);
+    public void update(float tpf) throws Exception;
 
     /**
      * DIE.

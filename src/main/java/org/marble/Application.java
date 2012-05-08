@@ -7,6 +7,8 @@ import com.jme3.system.JmeSystem;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 
+import com.google.common.base.Optional;
+
 import org.marble.settings.Settings;
 
 /**
@@ -128,7 +130,7 @@ public class Application implements Runnable, SystemListener {
 
     @Override
     public void handleError(final String errorMsg, final Throwable t) {
-        game.handleError(errorMsg, t);
+        game.handleError(Optional.fromNullable(errorMsg), t);
         System.err.println(errorMsg);
         context.destroy(false);
     }

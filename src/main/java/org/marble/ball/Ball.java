@@ -1,19 +1,18 @@
 package org.marble.ball;
 
+import java.util.concurrent.Callable;
+
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.material.Material;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.TextureCubeMap;
 import com.jme3.util.TempVars;
 
-import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 
@@ -24,25 +23,27 @@ import org.marble.entity.physical.Collidable;
 import org.marble.entity.physical.Physical;
 import org.marble.frp.FRPUtils;
 import org.marble.frp.Reactive;
-import org.marble.frp.ReactiveListener;
 import org.marble.graphics.EnvironmentNode;
 import org.marble.graphics.GeoSphere;
-import org.marble.util.Quality;
+import org.marble.util.QualityToInteger;
 
 /**
  * A physical ball that can have different materials and physical properties.
  */
 public class Ball extends AbstractEntity implements Graphical, Physical,
         Collidable {
-    private static final float MERCURY_REDUCTION_RPS = 1f / 40f;
+    private final class GetEnvironment implements Callable<EnvironmentNode> {
+        public boolean wasCalled = false;
 
-    private static final class QualityToInteger implements
-            Function<Quality, Integer> {
         @Override
-        public Integer apply(final Quality input) {
-            return input.ordinal() + 4;
+        public EnvironmentNode call() throws Exception {
+            enableEnvironment();
+            wasCalled = true;
+            return environmentNode.get();
         }
     }
+
+    private static final float MERCURY_REDUCTION_RPS = 1f / 40f;
 
     private BallKind kind;
     private final float radius;
@@ -63,6 +64,8 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
 
     // How large (2^n) we will let our generated textures be.
     private Reactive<Integer> textureSizeMagnitude;
+
+    private final GetEnvironment getEnvironment = new GetEnvironment();
 
     /**
      * Creates a new ball.
@@ -110,7 +113,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     }
 
     @Override
-    public void initialize(final Game game) {
+    public void initialize(final Game game) throws Exception {
         super.initialize(game);
         rootNode = game.getGraphicsEngine().getRootNode();
         renderManager = game.getGraphicsEngine().getRenderManager();
@@ -161,76 +164,16 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
      * 
      * @param kind
      *            The kind of ball to switch to.
+     * @throws Exception
      */
-    public void setBallKind(final BallKind kind) {
-        // TODO implement material properties and changes.
+    public void setBallKind(final BallKind kind) throws Exception {
+        getEnvironment.wasCalled = false;
+        graphicalBall.setMaterial(kind.createMaterial(assetManager,
+                getEnvironment));
 
-        final Material material;
-        switch (kind) {
-        case Wood:
+        if (!getEnvironment.wasCalled) {
             disableEnvironment();
-            material = assetManager.loadMaterial("Materials/Organic/Wood.j3m");
-
-            final Vector3f vec = new Vector3f();
-
-            // The trunkCenter vectors define a line that is the center of the
-            // trunk that our wood was cut from - all the "rings" will be around
-            // this axis.
-            randomize(vec);
-            // material.setVector3("TrunkCenter1", vec);
-
-            randomize(vec);
-            // material.setVector3("TrunkCenter2", vec);
-
-            // The noiseSeed vector seeds the random noise generator. The
-            // generator has a period of 289.
-            randomize(vec);
-            vec.multLocal(289);
-            material.setVector3("NoiseSeed", vec);
-
-            // The variation is a value between 0.0 and 1.0 that determines
-            // which column of the wood gradient texture that is used for
-            // tinting the material.
-            material.setFloat("Variation", (float) Math.random());
-            break;
-        case Stone:
-            disableEnvironment();
-            material = assetManager.loadMaterial("Materials/Mineral/Stone.j3m");
-            break;
-        case Fabric:
-            disableEnvironment();
-            material =
-                    assetManager.loadMaterial("Materials/Organic/Fabric.j3m");
-            break;
-        case Glass:
-            enableEnvironment();
-            material = assetManager.loadMaterial("Materials/Mineral/Glass.j3m");
-            FRPUtils.addAndCallReactiveListener(environmentNode.get()
-                    .getEnvironment(), new ReactiveListener<TextureCubeMap>() {
-
-                @Override
-                public void valueChanged(final TextureCubeMap value) {
-                    material.setTexture("EnvironmentMap", value);
-                }
-            });
-            break;
-        case Mercury:
-            enableEnvironment();
-            material = assetManager.loadMaterial("Materials/Metal/Mercury.j3m");
-            FRPUtils.addAndCallReactiveListener(environmentNode.get()
-                    .getEnvironment(), new ReactiveListener<TextureCubeMap>() {
-
-                @Override
-                public void valueChanged(final TextureCubeMap value) {
-                    material.setTexture("EnvironmentMap", value);
-                }
-            });
-            break;
-        default:
-            throw new UnsupportedOperationException(
-                    "Unimplemented ball material for kind " + kind);
         }
-        graphicalBall.setMaterial(material);
 
         physicalBall.setMass(kind.getMass());
         // physicalBall.setDamping(kind.getLinearDamping(),
@@ -267,12 +210,6 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     public String toString() {
         return Objects.toStringHelper(this).add("name", getName())
                 .add("kind", kind).add("radius", radius).toString();
-    }
-
-    private void randomize(final Vector3f vec) {
-        vec.setX((float) Math.random());
-        vec.setY((float) Math.random());
-        vec.setZ((float) Math.random());
     }
 
     @Override
