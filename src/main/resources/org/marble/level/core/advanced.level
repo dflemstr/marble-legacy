@@ -90,3 +90,7 @@ connect droprail.start_middle to check1block.north_middle,
 let stoneRace be Ball([Stone])
 
 position stoneRace at (0,0,1) from droprail.start_middle
+
+let race be Slab(5,300,1,0,-0.45)
+
+connect race.south_middle to droprail.end_middle

@@ -2,7 +2,9 @@ package org.marble.ball;
 
 import java.util.Set;
 
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.util.TempVars;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -21,6 +23,7 @@ public class PlayerBall extends Ball implements Interactive, Actor {
     private final Vector3f addedForce = new Vector3f();
     private static final float FORCE_MAGNITUDE = 24.0f;
     private boolean goingWest, goingEast, goingNorth, goingSouth;
+    private final Vector3f lastVelocity = new Vector3f(0, 0, 0);
 
     public PlayerBall(final BallKind kind) {
         this(kind, 0.5f);
@@ -107,13 +110,27 @@ public class PlayerBall extends Ball implements Interactive, Actor {
         game.killBall();
     }
 
+    private final Vector3f store = new Vector3f();
+
     @Override
     public void performActions(final float timePerFrame) {
         appliedForce.set(internalForce);
-        appliedForce.multLocal(getBallKind().getMass()
-                / getBallKind().getStability());
         getBody().activate();
-        getBody().applyCentralForce(appliedForce);
+        getBody().getLinearVelocity(store);
+        final float accX = (lastVelocity.getX() - store.getX()) * timePerFrame;
+        final float accY = (lastVelocity.getY() - store.getY()) * timePerFrame;
+        final TempVars vars = TempVars.get();
+        final Vector3f impulse = vars.vect1;
+        impulse.set(appliedForce);
+        impulse.multLocal(getBallKind().getMass());
+        final float acc = FastMath.sqrt(accX * accX + accY * accY);
+        System.out.println(acc + " " + getBallKind().maxAcceleration());
+        if (acc > getBallKind().maxAcceleration()) {
+        } else {
+            getBody().applyCentralForce(impulse);
+        }
+        getBody().getLinearVelocity(lastVelocity);
+        vars.release();
     }
 
     public void resetMoveTo(final Vector3f respawnPoint) {

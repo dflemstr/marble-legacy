@@ -235,8 +235,8 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         physicalBall.setMass(kind.getMass());
         // physicalBall.setDamping(kind.getLinearDamping(),
         // kind.getAngularDamping());
-        physicalBall.setFriction(kind.getFriction());
-        physicalBall.setRestitution(kind.getRestitution());
+        // physicalBall.setFriction(kind.getFriction());
+        // physicalBall.setRestitution(kind.getRestitution());
 
         this.kind = kind;
     }
