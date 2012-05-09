@@ -10,6 +10,18 @@ using Lantern as org.marble.block.Lantern
 let spawnPlatform be Slab(5, 5, 1)
 position spawnPlatform at (0, 0, 0)
 
+let spawnWallSouth be Wall(5),
+	spawnWallEast be Wall(5),
+	spawnWallWest be Wall(5),
+	spawnWallNorth1 be Wall(1),
+	spawnWallNorth2 be Wall(1)
+
+connect spawnWallSouth.position_middle to spawnPlatform.south_middle,
+		spawnWallEast.position_middle to spawnPlatform.east_middle,
+		spawnWallWest.position_middle to spawnPlatform.west_middle,
+		spawnWallNorth1.position_middle to spawnPlatform.north_0_0,
+		spawnWallNorth2.position_middle to spawnPlatform.north_4_0
+
 let arrowsImage be Image([Images/arrow-keys.png], 2, 2)
 position arrowsImage at (0, 0, 0.5) from spawnPlatform
 
@@ -19,15 +31,41 @@ position lantern at (2,2,1) from spawnPlatform
 let spawnPointBridge be Slab(3, 5, 1)
 connect spawnPointBridge.south_middle to spawnPlatform.north_middle
 
+let bridgeWallEast be Wall(5),
+	bridgeWallWest be Wall(5)
+	
+connect bridgeWallEast.position_middle to spawnPointBridge.east_middle,
+		bridgeWallWest.position_middle to spawnPointBridge.west_middle
+
 let pointPlatform be Slab(5, 5, 1),
     pointOrb be PointOrb(),
     pointOrbImage be Image([Images/points.png], 4, 1)
 connect pointPlatform.south_middle to spawnPointBridge.north_middle
 position pointOrb at (0, 0, 1) from pointPlatform,
          pointOrbImage at (0, -0.5, -0.4) from pointOrb
+         
+let pointWallSouth1 be Wall(1),
+	pointWallSouth2 be Wall(1),
+	pointWallEast be Wall(5),
+	pointWallWest1 be Wall(1),
+	pointWallWest2 be Wall(1),
+	pointWallNorth be Wall(5)
+	
+connect pointWallSouth1.position_middle to pointPlatform.south_0_0,
+		pointWallSouth2.position_middle to pointPlatform.south_4_0,
+		pointWallEast.position_middle to pointPlatform.east_middle,
+		pointWallNorth.position_middle to pointPlatform.north_middle,
+		pointWallWest1.position_middle to pointPlatform.west_0_0,
+		pointWallWest2.position_middle to pointPlatform.west_4_0
 
 let pointCheckpointBridge be Slab(5, 3, 1)
 connect pointCheckpointBridge.east_middle to pointPlatform.west_middle
+
+let checkBridgeNorth be Wall(5),
+	checkBridgeSouth be Wall(5)
+	
+connect checkBridgeNorth.position_middle to pointCheckpointBridge.north_middle,
+		checkBridgeSouth.position_middle to pointCheckpointBridge.south_middle
 
 let checkpointPlatform be Slab(5, 5, 1),
     checkpointBlock be CheckpointBlock(),
@@ -35,9 +73,29 @@ let checkpointPlatform be Slab(5, 5, 1),
 connect checkpointPlatform.east_middle to pointCheckpointBridge.west_middle
 position checkpointBlock at (0, 0, 1) from checkpointPlatform,
          checkpointBlockImage at (0, -1.5, -0.4) from checkpointBlock
+         
+let checkWallSouth be Wall(5),
+	checkWallWest be Wall(5),
+	checkWallEast1 be Wall(1),
+	checkWallEast2 be Wall(1),
+	checkWallNorth1 be Wall(1),
+	checkWallNorth2 be Wall(1)
+	
+connect checkWallSouth.position_middle to checkpointPlatform.south_middle,
+		checkWallWest.position_middle to checkpointPlatform.west_middle,
+		checkWallEast1.position_middle to checkpointPlatform.east_0_0,
+		checkWallEast2.position_middle to checkpointPlatform.east_4_0,
+		checkWallNorth1.position_middle to checkpointPlatform.north_0_0,
+		checkWallNorth2.position_middle to checkpointPlatform.north_4_0
 
 let checkpointLifeBridge be Slab(3, 5, 1)
 connect checkpointLifeBridge.south_middle to checkpointPlatform.north_middle
+
+let lifeBridgeEast be Wall(5),
+	lifeBridgeWest be Wall(5)
+	
+connect lifeBridgeEast.position_middle to checkpointLifeBridge.east_middle,
+		lifeBridgeWest.position_middle to checkpointLifeBridge.west_middle
 
 let lifePlatform be Slab(5, 5, 1),
     lifeOrb be LifeOrb(),
@@ -45,9 +103,29 @@ let lifePlatform be Slab(5, 5, 1),
 connect lifePlatform.south_middle to checkpointLifeBridge.north_middle
 position lifeOrb at (0, 0, 1) from lifePlatform,
          lifeOrbImage at (0, -0.5, -0.4) from lifeOrb
+         
+let lifeWallSouth1 be Wall(1),
+	lifeWallSouth2 be Wall(1),
+	lifeWallWest be Wall(5),
+	lifeWallNorth be Wall(5),
+	lifeWallEast1 be Wall(1),
+	lifeWallEast2 be Wall(1)
+	
+connect lifeWallSouth1.position_middle to lifePlatform.south_0_0,
+		lifeWallSouth2.position_middle to lifePlatform.south_4_0,
+		lifeWallWest.position_middle to lifePlatform.west_middle,
+		lifeWallNorth.position_middle to lifePlatform.north_middle,
+		lifeWallEast1.position_middle to lifePlatform.east_0_0,
+		lifeWallEast2.position_middle to lifePlatform.east_4_0
 
 let lifeWinBridge be Slab(5, 3, 1)
 connect lifeWinBridge.west_middle to lifePlatform.east_middle
+
+let winBridgeWallNorth be Wall(5),
+	winBridgeWallSouth be Wall(5)
+	
+connect winBridgeWallNorth.position_middle to lifeWinBridge.north_middle,
+		winBridgeWallSouth.position_middle to lifeWinBridge.south_middle
 
 let winPlatform be Slab(5, 5, 1),
     winBlock be WinBlock(),
@@ -55,3 +133,15 @@ let winPlatform be Slab(5, 5, 1),
 connect winPlatform.west_middle to lifeWinBridge.east_middle
 position winBlock at (0, 0, 1) from winPlatform,
          winBlockImage at (0, -1, -0.4) from winBlock
+
+let winWallEast be Wall(5),
+	winWallNorth be Wall(5),
+	winWallSouth be Wall(5),
+	winWallWest1 be Wall(1),
+	winWallWest2 be Wall(1)
+	
+connect winWallEast.position_middle to winPlatform.east_middle,
+		winWallNorth.position_middle to winPlatform.north_middle,
+		winWallSouth.position_middle to winPlatform.south_middle,
+		winWallWest1.position_middle to winPlatform.west_0_0,
+		winWallWest2.position_middle to winPlatform.west_4_0
