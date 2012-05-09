@@ -65,7 +65,7 @@ public enum BallKind {
     },
 
     /** A fabric ball: very light and flimsy */
-    Fabric(2, 2.0f, 0.95f) {
+    Fabric(2, 2.0f, 0.8f) {
 
         @Override
         public Material createMaterial(final AssetManager assetManager,
@@ -78,7 +78,7 @@ public enum BallKind {
 
     /** An easily controlled ball that might break when moved too quickly */
 
-    Glass(6, 1, 0.3f) {
+    Glass(6, 1.3f, 0.3f) {
 
         @Override
         public Material createMaterial(final AssetManager assetManager,
