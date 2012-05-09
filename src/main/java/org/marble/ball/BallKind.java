@@ -17,7 +17,7 @@ import org.marble.util.Physics;
  */
 public enum BallKind {
     /** A stone ball: heavy and slow */
-    Stone(2, 0.5f, 0.2f) {
+    Stone(8, 0.5f, 0.2f) {
         @Override
         public Material createMaterial(final AssetManager assetManager,
                 final Callable<EnvironmentNode> getEnvironment)
@@ -28,7 +28,7 @@ public enum BallKind {
     },
 
     /** A wooden ball: light and agile */
-    Wood(1, 1, 0.7f) {
+    Wood(4, 1, 0.4f) {
         @Override
         public Material createMaterial(final AssetManager assetManager,
                 final Callable<EnvironmentNode> getEnvironment)
@@ -63,7 +63,7 @@ public enum BallKind {
     },
 
     /** A fabric ball: very light and flimsy */
-    Fabric(0.5f, 2.0f, 0.95f) {
+    Fabric(2, 2.0f, 0.95f) {
 
         @Override
         public Material createMaterial(final AssetManager assetManager,
@@ -75,7 +75,7 @@ public enum BallKind {
     },
 
     /** An easily controlled ball that might break when moved too quickly */
-    Glass(0.75f, 1, 0.9f) {
+    Glass(6, 1, 0.3f) {
 
         @Override
         public Material createMaterial(final AssetManager assetManager,
@@ -99,7 +99,7 @@ public enum BallKind {
     /**
      * A ball that leaves a trail of mercury as it moves, slowly growing smaller
      */
-    Mercury(4, 0.25f, 0.25f) {
+    Mercury(16, 0.25f, 0.1f) {
 
         @Override
         public Material createMaterial(final AssetManager assetManager,
@@ -148,7 +148,7 @@ public enum BallKind {
         this.mass = mass;
         this.linearDamping = linearDamping;
         force =
-                (float) (-Physics.GRAVITY.getZ()
+                (float) (-Physics.GRAVITY.getZ() * mass
                         * Math.sin(Math.atan(maxAngle)) / Math.cos(Math
                         .atan(maxAngle)));
     }
