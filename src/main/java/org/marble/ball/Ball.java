@@ -25,6 +25,7 @@ import org.marble.frp.FRPUtils;
 import org.marble.frp.Reactive;
 import org.marble.graphics.EnvironmentNode;
 import org.marble.graphics.GeoSphere;
+import org.marble.util.Physics;
 import org.marble.util.QualityToInteger;
 
 /**
@@ -135,7 +136,6 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
                 new RigidBodyControl(new SphereCollisionShape(radius),
                         kind.getMass());
         physicalBall.activate();
-        physicalBall.setLinearDamping(kind.getLinearDamping());
         physicalBall.setSleepingThresholds(0, 0);
         getSpatial().addControl(physicalBall);
 
@@ -168,6 +168,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
      * @throws Exception
      */
     public void setBallKind(final BallKind kind) throws Exception {
+        this.kind = kind;
         getEnvironment.wasCalled = false;
         graphicalBall.setMaterial(kind.createMaterial(assetManager,
                 getEnvironment));
@@ -178,12 +179,11 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
 
         physicalBall.setMass(kind.getMass());
         physicalBall.setLinearDamping(kind.getLinearDamping());
+        physicalBall.setGravity(Physics.GRAVITY);
         // physicalBall.setDamping(kind.getLinearDamping(),
         // kind.getAngularDamping());
         // physicalBall.setFriction(kind.getFriction());
         // physicalBall.setRestitution(kind.getRestitution());
-
-        this.kind = kind;
     }
 
     @Override

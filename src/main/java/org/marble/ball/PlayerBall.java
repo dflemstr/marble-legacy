@@ -104,10 +104,6 @@ public class PlayerBall extends Ball implements Interactive, Actor {
     public void performActions(final float timePerFrame) {
         appliedForce.set(internalForce);
         appliedForce.multLocal(getBallKind().getForce());
-        System.out
-                .println(appliedForce + " " + timePerFrame + " "
-                        + getBallKind().getForce() + " "
-                        + getBody().getLinearDamping());
         getBody().applyCentralForce(appliedForce);
     }
 

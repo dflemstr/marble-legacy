@@ -28,7 +28,7 @@ public enum BallKind {
     },
 
     /** A wooden ball: light and agile */
-    Wood(1, 1, 0.7f) {
+    Wood(4, 1, 0.1f) {
         @Override
         public Material createMaterial(final AssetManager assetManager,
                 final Callable<EnvironmentNode> getEnvironment)
@@ -75,7 +75,7 @@ public enum BallKind {
     },
 
     /** An easily controlled ball that might break when moved too quickly */
-    Glass(0.75f, 1, 0.9f) {
+    Glass(0.75f, 1, 0.2f) {
 
         @Override
         public Material createMaterial(final AssetManager assetManager,
@@ -151,7 +151,7 @@ public enum BallKind {
         this.linearDamping = linearDamping;
         this.maxAngle = maxAngle;
         force =
-                (float) (-Physics.GRAVITY.getZ()
+                (float) (-Physics.GRAVITY.getZ() * mass
                         * Math.sin(Math.atan(maxAngle)) / Math.cos(Math
                         .atan(maxAngle)));
     }
