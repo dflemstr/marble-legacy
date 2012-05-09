@@ -5,6 +5,7 @@ import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 
@@ -68,6 +69,9 @@ public class PointOrb extends AbstractEntity implements Graphical, Physical,
                     game.getCurrentSession().get().getPoints();
             game.getCurrentSession().get().setPoints(currentPoints + 100);
             game.removeEntity(this);
+            final Explosion explosion = new Explosion(ColorRGBA.Blue);
+            explosion.setTransform(getTransform());
+            game.addEntity(explosion);
         }
     }
 }
