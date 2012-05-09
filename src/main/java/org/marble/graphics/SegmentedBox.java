@@ -100,10 +100,18 @@ public class SegmentedBox extends Mesh {
         final float down = centerZ - extentZ;
         final float up = centerZ + extentZ;
 
-        final float borderNorth = north - borderSize;
-        final float borderSouth = south + borderSize;
-        final float borderEast = east - borderSize;
-        final float borderWest = west + borderSize;
+        float borderNorth = north - borderSize;
+        float borderSouth = south + borderSize;
+        float borderEast = east - borderSize;
+        float borderWest = west + borderSize;
+
+        if (borderSouth > borderNorth) {
+            borderSouth = borderNorth = (borderSouth + borderNorth) / 2;
+        }
+
+        if (borderWest > borderEast) {
+            borderWest = borderEast = (borderWest + borderEast) / 2;
+        }
 
         final float middleSizeX = 2 * (extentX - borderSize);
         final float middleSizeY = 2 * (extentY - borderSize);
