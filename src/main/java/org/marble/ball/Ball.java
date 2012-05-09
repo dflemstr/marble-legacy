@@ -139,7 +139,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         physicalBall.setSleepingThresholds(0, 0);
         getSpatial().addControl(physicalBall);
 
-        setBallKind(kind);
+        setBallKind(kind, true, true);
     }
 
     private void enableEnvironment() {
@@ -165,25 +165,47 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
      * 
      * @param kind
      *            The kind of ball to switch to.
+     * @param reset
+     *            Whether to reset the ball to the default state of the current
+     *            material.
+     * @param refresh
+     *            Whether to give the ball a "new" look, even if the ball
+     *            already has the correct material.
      * @throws Exception
      */
-    public void setBallKind(final BallKind kind) throws Exception {
-        this.kind = kind;
-        getEnvironment.wasCalled = false;
-        graphicalBall.setMaterial(kind.createMaterial(assetManager,
-                getEnvironment));
+    public void setBallKind(final BallKind kind, final boolean reset,
+            final boolean refresh) throws Exception {
+        if (this.kind != kind || refresh) {
+            getEnvironment.wasCalled = false;
+            graphicalBall.setMaterial(kind.createMaterial(assetManager,
+                    getEnvironment));
 
-        if (!getEnvironment.wasCalled) {
-            disableEnvironment();
+            if (!getEnvironment.wasCalled) {
+                disableEnvironment();
+            }
+
+            physicalBall.setMass(kind.getMass());
+            physicalBall.setLinearDamping(kind.getLinearDamping());
+            physicalBall.setGravity(Physics.GRAVITY);
+
+            this.kind = kind;
         }
+        if (reset) {
+            resetMaterialParams();
+        }
+    }
 
-        physicalBall.setMass(kind.getMass());
-        physicalBall.setLinearDamping(kind.getLinearDamping());
-        physicalBall.setGravity(Physics.GRAVITY);
-        // physicalBall.setDamping(kind.getLinearDamping(),
-        // kind.getAngularDamping());
-        // physicalBall.setFriction(kind.getFriction());
-        // physicalBall.setRestitution(kind.getRestitution());
+    private void resetMaterialParams() {
+        currentRadius = radius;
+        setBallScale(1);
+    }
+
+    private void setBallScale(final float scale) {
+        final TempVars vars = TempVars.get();
+        vars.vect1.set(scale, scale, scale);
+        physicalBall.getCollisionShape().setScale(vars.vect1);
+        vars.release();
+        getSpatial().setLocalScale(scale);
     }
 
     @Override
@@ -193,12 +215,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
             if (currentRadius <= 0) {
                 die();
             } else {
-                final float scale = currentRadius / radius;
-                final TempVars vars = TempVars.get();
-                vars.vect1.set(scale, scale, scale);
-                physicalBall.getCollisionShape().setScale(vars.vect1);
-                vars.release();
-                getSpatial().setLocalScale(scale);
+                setBallScale(currentRadius / radius);
             }
         }
     }
@@ -232,6 +249,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         getBody().getCollisionShape().setScale(Vector3f.UNIT_XYZ);
         getSpatial().setLocalRotation(Quaternion.IDENTITY);
         getSpatial().setLocalScale(1);
-        currentRadius = radius;
+
+        resetMaterialParams();
     }
 }

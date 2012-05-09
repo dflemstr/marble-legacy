@@ -47,7 +47,7 @@ public class Pin extends AbstractEntity implements Graphical, Connected,
         final AssetManager assetManager = game.getAssetManager();
 
         final Spatial left =
-                new Geometry("pin", new Cylinder(10, 10, radius, length));
+                new Geometry("pin", new Cylinder(10, 10, radius, length, true));
         left.setMaterial(assetManager
                 .loadMaterial("Materials/Metal/Chrome.j3m"));
 

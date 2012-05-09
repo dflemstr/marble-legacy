@@ -11,7 +11,6 @@ import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Spatial;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -72,21 +71,16 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
     public void initialize(final Game game) throws Exception {
         final AssetManager assetManager = game.getAssetManager();
 
-        final Spatial frame = assetManager.loadModel("Models/transformer.obj");
-        frame.setMaterial(assetManager
-                .loadMaterial("Materials/Mineral/Concrete.j3m"));
-        getSpatial().attachChild(frame);
-
-        final Geometry graphicalSphere =
+        final Geometry graphicalBlock =
                 new Geometry("sphere", new GeoSphere(true,
                         3f * FastMath.sqrt(2) / 8f, 1,
                         GeoSphere.TextureMode.Projected));
 
         final Callable<EnvironmentNode> getEnvironment =
                 new CreateEnvironmentNode(game);
-        graphicalSphere.setMaterial(targetKind.createMaterial(assetManager,
+        graphicalBlock.setMaterial(targetKind.createMaterial(assetManager,
                 getEnvironment));
-        getSpatial().attachChild(graphicalSphere);
+        getSpatial().attachChild(graphicalBlock);
 
         physicalBox =
                 new RigidBodyControl(new BoxCollisionShape(new Vector3f(0.5f,
@@ -124,7 +118,7 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
         if (other instanceof Ball) {
             final Ball ball = (Ball) other;
             try {
-                ball.setBallKind(targetKind);
+                ball.setBallKind(targetKind, true, false);
             } catch (final Exception e) {
                 game.handleError(e);
             }

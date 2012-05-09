@@ -1,0 +1,53 @@
+// Import our slab class
+using Slab as org.marble.block.Slab
+using Ball as org.marble.ball.Ball
+using Transformer as org.marble.special.Transformer
+using Lantern as org.marble.block.Lantern
+using Wall as org.marble.block.Wall
+using Rail as org.marble.block.Rail
+using Spiral as org.marble.block.Spiral
+using CheckpointBlock as org.marble.special.CheckpointBlock
+using WinBlock as org.marble.special.WinBlock
+using Pin as org.marble.block.Pin
+using PointOrb as org.marble.special.PointOrb
+using LifeOrb as org.marble.special.LifeOrb
+
+let spawnBox be Slab(3,2,1)
+
+position spawnBox at (0,0,0)
+
+let slope1 be Slab(3,6,1,0,1)
+
+connect slope1.south_middle to spawnBox.north_middle
+
+let one be Slab(5,3,1)
+
+connect one.south_middle to slope1.north_middle
+
+let glass be Transformer([Glass])
+
+position glass at (2,1,1) from one
+
+let slope2 be Slab(3,6,1,0,1.3)
+
+connect slope2.south_middle to one.north_middle
+
+let two be Slab(5,3,1)
+
+connect two.south_middle to slope2.north_middle
+
+let fabric be Transformer([Fabric])
+
+position fabric at (2,1,1) from two
+
+let slope3 be Slab(3,4,1,0,1.8)
+
+connect slope3.south_middle to two.north_middle
+
+let win be Slab(5,3,1)
+
+connect win.south_middle to slope3.north_middle
+
+let winblock be WinBlock ()
+
+position winblock at (0,0,1) from win
