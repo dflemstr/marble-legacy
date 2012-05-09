@@ -583,6 +583,13 @@ public class Game {
         }
         if (!currentSession.isPresent()
                 || currentSession.get().isPaused() == GameSession.PauseState.Running) {
+            if (currentSession.isPresent()) {
+                if (currentSession.get().getPoints() > 0) {
+                    currentSession.get().setPoints(
+                            currentSession.get().getPoints() - 5
+                                    * timer.getTimePerFrame());
+                }
+            }
             for (final Entity entity : entities) {
                 try {
                     entity.update(timer.getTimePerFrame());
@@ -782,13 +789,14 @@ public class Game {
         final StatisticalMetaLevel stats = entry.getValue();
 
         final String playerName = "Player"; // TODO allow to be specified
-        final Integer score = currentSession.get().getPoints();
+        final Integer score = (int) currentSession.get().getPoints();
 
         final ImmutableMap.Builder<String, Integer> highscoreBuilder =
                 ImmutableMap.builder();
         if (!stats.getHighscores().containsKey(playerName)
                 || stats.getHighscores().get(playerName) < score) {
-            highscoreBuilder.put("Player", currentSession.get().getPoints());
+            highscoreBuilder.put("Player", (int) currentSession.get()
+                    .getPoints());
         }
         highscoreBuilder.putAll(Maps.filterKeys(stats.getHighscores(),
                 Predicates.not(Predicates.equalTo(playerName))));

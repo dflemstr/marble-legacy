@@ -64,7 +64,7 @@ public class PointOrb extends AbstractEntity implements Graphical, Physical,
     public void handleCollisionWith(final Physical other,
             final PhysicsCollisionEvent event) {
         if (other instanceof PlayerBall) {
-            final int currentPoints =
+            final float currentPoints =
                     game.getCurrentSession().get().getPoints();
             game.getCurrentSession().get().setPoints(currentPoints + 100);
             game.removeEntity(this);

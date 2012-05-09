@@ -7,21 +7,21 @@ import com.jme3.math.Vector3f;
 import com.google.common.collect.Sets;
 
 public class GameSession {
-    private int points;
+    private float points;
     private int lives = 3;
     private final Vector3f respawnPoint = new Vector3f(0, 0, 2);
     private PauseState paused = PauseState.Running;
     private final Set<GameSessionListener> listeners = Sets.newHashSet();
 
-    public int getPoints() {
+    public float getPoints() {
         return points;
     }
 
-    public void setPoints(final int points) {
-        if (this.points != points) {
-            this.points = points;
+    public void setPoints(final float f) {
+        if (points != f) {
+            points = f;
             for (final GameSessionListener listener : listeners) {
-                listener.changedPoints(points);
+                listener.changedPoints((int) f);
             }
         }
     }

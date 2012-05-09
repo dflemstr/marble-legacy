@@ -14,7 +14,7 @@ public class GameScreen extends AbstractScreenController {
     private final class GameScreenUpdater implements GameSessionListener {
         @Override
         public void changedLives(final int lives) {
-            updateStats(lives, currentSession.getPoints());
+            updateStats(lives, (int) currentSession.getPoints());
         }
 
         @Override
@@ -58,7 +58,8 @@ public class GameScreen extends AbstractScreenController {
         if (game.getCurrentSession().isPresent()) {
             currentSession = game.getCurrentSession().get();
             currentSession.addGameSessionListener(new GameScreenUpdater());
-            updateStats(currentSession.getLives(), currentSession.getPoints());
+            updateStats(currentSession.getLives(),
+                    (int) currentSession.getPoints());
         }
     }
 }
