@@ -5,6 +5,7 @@ import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 
@@ -67,6 +68,9 @@ public class LifeOrb extends AbstractEntity implements Graphical, Physical,
             final int currentLives = game.getCurrentSession().get().getLives();
             game.getCurrentSession().get().setLives(currentLives + 1);
             game.removeEntity(this);
+            final Explosion explosion = new Explosion(ColorRGBA.Red);
+            explosion.setTransform(getTransform());
+            game.addEntity(explosion);
         }
     }
 }

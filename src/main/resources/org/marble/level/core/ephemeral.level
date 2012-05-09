@@ -75,3 +75,22 @@ connect slope5.west_middle to transformPlatform4.east_middle,
 
 connect transformPlatform7.east_middle to slope7.west_middle
 position transformer7 at (0, 0, 1) from transformPlatform7
+
+//////////////////////////////////////////////////////////////////////////////
+
+let maze1 be Slab(1, 3, 1),
+    maze2 be Slab(3, 1, 1),
+    maze3 be Slab(1, 5, 1),
+    maze4 be Slab(3, 1, 1),
+    maze5 be Slab(1, 3, 1),
+    winPlatform be Slab(5, 5, 1),
+    winBlock be WinBlock()
+
+connect maze1.south_middle to transformPlatform7.north_middle,
+        maze2.west_middle to maze1.east_2_0,
+        maze3.south_middle to maze2.north_2_0,
+        maze4.east_middle to maze3.west_4_0,
+        maze5.south_middle to maze4.north_0_0,
+        winPlatform.south_middle to maze5.north_middle
+
+position winBlock at (0, 0, 1) from winPlatform

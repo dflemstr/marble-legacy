@@ -35,6 +35,7 @@ import org.marble.entity.graphical.Emitter;
 import org.marble.entity.graphical.Graphical;
 import org.marble.entity.physical.Collidable;
 import org.marble.entity.physical.Physical;
+import org.marble.session.GameSession;
 import org.marble.util.Direction;
 
 public class CheckpointBlock extends AbstractEntity implements Graphical,
@@ -87,7 +88,7 @@ public class CheckpointBlock extends AbstractEntity implements Graphical,
         super.initialize(game);
         final AssetManager assetManager = game.getAssetManager();
 
-        final ColorRGBA color = ColorRGBA.Yellow.mult(0.66f);
+        final ColorRGBA color = ColorRGBA.Pink.mult(0.66f);
 
         graphicalBox = new Geometry("respawnBlock", new Box(0.5f, 0.5f, 0.1f));
         graphicalBox.setLocalTranslation(0, 0, -0.45f);
@@ -166,10 +167,16 @@ public class CheckpointBlock extends AbstractEntity implements Graphical,
     public void handleCollisionWith(final Physical other,
             final PhysicsCollisionEvent event) {
         if (other instanceof PlayerBall) {
-            game.getCurrentSession()
-                    .get()
-                    .setRespawnPoint(
-                            getSpatial().getWorldTranslation().add(0, 0, 2));
+            final Vector3f respawnPoint =
+                    getSpatial().getWorldTranslation().add(0, 0, 2);
+            final GameSession session = game.getCurrentSession().get();
+            if (!respawnPoint.equals(session.getRespawnPoint())) {
+                session.setRespawnPoint(getSpatial().getWorldTranslation().add(
+                        0, 0, 2));
+                final Explosion explosion = new Explosion(ColorRGBA.Pink);
+                explosion.setTransform(getTransform());
+                game.addEntity(explosion);
+            }
         }
     }
 
