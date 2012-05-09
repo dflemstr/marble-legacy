@@ -35,7 +35,8 @@ public class Wall extends AbstractEntity implements Connected, Graphical,
     public void initialize(final Game game) {
         final AssetManager assetManager = game.getAssetManager();
 
-        graphicalBox = new Geometry("wall", new Cylinder(3, 8, 0.05f, length));
+        graphicalBox =
+                new Geometry("wall", new Cylinder(5, 10, 0.07f, length, true));
         graphicalBox.setMaterial(assetManager
                 .loadMaterial("Materials/Metal/Chrome.j3m"));
         final Matrix3f rotation = new Matrix3f(0, 0, -1, 0, 1, 0, 1, 0, 0);

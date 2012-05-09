@@ -51,13 +51,13 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
         final Material material =
                 assetManager.loadMaterial("Materials/Metal/Chrome.j3m");
         final Spatial left =
-                new Geometry("left rail",
-                        new Cylinder(10, 10, depth / 2, width));
+                new Geometry("left rail", new Cylinder(10, 10, depth / 2,
+                        width, true));
         left.setMaterial(material);
 
         final Spatial right =
                 new Geometry("right rail", new Cylinder(10, 10, depth / 2,
-                        width));
+                        width, true));
         right.setMaterial(material);
 
         final Matrix3f rotation = new Matrix3f(0, 0, -1, 0, 1, 0, 1, 0, 0);
