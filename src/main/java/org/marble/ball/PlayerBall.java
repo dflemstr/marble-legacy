@@ -19,7 +19,6 @@ public class PlayerBall extends Ball implements Interactive, Actor {
     private final Vector3f internalForce = new Vector3f();
     private final Vector3f addedForce = new Vector3f();
     private boolean goingWest, goingEast, goingNorth, goingSouth;
-    private final Vector3f lastVelocity = new Vector3f(0, 0, 0);
 
     public PlayerBall(final BallKind kind) {
         this(kind, 0.5f);
@@ -104,10 +103,6 @@ public class PlayerBall extends Ball implements Interactive, Actor {
     public void performActions(final float timePerFrame) {
         appliedForce.set(internalForce);
         appliedForce.multLocal(getBallKind().getForce());
-        System.out
-                .println(appliedForce + " " + timePerFrame + " "
-                        + getBallKind().getForce() + " "
-                        + getBody().getLinearDamping());
         getBody().applyCentralForce(appliedForce);
     }
 

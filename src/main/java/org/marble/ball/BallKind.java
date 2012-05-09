@@ -122,8 +122,6 @@ public enum BallKind {
 
     private final float mass;
 
-    private final float maxAngle;
-
     private final float force;
 
     private final float linearDamping;
@@ -149,7 +147,6 @@ public enum BallKind {
             final float linearDamping) {
         this.mass = mass;
         this.linearDamping = linearDamping;
-        this.maxAngle = maxAngle;
         force =
                 (float) (-Physics.GRAVITY.getZ()
                         * Math.sin(Math.atan(maxAngle)) / Math.cos(Math

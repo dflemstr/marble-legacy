@@ -124,7 +124,7 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
         if (other instanceof Ball) {
             final Ball ball = (Ball) other;
             try {
-                ball.setBallKind(targetKind);
+                ball.setBallKind(targetKind, true, false);
             } catch (final Exception e) {
                 game.handleError(e);
             }

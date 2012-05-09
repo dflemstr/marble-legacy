@@ -755,7 +755,7 @@ public class Game {
         if (playerBall.isPresent() && currentSession.isPresent()) {
             final PlayerBall ball = playerBall.get();
             try {
-                ball.setBallKind(DEFAULT_BALL_KIND);
+                ball.setBallKind(DEFAULT_BALL_KIND, true, true);
             } catch (final Exception e) {
                 handleError(e);
             }
