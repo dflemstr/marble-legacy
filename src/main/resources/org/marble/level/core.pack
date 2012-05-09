@@ -19,21 +19,6 @@
       "uuid": "15e8fd33-3ebc-439d-b36e-01ae55b243ae"
     },
     {
-      "name": "Foobar",
-      "uri": "core/foobar.level",
-      "uuid": "f7d71bd5-184c-4366-b732-374977f1b7c2"
-    },
-    {
-      "name": "Advanced",
-      "uri": "core/advanced.level",
-      "uuid": "4a8d73e4-b347-4868-a1b6-20128be65f29"
-    },
-    {
-      "name": "Test",
-      "uri": "core/test.level",
-      "uuid": "e436c646-8f3b-4e09-bc93-c5480c08f891"
-    },
-    {
       "name": "Up The Hill",
       "uri": "core/upthehill.level",
       "uuid": "2c173756-8fe2-4d42-b454-0deb998f9757"

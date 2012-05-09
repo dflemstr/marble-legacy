@@ -586,7 +586,7 @@ public class Game {
             if (currentSession.isPresent()) {
                 if (currentSession.get().getPoints() > 0) {
                     currentSession.get().setPoints(
-                            currentSession.get().getPoints() - 5
+                            currentSession.get().getPoints() - 15
                                     * timer.getTimePerFrame());
                 }
             }
@@ -734,6 +734,7 @@ public class Game {
 
         playerBall = Optional.of(ball);
         currentSession = Optional.of(new GameSession());
+        currentSession.get().setPoints(1000);
 
         setPause(GameSession.PauseState.Running);
     }
