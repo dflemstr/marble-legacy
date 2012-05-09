@@ -11,7 +11,7 @@ let spawnPlatform be Slab(5, 5, 1)
 position spawnPlatform at (0, 0, 0)
 
 let arrowsImage be Image([Images/arrow-keys.png], 2, 2)
-position arrowsImage at (0, 0, 0.5) from spawnPlatform
+position arrowsImage at (0, 0, 0.6) from spawnPlatform
 
 let lantern be Lantern((0.7,1,1))
 position lantern at (2,2,1) from spawnPlatform
