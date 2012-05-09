@@ -129,11 +129,11 @@ public final class Connectors {
                 connectorBuilder.put(
                         makeConnectorName("top", x, y),
                         offsetBy(xcoord, ycoord, zhalf + xcoord * slopeX
-                                + ycoord * slopeY, verticalOffset, pihalf, 0));
+                                + ycoord * slopeY, 0, pihalf, 0));
                 connectorBuilder.put(
                         makeConnectorName("bottom", x, y),
                         offsetBy(xcoord, ycoord, -zhalf + xcoord * slopeX
-                                + ycoord * slopeY, verticalOffset, -pihalf, 0));
+                                + ycoord * slopeY, 0, -pihalf, 0));
             }
 
             // North/South
