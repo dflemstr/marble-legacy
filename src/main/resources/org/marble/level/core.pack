@@ -6,37 +6,37 @@
     {
       "name": "Starting out",
       "uri": "core/starting-out.level",
-      "uuid": "03b88c7e-266b-47f1-917a-29b1e4198e0f"
+      "uuid": "7f588016-da0b-4a65-a9e0-bbdb3ab58bd5"
     },
     {
       "name": "Rails",
       "uri": "core/rails.level",
-      "uuid": "ddbd0946-897d-4644-aa67-2bf9ce47149d"
+      "uuid": "9ad7dca8-e234-4145-b6b5-f7586e532d0a"
     },
     {
       "name": "Spirals",
       "uri": "core/spirals.level",
-      "uuid": "d6e41148-a552-40fd-a670-1a7613bca837"
+      "uuid": "15e8fd33-3ebc-439d-b36e-01ae55b243ae"
     },
     {
       "name": "Foobar",
       "uri": "core/foobar.level",
-      "uuid": "8f4ba45d-7c1f-448f-b5bc-d9911a461f2c"
+      "uuid": "f7d71bd5-184c-4366-b732-374977f1b7c2"
     },
     {
       "name": "Advanced",
       "uri": "core/advanced.level",
-      "uuid": "f4df4905-2dc4-4dac-bf1b-108cf2090491"
+      "uuid": "4a8d73e4-b347-4868-a1b6-20128be65f29"
     },
     {
       "name": "Test",
       "uri": "core/test.level",
-      "uuid": "f4df4906-2dc4-4dac-bf1b-108cf2090491"
+      "uuid": "e436c646-8f3b-4e09-bc93-c5480c08f891"
     },
     {
       "name": "Up The Hill",
       "uri": "core/upthehill.level",
-      "uuid": "f4df4906-2dc4-4dac-bf1b-108cf2090191"
+      "uuid": "2c173756-8fe2-4d42-b454-0deb998f9757"
     },
     {
       "name": "Ephemeral",
