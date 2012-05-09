@@ -37,6 +37,11 @@
       "name": "Up The Hill",
       "uri": "core/upthehill.level",
       "uuid": "f4df4906-2dc4-4dac-bf1b-108cf2090191"
+    },
+    {
+      "name": "Ephemeral",
+      "uri": "core/ephemeral.level",
+      "uuid": "fa957c67-f9d7-479f-8351-f82c34eaedc8"
     }
   ]
 }

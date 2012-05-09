@@ -1,0 +1,77 @@
+using Slab as org.marble.block.Slab
+using Image as org.marble.special.Image
+using CheckpointBlock as org.marble.special.CheckpointBlock
+using Transformer as org.marble.special.Transformer
+using WinBlock as org.marble.special.WinBlock
+using PointOrb as org.marble.special.PointOrb
+using LifeOrb as org.marble.special.LifeOrb
+using Wall as org.marble.block.Wall
+using Lantern as org.marble.block.Lantern
+
+let spawnPlatform be Slab(5, 5, 1)
+position spawnPlatform at (0, 0, 0)
+
+let entranceLanternNorth be Lantern((0.7, 0.7, 0.7)),
+    entranceLanternSouth be Lantern((0.7, 0.7, 0.7))
+position entranceLanternNorth at (2,  2, 1) from spawnPlatform,
+         entranceLanternSouth at (2, -2, 1) from spawnPlatform
+
+let transformBridge be Slab(5, 3, 1)
+connect transformBridge.west_middle to spawnPlatform.east_middle
+
+let hurryImage be Image([Images/hurry.png], 4, 1)
+position hurryImage at (0, 0, 0.6) from transformBridge
+
+let firstTransformSluice be Slab(1, 5, 1),
+    firstTransformBlockadeNorth be Slab(1, 2, 2),
+    firstTransformBlockadeSouth be Slab(1, 1, 1),
+    firstTransformer be Transformer([Mercury])
+connect firstTransformSluice.west_middle to transformBridge.east_middle,
+        firstTransformBlockadeNorth.bottom_0_0 to firstTransformSluice.top_0_4,
+        firstTransformBlockadeSouth.bottom_0_0 to firstTransformSluice.top_0_0
+position firstTransformer at (0, -1, 1) from firstTransformSluice
+
+//////////////////////////////////////////////////////////////////////////////
+
+let slope1 be Slab(7, 3, 1, -0.5, 0),
+    transformPlatform1 be Slab(5, 5, 1),
+    transformer1 be Transformer([Mercury])
+connect slope1.west_middle to firstTransformSluice.east_middle,
+        transformPlatform1.west_middle to slope1.east_middle
+position transformer1 at (0, 0, 1) from transformPlatform1
+
+let slope2 be Slab(3, 7, 1, 0, 0.2),
+    platform2 be Slab(3, 3, 1),
+    slope3 be Slab(7, 3, 1, -0.2, 0),
+    platform3 be Slab(3, 3, 1),
+    slope4 be Slab(3, 7, 1, 0, -0.2),
+    transformPlatform4 be Slab(5, 5, 1),
+    transformer4 be Transformer([Mercury])
+
+connect slope2.north_middle to transformPlatform1.south_middle,
+        platform2.north_middle to slope2.south_middle,
+        slope3.west_middle to platform2.east_middle,
+        platform3.west_middle to slope3.east_middle,
+        slope4.south_middle to platform3.north_middle
+
+connect transformPlatform4.south_middle to slope4.north_middle
+position transformer4 at (0, 0, 1) from transformPlatform4
+
+//////////////////////////////////////////////////////////////////////////////
+
+let slope5 be Slab(7, 3, 1, 0.1, 0),
+    platform5 be Slab(3, 3, 1),
+    slope6 be Slab(3, 7, 1, 0, 0.1),
+    platform6 be Slab(3, 3, 1),
+    slope7 be Slab(7, 3, 1, -0.1, 0),
+    transformPlatform7 be Slab(5, 5, 1),
+    transformer7 be Transformer([Mercury])
+
+connect slope5.west_middle to transformPlatform4.east_middle,
+        platform5.west_middle to slope5.east_middle,
+        slope6.south_middle to platform5.north_middle,
+        platform6.south_middle to slope6.north_middle,
+        slope7.east_middle to platform6.west_middle
+
+connect transformPlatform7.east_middle to slope7.west_middle
+position transformer7 at (0, 0, 1) from transformPlatform7
