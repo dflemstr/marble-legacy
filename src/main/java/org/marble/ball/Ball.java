@@ -135,6 +135,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
                 new RigidBodyControl(new SphereCollisionShape(radius),
                         kind.getMass());
         physicalBall.activate();
+        physicalBall.setLinearDamping(kind.getLinearDamping());
         physicalBall.setSleepingThresholds(0, 0);
         getSpatial().addControl(physicalBall);
 
@@ -176,6 +177,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         }
 
         physicalBall.setMass(kind.getMass());
+        physicalBall.setLinearDamping(kind.getLinearDamping());
         // physicalBall.setDamping(kind.getLinearDamping(),
         // kind.getAngularDamping());
         // physicalBall.setFriction(kind.getFriction());

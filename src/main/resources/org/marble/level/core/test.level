@@ -17,14 +17,16 @@ let spawnblock be Slab(71,10,1)
 let stone be Transformer([Stone]),
 	glass be Transformer([Glass]),
 	fabric be Transformer([Fabric]),
-	mercury be Transformer([Mercury])
+	mercury be Transformer([Mercury]),
+	wood be Transformer([Wood])
 
 position spawnblock at (0,0,0)
 
 position stone at (-3,2,1) from spawnblock,
 		 glass at (-1,2,1) from spawnblock,
 		 fabric at (1,2,1) from spawnblock,
-		 mercury at (3,2,1) from spawnblock
+		 mercury at (3,2,1) from spawnblock,
+		 wood at (5,2,1) from spawnblock
 
 let b1 be Slab(3,10,1,0.0,0.1),
     b2 be Slab(3,10,1,0.0,0.2),
@@ -43,7 +45,7 @@ let b1 be Slab(3,10,1,0.0,0.1),
     b15 be Slab(3,10,1,0.0,1.5),
     b16 be Slab(3,10,1,0.0,1.6),
     b17 be Slab(3,10,1,0.0,1.7),
-    b18 be Slab(3,10,1,0.0,2.0)
+    b18 be Slab(3,10,1,0.0,2.5)
     
 connect b1.south_middle to spawnblock.north_1_0,
 		b2.south_middle to spawnblock.north_5_0,

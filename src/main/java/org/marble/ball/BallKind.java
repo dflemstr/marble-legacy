@@ -17,7 +17,7 @@ import org.marble.util.Physics;
  */
 public enum BallKind {
     /** A stone ball: heavy and slow */
-    Stone(2, 0.5f) {
+    Stone(2, 0.5f, 0.2f) {
         @Override
         public Material createMaterial(final AssetManager assetManager,
                 final Callable<EnvironmentNode> getEnvironment)
@@ -28,7 +28,7 @@ public enum BallKind {
     },
 
     /** A wooden ball: light and agile */
-    Wood(1, 1) {
+    Wood(1, 1, 0.7f) {
         @Override
         public Material createMaterial(final AssetManager assetManager,
                 final Callable<EnvironmentNode> getEnvironment)
@@ -63,7 +63,7 @@ public enum BallKind {
     },
 
     /** A fabric ball: very light and flimsy */
-    Fabric(0.5f, 2.0f) {
+    Fabric(0.5f, 2.0f, 0.95f) {
 
         @Override
         public Material createMaterial(final AssetManager assetManager,
@@ -75,7 +75,7 @@ public enum BallKind {
     },
 
     /** An easily controlled ball that might break when moved too quickly */
-    Glass(0.75f, 1) {
+    Glass(0.75f, 1, 0.9f) {
 
         @Override
         public Material createMaterial(final AssetManager assetManager,
@@ -99,7 +99,7 @@ public enum BallKind {
     /**
      * A ball that leaves a trail of mercury as it moves, slowly growing smaller
      */
-    Mercury(4, 0.25f) {
+    Mercury(4, 0.25f, 0.25f) {
 
         @Override
         public Material createMaterial(final AssetManager assetManager,
@@ -120,11 +120,13 @@ public enum BallKind {
 
     };
 
-    private float mass;
+    private final float mass;
 
-    private float maxAngle;
+    private final float maxAngle;
 
-    private float acceleration;
+    private final float force;
+
+    private final float linearDamping;
 
     /**
      * Creates a graphical material for this kind of ball.
@@ -143,23 +145,28 @@ public enum BallKind {
     public abstract Material createMaterial(final AssetManager assetManager,
             final Callable<EnvironmentNode> getEnvironment) throws Exception;
 
-    private BallKind(final float mass, final float maxAngle) {
+    private BallKind(final float mass, final float maxAngle,
+            final float linearDamping) {
         this.mass = mass;
+        this.linearDamping = linearDamping;
         this.maxAngle = maxAngle;
-        acceleration =
-                (float) (-Physics.GRAVITY.getZ() / Math
-                        .cos(Math.atan(maxAngle)));
-        System.out.println("Max force: " + acceleration + ", mass: " + mass
-                + ", angle: " + maxAngle);
+        force =
+                (float) (-Physics.GRAVITY.getZ()
+                        * Math.sin(Math.atan(maxAngle)) / Math.cos(Math
+                        .atan(maxAngle)));
     }
 
     public float getMass() {
         return mass;
     }
 
-    public float getMaxForce() {
-        return acceleration;
+    public float getForce() {
+        return force;
 
+    }
+
+    public float getLinearDamping() {
+        return linearDamping;
     }
 
     private static void randomize(final Vector3f vec) {
