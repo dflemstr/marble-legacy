@@ -51,7 +51,7 @@ public class Image extends AbstractEntity implements Graphical {
         graphicalQuad.setMaterial(mat);
         graphicalQuad.setLocalRotation(new Quaternion().fromAngles(angleX,
                 angleY, angleZ));
-        graphicalQuad.setLocalTranslation(0, 0, 0.05f);
+        graphicalQuad.setLocalTranslation(-width / 2, -height / 2, 0.05f);
         getSpatial().attachChild(graphicalQuad);
     }
 }
