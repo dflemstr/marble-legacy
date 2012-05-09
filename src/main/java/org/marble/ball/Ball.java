@@ -25,6 +25,7 @@ import org.marble.frp.FRPUtils;
 import org.marble.frp.Reactive;
 import org.marble.graphics.EnvironmentNode;
 import org.marble.graphics.GeoSphere;
+import org.marble.util.Physics;
 import org.marble.util.QualityToInteger;
 
 /**
@@ -186,6 +187,7 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
 
             physicalBall.setMass(kind.getMass());
             physicalBall.setLinearDamping(kind.getLinearDamping());
+            physicalBall.setGravity(Physics.GRAVITY);
 
             this.kind = kind;
         }
