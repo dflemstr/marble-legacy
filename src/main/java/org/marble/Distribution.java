@@ -8,7 +8,7 @@ public final class Distribution {
             "\u00a9 David Flemström & Fabian Bergmark 2012";
 
     private static final String programName = "Marble";
-    private static final String version = "1.0-SNAPSHOT";
+    private static final String version = "1.0";
 
     private Distribution() {
     }
