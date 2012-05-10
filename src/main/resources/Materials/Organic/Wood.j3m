@@ -1,0 +1,8 @@
+Material Wood : MatDefs/Organic/Wood.j3md {
+    MaterialParameters {
+        Ambient : 0.2 0.2 0.2 1.0
+        Diffuse : 1.0 1.0 1.0 1.0
+        Specular : 0.0 0.0 0.0 1.0
+        WoodGradient : Textures/wood-gradient.png
+    }
+}

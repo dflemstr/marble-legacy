@@ -1,0 +1,5 @@
+Material Undefined : Common/MatDefs/Light/Lighting.j3md {
+    MaterialParameters {
+        DiffuseMap : Textures/missing.png
+    }
+}

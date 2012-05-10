@@ -1,0 +1,9 @@
+Material Chrome : MatDefs/Optics/Reflection.j3md {
+    MaterialParameters {
+        EnvironmentMap : Textures/Sky/Stormydays/Stormydays.dds
+        Ambient : 1.0 1.0 1.0 1.0
+        Diffuse : 1.0 1.0 1.0 1.0
+        Specular : 2.0 2.0 2.0 1.0
+        Shininess: 32.0
+    }
+}

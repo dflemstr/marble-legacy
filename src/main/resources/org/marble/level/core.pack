@@ -1,0 +1,32 @@
+{
+  "name": "Core levels",
+  "version": "1.0",
+  "description": "The core levels that ship with Marble",
+  "levels": [
+    {
+      "name": "Starting out",
+      "uri": "core/starting-out.level",
+      "uuid": "7f588016-da0b-4a65-a9e0-bbdb3ab58bd5"
+    },
+    {
+      "name": "Rails",
+      "uri": "core/rails.level",
+      "uuid": "9ad7dca8-e234-4145-b6b5-f7586e532d0a"
+    },
+    {
+      "name": "Spirals",
+      "uri": "core/spirals.level",
+      "uuid": "15e8fd33-3ebc-439d-b36e-01ae55b243ae"
+    },
+    {
+      "name": "Up The Hill",
+      "uri": "core/upthehill.level",
+      "uuid": "2c173756-8fe2-4d42-b454-0deb998f9757"
+    },
+    {
+      "name": "Ephemeral",
+      "uri": "core/ephemeral.level",
+      "uuid": "fa957c67-f9d7-479f-8351-f82c34eaedc8"
+    }
+  ]
+}

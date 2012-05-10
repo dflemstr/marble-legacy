@@ -1,0 +1,38 @@
+
+float Lighting_Diffuse(vec3 norm, vec3 lightdir) {
+    return max(0.0, dot(norm, lightdir));
+}
+
+float Lighting_Specular(vec3 norm, vec3 viewdir, vec3 lightdir, float shiny) {
+    vec3 refdir = reflect(-lightdir, norm);
+    return pow(max(dot(refdir, viewdir), 0.0), shiny);
+}
+
+vec4 Lighting_Direction(vec3 worldPos, vec4 color, vec4 position) {
+    float posLight = step(0.5, color.w);
+    vec3 tempVec = position.xyz * sign(posLight - 0.5) - (worldPos * posLight);
+    float dist = length(tempVec);
+
+    vec4 lightDir;
+    lightDir.w = clamp(1.0 - position.w * dist * posLight, 0.0, 1.0);
+    lightDir.xyz = tempVec / dist;
+    return lightDir;
+}
+
+vec4 Lighting_Compute(vec4 lightPos, vec4 lightColor, vec4 ambientLightColor,
+                      vec3 position, vec3 normal, vec3 viewIncident,
+                      vec4 ambientColor, vec4 diffuseColor, vec4 specularColor,
+                      float shininess) {
+    vec4 lightDir = Lighting_Direction(position, lightColor, lightPos);
+
+    vec4 lightScale = vec4(lightColor.rgb * lightDir.w, 1.0);
+    float diffuse = Lighting_Diffuse(normal, lightDir.xyz);
+    float specular = Lighting_Specular(normal, viewIncident, lightDir.xyz, shininess);
+
+    vec4 outAmbient = ambientColor * ambientLightColor;
+    vec4 outDiffuse = diffuse * lightScale;
+    vec4 outSpecular = specular * lightScale * step(0.01, diffuse);
+
+    return diffuseColor  * (outAmbient + outDiffuse)
+         + specularColor * outSpecular;
+}

@@ -1,0 +1,49 @@
+# .gitignore - Patterns describing what Git should ignore.
+
+# General
+## Ignore all dotfiles...
+.*
+## ...except dotfiles starting with .git
+!.git*
+
+# Binaries
+*.class
+*.jar
+!lib/*.jar
+*.war
+*.ear
+*.dll
+*.so
+*.dylib
+*.jnilib
+
+# Maven
+target/
+
+# Eclipse
+bin/**
+tmp/**
+tmp/**/*
+!.project
+!.classpath
+!.settings
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+*.launch
+
+# Editors
+*~
+\#*\#
+auto-save-list
+tramp
+
+# KDE
+*.un~
+Session.vim
+
+# Windows
+Thumbs.db 
+Desktop.ini

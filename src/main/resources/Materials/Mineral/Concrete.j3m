@@ -1,0 +1,5 @@
+Material Concrete : Common/MatDefs/Light/Lighting.j3md {
+    MaterialParameters {
+        DiffuseMap : Textures/concrete.png
+    }
+}
