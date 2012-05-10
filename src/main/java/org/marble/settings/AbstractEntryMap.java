@@ -11,11 +11,11 @@ import org.marble.settings.specialized.SerializerEntry;
 import org.marble.util.StringSerializer;
 
 public class AbstractEntryMap<A, B> implements EntryMap<A, B> {
-    protected final Preferences node;
+    private final Map<A, MutableReactive<B>> loadedEntries = Maps.newHashMap();
     protected final B defaultValue;
     protected final Function<A, String> keyTranslation;
+    protected final Preferences node;
     protected final StringSerializer<B> valueSerializer;
-    private final Map<A, MutableReactive<B>> loadedEntries = Maps.newHashMap();
 
     public AbstractEntryMap(final Preferences prefs, final String baseNode,
             final B defaultValue, final Function<A, String> keyTranslation,

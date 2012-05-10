@@ -4,20 +4,13 @@ package org.marble;
  * Information about this distribution of the program.
  */
 public final class Distribution {
-    // TODO Make Maven/ANT tag these things automatically.
-    private Distribution() {
-    }
-
-    private static final String programName = "Marble";
-    private static final String version = "1.0-SNAPSHOT";
     private static String copyright =
             "\u00a9 David Flemström & Fabian Bergmark 2012";
 
-    /**
-     * The short name of this application.
-     */
-    public static String getProgramName() {
-        return programName;
+    private static final String programName = "Marble";
+    private static final String version = "1.0-SNAPSHOT";
+
+    private Distribution() {
     }
 
     /**
@@ -34,6 +27,13 @@ public final class Distribution {
     public static String getProgramDescription() {
         return String.format("%s %s, %s", getProgramName(), getVersion(),
                 getCopyright());
+    }
+
+    /**
+     * The short name of this application.
+     */
+    public static String getProgramName() {
+        return programName;
     }
 
     /**

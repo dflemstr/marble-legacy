@@ -21,12 +21,12 @@ public class AbstractScreenController implements ScreenController {
         this.screen = screen;
     }
 
-    public void onGoto() {
+    @Override
+    public void onEndScreen() {
         // Do nothing
     }
 
-    @Override
-    public void onEndScreen() {
+    public void onGoto() {
         // Do nothing
     }
 

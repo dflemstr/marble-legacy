@@ -14,40 +14,22 @@ import com.jme3.texture.Texture;
 import com.google.common.collect.ImmutableList;
 
 public class SSAOFilter extends Filter {
-    private final float downsamples = 1f;
-    private float sampleRadius = 1.0f;
-    private float intensity = 8.0f;
-    private float scale = 1.0f;
     private float bias = 0.1f;
     private float cutoff = 0.99f;
-    private boolean showOnlyAO = false;
     private boolean disableBlur = false;
-    private Filter.Pass normalPass;
-    private Material ssaoMaterial;
-    private Pass ssaoPass;
-
+    private final float downsamples = 1f;
     private final Vector3f frustumCorner = new Vector3f();
+    private float intensity = 8.0f;
+    private Filter.Pass normalPass;
+    private float sampleRadius = 1.0f;
+    private float scale = 1.0f;
+    private boolean showOnlyAO = false;
+    private Material ssaoMaterial;
+
+    private Pass ssaoPass;
 
     public SSAOFilter() {
         super("SSAOFilter");
-    }
-
-    @Override
-    protected boolean isRequiresDepthTexture() {
-        return true;
-    }
-
-    @Override
-    protected void postQueue(final RenderManager renderManager,
-            final ViewPort viewPort) {
-        final Renderer r = renderManager.getRenderer();
-        r.setFrameBuffer(normalPass.getRenderFrameBuffer());
-        renderManager.getRenderer().clearBuffers(true, true, true);
-        renderManager.setForcedTechnique("PreNormalPass");
-        renderManager.renderViewPortQueues(viewPort, false);
-        renderManager.setForcedTechnique(null);
-        renderManager.getRenderer().setFrameBuffer(
-                viewPort.getOutputFrameBuffer());
     }
 
     /**
@@ -71,73 +53,6 @@ public class SSAOFilter extends Filter {
         this.intensity = intensity;
         this.scale = scale;
         this.bias = bias;
-    }
-
-    private void writeParams() {
-        ssaoMaterial.setFloat("SampleRadius", sampleRadius);
-        ssaoMaterial.setFloat("Intensity", intensity);
-        ssaoMaterial.setFloat("Scale", scale);
-        ssaoMaterial.setFloat("Bias", bias);
-        ssaoMaterial.setFloat("Cutoff", cutoff);
-
-        material.setBoolean("ShowOnlyAO", showOnlyAO);
-        material.setBoolean("DisableBlur", disableBlur);
-    }
-
-    @Override
-    protected void initFilter(final AssetManager manager,
-            final RenderManager renderManager, final ViewPort vp, final int w,
-            final int h) {
-        final ImmutableList.Builder<Pass> postRenderPassesBuilder =
-                ImmutableList.builder();
-
-        normalPass = new Pass();
-        normalPass.init(renderManager.getRenderer(), (int) (w / downsamples),
-                (int) (h / downsamples), Format.RGBA8, Format.Depth);
-
-        ssaoMaterial = new Material(manager, "MatDefs/SSAO/SSAO.j3md");
-        ssaoMaterial.setTexture("NormalTexture",
-                normalPass.getRenderedTexture());
-        ssaoPass = new Pass() {
-            @Override
-            public boolean requiresDepthAsTexture() {
-                return true;
-            }
-        };
-        ssaoPass.init(renderManager.getRenderer(), (int) (w / downsamples),
-                (int) (h / downsamples), Format.RGBA8, Format.Depth, 1,
-                ssaoMaterial);
-        ssaoPass.getRenderedTexture().setMinFilter(Texture.MinFilter.Trilinear);
-        ssaoPass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
-        postRenderPassesBuilder.add(ssaoPass);
-
-        material = new Material(manager, "MatDefs/SSAO/SSAOBlur.j3md");
-        material.setTexture("SSAOTexture", ssaoPass.getRenderedTexture());
-
-        postRenderPasses = postRenderPassesBuilder.build();
-
-        final Camera cam = vp.getCamera();
-
-        final float farY =
-                cam.getFrustumTop() / cam.getFrustumNear()
-                        * cam.getFrustumFar();
-        final float farX =
-                farY * ((float) cam.getWidth() / (float) cam.getHeight());
-        frustumCorner.set(farX, farY, cam.getFrustumFar());
-
-        ssaoMaterial.setVector3("FrustumCorner", frustumCorner);
-        ssaoMaterial.setFloat("ZNear", cam.getFrustumNear());
-        ssaoMaterial.setFloat("ZFar", cam.getFrustumFar());
-
-        material.setFloat("ZNear", cam.getFrustumNear());
-        material.setFloat("ZFar", cam.getFrustumFar());
-
-        writeParams();
-    }
-
-    @Override
-    protected Material getMaterial() {
-        return material;
     }
 
     /**
@@ -264,5 +179,90 @@ public class SSAOFilter extends Filter {
      */
     public boolean shouldShowOnlyAO() {
         return showOnlyAO;
+    }
+
+    private void writeParams() {
+        ssaoMaterial.setFloat("SampleRadius", sampleRadius);
+        ssaoMaterial.setFloat("Intensity", intensity);
+        ssaoMaterial.setFloat("Scale", scale);
+        ssaoMaterial.setFloat("Bias", bias);
+        ssaoMaterial.setFloat("Cutoff", cutoff);
+
+        material.setBoolean("ShowOnlyAO", showOnlyAO);
+        material.setBoolean("DisableBlur", disableBlur);
+    }
+
+    @Override
+    protected Material getMaterial() {
+        return material;
+    }
+
+    @Override
+    protected void initFilter(final AssetManager manager,
+            final RenderManager renderManager, final ViewPort vp, final int w,
+            final int h) {
+        final ImmutableList.Builder<Pass> postRenderPassesBuilder =
+                ImmutableList.builder();
+
+        normalPass = new Pass();
+        normalPass.init(renderManager.getRenderer(), (int) (w / downsamples),
+                (int) (h / downsamples), Format.RGBA8, Format.Depth);
+
+        ssaoMaterial = new Material(manager, "MatDefs/SSAO/SSAO.j3md");
+        ssaoMaterial.setTexture("NormalTexture",
+                normalPass.getRenderedTexture());
+        ssaoPass = new Pass() {
+            @Override
+            public boolean requiresDepthAsTexture() {
+                return true;
+            }
+        };
+        ssaoPass.init(renderManager.getRenderer(), (int) (w / downsamples),
+                (int) (h / downsamples), Format.RGBA8, Format.Depth, 1,
+                ssaoMaterial);
+        ssaoPass.getRenderedTexture().setMinFilter(Texture.MinFilter.Trilinear);
+        ssaoPass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
+        postRenderPassesBuilder.add(ssaoPass);
+
+        material = new Material(manager, "MatDefs/SSAO/SSAOBlur.j3md");
+        material.setTexture("SSAOTexture", ssaoPass.getRenderedTexture());
+
+        postRenderPasses = postRenderPassesBuilder.build();
+
+        final Camera cam = vp.getCamera();
+
+        final float farY =
+                cam.getFrustumTop() / cam.getFrustumNear()
+                        * cam.getFrustumFar();
+        final float farX =
+                farY * ((float) cam.getWidth() / (float) cam.getHeight());
+        frustumCorner.set(farX, farY, cam.getFrustumFar());
+
+        ssaoMaterial.setVector3("FrustumCorner", frustumCorner);
+        ssaoMaterial.setFloat("ZNear", cam.getFrustumNear());
+        ssaoMaterial.setFloat("ZFar", cam.getFrustumFar());
+
+        material.setFloat("ZNear", cam.getFrustumNear());
+        material.setFloat("ZFar", cam.getFrustumFar());
+
+        writeParams();
+    }
+
+    @Override
+    protected boolean isRequiresDepthTexture() {
+        return true;
+    }
+
+    @Override
+    protected void postQueue(final RenderManager renderManager,
+            final ViewPort viewPort) {
+        final Renderer r = renderManager.getRenderer();
+        r.setFrameBuffer(normalPass.getRenderFrameBuffer());
+        renderManager.getRenderer().clearBuffers(true, true, true);
+        renderManager.setForcedTechnique("PreNormalPass");
+        renderManager.renderViewPortQueues(viewPort, false);
+        renderManager.setForcedTechnique(null);
+        renderManager.getRenderer().setFrameBuffer(
+                viewPort.getOutputFrameBuffer());
     }
 }

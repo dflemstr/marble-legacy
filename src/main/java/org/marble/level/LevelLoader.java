@@ -98,6 +98,13 @@ public final class LevelLoader {
         return loadMetaLevelPack(packObject, url);
     }
 
+    public StatisticalMetaLevel loadStatisticalMetaLevel(
+            final JSONObject levelObject) throws JSONException {
+        final ImmutableMap<String, Integer> highscores =
+                loadHighscores(levelObject.getJSONObject("highscores"));
+        return new StatisticalMetaLevel(highscores);
+    }
+
     /**
      * Runs (executes) a series of level statements, producing a set of
      * initialized world entities.
@@ -272,6 +279,13 @@ public final class LevelLoader {
         return set;
     }
 
+    private Optional<String> discardEmpty(final String string) {
+        if (string.isEmpty())
+            return Optional.absent();
+        else
+            return Optional.fromNullable(string);
+    }
+
     /**
      * Creates a new instance of the specified class of entity.
      * 
@@ -343,41 +357,6 @@ public final class LevelLoader {
         }
     }
 
-    MetaLevelPack loadMetaLevelPack(final JSONObject object, final URL packURL)
-            throws JSONException, LevelLoadException {
-        return new MetaLevelPack(object.getString("name"),
-                discardEmpty(object.optString("version")),
-                discardEmpty(object.optString("description")),
-                discardEmpty(object.optString("author")), loadMetaLevels(
-                        object.getJSONArray("levels"), packURL));
-    }
-
-    private Optional<String> discardEmpty(final String string) {
-        if (string.isEmpty())
-            return Optional.absent();
-        else
-            return Optional.fromNullable(string);
-    }
-
-    ImmutableList<MetaLevel> loadMetaLevels(final JSONArray array,
-            final URL packURL) throws JSONException, LevelLoadException {
-        final ImmutableList.Builder<MetaLevel> resultBuilder =
-                ImmutableList.builder();
-        final Optional<URL> definitelyPackURL = Optional.of(packURL);
-        for (int i = 0; i < array.length(); i++) {
-            resultBuilder.add(loadMetaLevel(array.getJSONObject(i),
-                    definitelyPackURL));
-        }
-        return resultBuilder.build();
-    }
-
-    public StatisticalMetaLevel loadStatisticalMetaLevel(
-            final JSONObject levelObject) throws JSONException {
-        final ImmutableMap<String, Integer> highscores =
-                loadHighscores(levelObject.getJSONObject("highscores"));
-        return new StatisticalMetaLevel(highscores);
-    }
-
     ImmutableMap<String, Integer> loadHighscores(
             final JSONObject highscoreObject) throws JSONException {
         final ImmutableMap.Builder<String, Integer> resultBuilder =
@@ -409,6 +388,27 @@ public final class LevelLoader {
             throw new LevelLoadException("Invalid URI",
                     LevelLoadException.Kind.INVALID_URI, -1, e);
         }
+    }
+
+    MetaLevelPack loadMetaLevelPack(final JSONObject object, final URL packURL)
+            throws JSONException, LevelLoadException {
+        return new MetaLevelPack(object.getString("name"),
+                discardEmpty(object.optString("version")),
+                discardEmpty(object.optString("description")),
+                discardEmpty(object.optString("author")), loadMetaLevels(
+                        object.getJSONArray("levels"), packURL));
+    }
+
+    ImmutableList<MetaLevel> loadMetaLevels(final JSONArray array,
+            final URL packURL) throws JSONException, LevelLoadException {
+        final ImmutableList.Builder<MetaLevel> resultBuilder =
+                ImmutableList.builder();
+        final Optional<URL> definitelyPackURL = Optional.of(packURL);
+        for (int i = 0; i < array.length(); i++) {
+            resultBuilder.add(loadMetaLevel(array.getJSONObject(i),
+                    definitelyPackURL));
+        }
+        return resultBuilder.build();
     }
 
     URL makeRelativeURL(final Optional<URL> baseURL,

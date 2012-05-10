@@ -19,21 +19,14 @@ import org.marble.input.PlayerInput;
  */
 public class InputEngine extends Engine<Interactive> {
 
-    private final MouseInput mouseInput;
-    private final KeyInput keyInput;
-    private final TouchInput touchInput;
-
     private final InputManager inputManager;
-
-    /**
-     * @return the inputManager
-     */
-    public InputManager getInputManager() {
-        return inputManager;
-    }
-
+    private final KeyInput keyInput;
     private final Multimap<Interactive, ActionListener> listeners =
             HashMultimap.create();
+
+    private final MouseInput mouseInput;
+
+    private final TouchInput touchInput;
 
     /**
      * Creates a new input engine.
@@ -45,11 +38,6 @@ public class InputEngine extends Engine<Interactive> {
         touchInput = context.getTouchInput();
 
         inputManager = new InputManager(mouseInput, keyInput, null, touchInput);
-    }
-
-    @Override
-    public void resume() {
-        inputManager.reset();
     }
 
     @Override
@@ -67,6 +55,13 @@ public class InputEngine extends Engine<Interactive> {
         }
     }
 
+    /**
+     * @return the inputManager
+     */
+    public InputManager getInputManager() {
+        return inputManager;
+    }
+
     @Override
     public void initialize() {
         if (mouseInput != null) {
@@ -80,6 +75,11 @@ public class InputEngine extends Engine<Interactive> {
         if (touchInput != null) {
             touchInput.initialize();
         }
+    }
+
+    @Override
+    public void resume() {
+        inputManager.reset();
     }
 
     @Override

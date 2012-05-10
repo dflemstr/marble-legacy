@@ -25,12 +25,12 @@ import org.marble.util.Connectors;
 public class Pin extends AbstractEntity implements Graphical, Connected,
         Physical {
 
-    final float length;
-    final float radius;
-
+    private Node graphicalRails;
     private RigidBodyControl physicalBox;
 
-    private Node graphicalRails;
+    final float length;
+
+    final float radius;
 
     public Pin(final float length) {
         this(length, 0.1f);
@@ -39,6 +39,16 @@ public class Pin extends AbstractEntity implements Graphical, Connected,
     public Pin(final float length, final float radius) {
         this.length = length;
         this.radius = radius;
+    }
+
+    @Override
+    public RigidBodyControl getBody() {
+        return physicalBox;
+    }
+
+    @Override
+    public Map<String, Connector> getConnectors() {
+        return Connectors.fromRail(length, 0, radius * 2);
     }
 
     @Override
@@ -66,16 +76,6 @@ public class Pin extends AbstractEntity implements Graphical, Connected,
 
         physicalBox = new RigidBodyControl(compound, 0);
         getSpatial().addControl(physicalBox);
-    }
-
-    @Override
-    public RigidBodyControl getBody() {
-        return physicalBox;
-    }
-
-    @Override
-    public Map<String, Connector> getConnectors() {
-        return Connectors.fromRail(length, 0, radius * 2);
     }
 
 }

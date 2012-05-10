@@ -26,13 +26,13 @@ import org.marble.util.Connectors;
 public class Rail extends AbstractEntity implements Connected, Graphical,
         Physical {
 
-    final float width;
-    final float height;
+    private Node graphicalRails;
+    private RigidBodyControl physicalBox;
     final float depth;
 
-    private RigidBodyControl physicalBox;
+    final float height;
 
-    private Node graphicalRails;
+    final float width;
 
     public Rail(final float length) {
         this(length, 1f, 0.2f);
@@ -42,6 +42,16 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
         this.width = width;
         this.height = height;
         this.depth = depth;
+    }
+
+    @Override
+    public RigidBodyControl getBody() {
+        return physicalBox;
+    }
+
+    @Override
+    public Map<String, Connector> getConnectors() {
+        return Connectors.fromRail(width, height, depth);
     }
 
     @Override
@@ -87,15 +97,5 @@ public class Rail extends AbstractEntity implements Connected, Graphical,
 
         physicalBox = new RigidBodyControl(compound, 0);
         getSpatial().addControl(physicalBox);
-    }
-
-    @Override
-    public RigidBodyControl getBody() {
-        return physicalBox;
-    }
-
-    @Override
-    public Map<String, Connector> getConnectors() {
-        return Connectors.fromRail(width, height, depth);
     }
 }

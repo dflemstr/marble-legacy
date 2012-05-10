@@ -23,15 +23,6 @@ public class StatisticsEntryMap extends
                 new StatisticalValueSerializer());
     }
 
-    private static class UUIDKeyTranslation implements Function<UUID, String> {
-
-        @Override
-        public String apply(final UUID input) {
-            return input.toString();
-        }
-
-    }
-
     private static class StatisticalValueSerializer implements
             StringSerializer<StatisticalMetaLevel> {
         private final LevelLoader levelLoader = new LevelLoader();
@@ -56,6 +47,15 @@ public class StatisticsEntryMap extends
                         "Invalid JSON serialization of statistical meta level",
                         e);
             }
+        }
+
+    }
+
+    private static class UUIDKeyTranslation implements Function<UUID, String> {
+
+        @Override
+        public String apply(final UUID input) {
+            return input.toString();
         }
 
     }

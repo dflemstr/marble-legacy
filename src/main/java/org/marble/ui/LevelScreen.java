@@ -16,6 +16,37 @@ public class LevelScreen extends AbstractScreenController {
         super(game);
     }
 
+    public String getLevelPackDescription() {
+        return game.getCurrentLevelPack().getDescription().or("");
+    }
+
+    public String getLevelPackName() {
+        final MetaLevelPack levelPack = game.getCurrentLevelPack();
+        final StringBuilder packNameBuilder = new StringBuilder();
+        packNameBuilder.append(levelPack.getName());
+        if (levelPack.getVersion().isPresent()) {
+            packNameBuilder.append(" v" + levelPack.getVersion().get());
+        }
+        if (levelPack.getAuthor().isPresent()) {
+            packNameBuilder.append(" by " + levelPack.getAuthor().get());
+        }
+        return packNameBuilder.toString();
+    }
+
+    public void goBack() {
+        game.gotoScreen(UIScreen.Start);
+    }
+
+    public void loadLevel(final String uuidString) {
+        final UUID uuid = UUID.fromString(uuidString);
+        for (final MetaLevel level : game.getCurrentLevelPack().getLevels()) {
+            if (level.getUUID().equals(uuid)) {
+                game.playLevel(level);
+                break;
+            }
+        }
+    }
+
     @Override
     public void onGoto() {
         super.bind(nifty, screen);
@@ -42,36 +73,5 @@ public class LevelScreen extends AbstractScreenController {
                                     + level.getUUID().toString() + ")", this));
         }
         screen.setDefaultFocusElement("back-button");
-    }
-
-    public String getLevelPackName() {
-        final MetaLevelPack levelPack = game.getCurrentLevelPack();
-        final StringBuilder packNameBuilder = new StringBuilder();
-        packNameBuilder.append(levelPack.getName());
-        if (levelPack.getVersion().isPresent()) {
-            packNameBuilder.append(" v" + levelPack.getVersion().get());
-        }
-        if (levelPack.getAuthor().isPresent()) {
-            packNameBuilder.append(" by " + levelPack.getAuthor().get());
-        }
-        return packNameBuilder.toString();
-    }
-
-    public String getLevelPackDescription() {
-        return game.getCurrentLevelPack().getDescription().or("");
-    }
-
-    public void loadLevel(final String uuidString) {
-        final UUID uuid = UUID.fromString(uuidString);
-        for (final MetaLevel level : game.getCurrentLevelPack().getLevels()) {
-            if (level.getUUID().equals(uuid)) {
-                game.playLevel(level);
-                break;
-            }
-        }
-    }
-
-    public void goBack() {
-        game.gotoScreen(UIScreen.Start);
     }
 }

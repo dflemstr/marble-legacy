@@ -36,47 +36,29 @@ import org.marble.util.Direction;
 
 public class WinBlock extends AbstractEntity implements Graphical, Physical,
         Collidable, Emitter {
-    private final class VerticalSpinner extends AbstractControl {
-        private final float radialVelocity;
-        private float angle;
-        private final Quaternion rotation = new Quaternion();
-
-        public VerticalSpinner(final float radialVelocity) {
-            this(radialVelocity, 0);
-        }
-
-        public VerticalSpinner(final float radialVelocity, final float angle) {
-            this.radialVelocity = radialVelocity;
-            this.angle = angle;
-        }
-
-        @Override
-        public Control cloneForSpatial(final Spatial spatial) {
-            return new VerticalSpinner(angle, radialVelocity);
-        }
-
-        @Override
-        protected void controlUpdate(final float tpf) {
-            angle += radialVelocity * tpf;
-            rotation.fromAngleAxis(angle, Direction.Up.getPhysicalDirection());
-            spatial.setLocalRotation(rotation);
-        }
-
-        @Override
-        protected void controlRender(final RenderManager rm, final ViewPort vp) {
-            // Do nothing
-        }
-    }
-
     private Game game;
+
     private Node graphicalBox;
-    private RigidBodyControl physicalBox;
     private Node graphicalSpinner;
     private PointLight light1, light2;
+    private RigidBodyControl physicalBox;
 
     @Override
     public RigidBodyControl getBody() {
         return physicalBox;
+    }
+
+    @Override
+    public Set<Light> getLights() {
+        return ImmutableSet.<Light> of(light1, light2);
+    }
+
+    @Override
+    public void handleCollisionWith(final Physical other,
+            final PhysicsCollisionEvent event) {
+        if (other instanceof PlayerBall) {
+            game.winLevel();
+        }
     }
 
     @Override
@@ -154,16 +136,35 @@ public class WinBlock extends AbstractEntity implements Graphical, Physical,
         return particles;
     }
 
-    @Override
-    public void handleCollisionWith(final Physical other,
-            final PhysicsCollisionEvent event) {
-        if (other instanceof PlayerBall) {
-            game.winLevel();
-        }
-    }
+    private final class VerticalSpinner extends AbstractControl {
+        private float angle;
+        private final float radialVelocity;
+        private final Quaternion rotation = new Quaternion();
 
-    @Override
-    public Set<Light> getLights() {
-        return ImmutableSet.<Light> of(light1, light2);
+        public VerticalSpinner(final float radialVelocity) {
+            this(radialVelocity, 0);
+        }
+
+        public VerticalSpinner(final float radialVelocity, final float angle) {
+            this.radialVelocity = radialVelocity;
+            this.angle = angle;
+        }
+
+        @Override
+        public Control cloneForSpatial(final Spatial spatial) {
+            return new VerticalSpinner(angle, radialVelocity);
+        }
+
+        @Override
+        protected void controlRender(final RenderManager rm, final ViewPort vp) {
+            // Do nothing
+        }
+
+        @Override
+        protected void controlUpdate(final float tpf) {
+            angle += radialVelocity * tpf;
+            rotation.fromAngleAxis(angle, Direction.Up.getPhysicalDirection());
+            spatial.setLocalRotation(rotation);
+        }
     }
 }

@@ -1,9 +1,9 @@
 package org.marble.ui;
 
 public enum UIScreen {
-    Start("start"), LevelPacks("level-packs"), Levels("levels"), Settings(
-            "settings"), Game("game"), Pause("pause"), Win("win"),
-    Loss("loss"), Highscores("highscores");
+    Game("game"), Highscores("highscores"), LevelPacks("level-packs"), Levels(
+            "levels"), Loss("loss"), Pause("pause"), Settings("settings"),
+    Start("start"), Win("win");
     private String name;
 
     private UIScreen(final String name) {

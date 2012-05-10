@@ -28,6 +28,10 @@ public class HighscoreScreen extends AbstractScreenController {
         super(game);
     }
 
+    public void goBack() {
+        game.gotoScreen(UIScreen.Win);
+    }
+
     @Override
     public void onGoto() {
         if (game.getCurrentLevel().isPresent()) {
@@ -59,9 +63,5 @@ public class HighscoreScreen extends AbstractScreenController {
                         .setText(entry.getKey() + ": " + entry.getValue());
             }
         }
-    }
-
-    public void goBack() {
-        game.gotoScreen(UIScreen.Win);
     }
 }

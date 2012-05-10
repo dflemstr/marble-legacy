@@ -33,10 +33,10 @@ import org.marble.util.OfflineTransforms;
  */
 public class Slab extends AbstractEntity implements Connected, Graphical,
         Physical {
-    private final float width, height, depth;
-    private final float slopeX, slopeY;
     private Geometry graphicalBox;
     private RigidBodyControl physicalBox;
+    private final float slopeX, slopeY;
+    private final float width, height, depth;
 
     public Slab(final float width, final float height, final float depth) {
         this(width, height, depth, 0, 0);
@@ -93,6 +93,16 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
         this.depth = depth;
         this.slopeX = slopeX;
         this.slopeY = slopeY;
+    }
+
+    @Override
+    public RigidBodyControl getBody() {
+        return physicalBox;
+    }
+
+    @Override
+    public Map<String, Connector> getConnectors() {
+        return Connectors.fromBox(width, height, depth, slopeX, slopeY);
     }
 
     @Override
@@ -159,16 +169,6 @@ public class Slab extends AbstractEntity implements Connected, Graphical,
         }
         physicalBox = new RigidBodyControl(shape, 0);
         getSpatial().addControl(physicalBox);
-    }
-
-    @Override
-    public RigidBodyControl getBody() {
-        return physicalBox;
-    }
-
-    @Override
-    public Map<String, Connector> getConnectors() {
-        return Connectors.fromBox(width, height, depth, slopeX, slopeY);
     }
 
     @Override

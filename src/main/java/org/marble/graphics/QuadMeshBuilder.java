@@ -12,11 +12,11 @@ import com.google.common.primitives.Ints;
  * A builder for constructing mesh data that consists entirely out of quads.
  */
 public class QuadMeshBuilder {
-    private final ArrayList<Vector3f> vertices;
+    private int i;
+    private final ArrayList<Integer> indices;
     private final ArrayList<Vector3f> normals;
     private final ArrayList<Vector2f> texcoords;
-    private final ArrayList<Integer> indices;
-    private int i;
+    private final ArrayList<Vector3f> vertices;
 
     /**
      * Constructs a new quad vertex builder.

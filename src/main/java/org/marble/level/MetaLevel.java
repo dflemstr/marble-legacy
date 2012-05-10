@@ -10,8 +10,8 @@ import org.json.JSONObject;
 
 public class MetaLevel {
     private final String name;
-    private final URL uri;
     private final Optional<URL> previewURI;
+    private final URL uri;
     private final UUID uuid;
 
     public MetaLevel(final String name, final URL uri,

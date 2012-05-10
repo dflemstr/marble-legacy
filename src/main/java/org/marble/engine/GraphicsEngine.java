@@ -18,35 +18,28 @@ import org.marble.entity.graphical.Graphical;
  * The Ardor3D-based graphics engine.
  */
 public class GraphicsEngine extends Engine<Graphical> {
-    private final JmeContext context;
-    private Renderer renderer;
-    private RenderManager renderManager;
-    private ViewPort viewPort;
-    private ViewPort guiViewPort;
-
-    /**
-     * @return the guiViewPort
-     */
-    public ViewPort getGuiViewPort() {
-        return guiViewPort;
-    }
-
     private Camera camera;
+    private final JmeContext context;
+    private final Node guiNode = new Node("gui");
+    private ViewPort guiViewPort;
+    private Renderer renderer;
+
+    private RenderManager renderManager;
+
+    private final Node rootNode = new Node("root");
+
+    private ViewPort viewPort;
+
+    public GraphicsEngine(final JmeContext context) {
+        super(Graphical.class);
+        this.context = context;
+    }
 
     /**
      * @return the camera
      */
     public Camera getCamera() {
         return camera;
-    }
-
-    private final Node rootNode = new Node("root");
-
-    /**
-     * @return the rootNode
-     */
-    public Node getRootNode() {
-        return rootNode;
     }
 
     /**
@@ -56,15 +49,26 @@ public class GraphicsEngine extends Engine<Graphical> {
         return guiNode;
     }
 
-    private final Node guiNode = new Node("gui");
-
-    public GraphicsEngine(final JmeContext context) {
-        super(Graphical.class);
-        this.context = context;
+    /**
+     * @return the guiViewPort
+     */
+    public ViewPort getGuiViewPort() {
+        return guiViewPort;
     }
 
-    public void reshape(final int width, final int height) {
-        renderManager.notifyReshape(width, height);
+    public RenderManager getRenderManager() {
+        return renderManager;
+    }
+
+    /**
+     * @return the rootNode
+     */
+    public Node getRootNode() {
+        return rootNode;
+    }
+
+    public ViewPort getViewPort() {
+        return viewPort;
     }
 
     @Override
@@ -97,14 +101,18 @@ public class GraphicsEngine extends Engine<Graphical> {
         guiViewPort.attachScene(guiNode);
     }
 
-    @Override
-    public void suspend() {
-        context.setAutoFlushFrames(false);
+    public void reshape(final int width, final int height) {
+        renderManager.notifyReshape(width, height);
     }
 
     @Override
     public void resume() {
         context.setAutoFlushFrames(true);
+    }
+
+    @Override
+    public void suspend() {
+        context.setAutoFlushFrames(false);
     }
 
     @Override
@@ -138,13 +146,5 @@ public class GraphicsEngine extends Engine<Graphical> {
                 rootNode.removeLight(light);
             }
         }
-    }
-
-    public RenderManager getRenderManager() {
-        return renderManager;
-    }
-
-    public ViewPort getViewPort() {
-        return viewPort;
     }
 }

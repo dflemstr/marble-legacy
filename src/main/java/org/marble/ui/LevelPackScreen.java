@@ -13,10 +13,8 @@ public class LevelPackScreen extends AbstractScreenController {
         super(game);
     }
 
-    @Override
-    public void onGoto() {
-        screen.findNiftyControl("level-pack-url", TextField.class).setText(
-                game.getCurrentLevelPackURL().toExternalForm());
+    public void goBack() {
+        game.gotoScreen(UIScreen.Start);
     }
 
     public void loadLevelPack() {
@@ -28,7 +26,9 @@ public class LevelPackScreen extends AbstractScreenController {
         }
     }
 
-    public void goBack() {
-        game.gotoScreen(UIScreen.Start);
+    @Override
+    public void onGoto() {
+        screen.findNiftyControl("level-pack-url", TextField.class).setText(
+                game.getCurrentLevelPackURL().toExternalForm());
     }
 }

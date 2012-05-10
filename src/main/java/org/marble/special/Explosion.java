@@ -13,11 +13,18 @@ import org.marble.entity.graphical.Graphical;
 
 public class Explosion extends AbstractEntity implements Graphical {
     private final ColorRGBA color = new ColorRGBA();
-    private ParticleEmitter particles;
     private boolean hasEmitted = false;
+    private ParticleEmitter particles;
 
     public Explosion(final ColorRGBA color) {
         this.color.set(color);
+    }
+
+    @Override
+    public void initialize(final Game game) throws Exception {
+        super.initialize(game);
+        particles = makeExplosionParticles(game.getAssetManager(), color);
+        getSpatial().attachChild(particles);
     }
 
     @Override
@@ -29,13 +36,6 @@ public class Explosion extends AbstractEntity implements Graphical {
         if (particles.getNumVisibleParticles() < 2) {
             game.getEntityManager().removeEntity(this);
         }
-    }
-
-    @Override
-    public void initialize(final Game game) throws Exception {
-        super.initialize(game);
-        particles = makeExplosionParticles(game.getAssetManager(), color);
-        getSpatial().attachChild(particles);
     }
 
     private ParticleEmitter makeExplosionParticles(

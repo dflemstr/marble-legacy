@@ -43,15 +43,6 @@ public class Engine<E extends Entity> {
     public void initialize() {
     }
 
-    public void suspend() {
-    }
-
-    public void resume() {
-    }
-
-    public void setPause(final GameSession.PauseState state) {
-    }
-
     /**
      * Makes this engine stop handling a specified entity. The entity must be
      * accepted by the engine via {@link #shouldHandle(Entity)}, but doesn't
@@ -68,6 +59,12 @@ public class Engine<E extends Entity> {
                     "Cannot handle this type of entity");
     }
 
+    public void resume() {
+    }
+
+    public void setPause(final GameSession.PauseState state) {
+    }
+
     /**
      * Specifies whether this engine should handle the specified entity.
      * 
@@ -77,6 +74,9 @@ public class Engine<E extends Entity> {
      */
     public boolean shouldHandle(final Entity entity) {
         return this.entityType.isInstance(entity);
+    }
+
+    public void suspend() {
     }
 
     /**

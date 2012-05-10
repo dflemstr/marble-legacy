@@ -11,12 +11,12 @@ public class StartScreen extends AbstractScreenController {
         game.stop();
     }
 
-    public void showSettings() {
-        nifty.gotoScreen("settings");
-    }
-
     public void loadLevel() {
         nifty.gotoScreen("levels");
+    }
+
+    public void showSettings() {
+        nifty.gotoScreen("settings");
     }
 
     public void switchLevelPack() {

@@ -32,32 +32,12 @@ import org.marble.util.QualityToInteger;
 
 public class Transformer extends AbstractEntity implements Physical, Graphical,
         Connected, Collidable {
-    private final class CreateEnvironmentNode implements
-            Callable<EnvironmentNode> {
-        private final Game game;
-
-        private CreateEnvironmentNode(final Game game) {
-            this.game = game;
-        }
-
-        @Override
-        public EnvironmentNode call() throws Exception {
-            final EnvironmentNode node =
-                    new EnvironmentNode(game.getGraphicsEngine().getRootNode(),
-                            game.getGraphicsEngine().getRenderManager(),
-                            FRPUtils.map(game.getSettings().environmentQuality,
-                                    new QualityToInteger()));
-            getSpatial().attachChild(node);
-            environmentNode = Optional.of(node);
-            return node;
-        }
-    }
-
     private static final Logger log = Logger.getLogger(AbstractEntity.class
             .getName());
-    private final BallKind targetKind;
-    private RigidBodyControl physicalBox;
+
     private Optional<EnvironmentNode> environmentNode = Optional.absent();
+    private RigidBodyControl physicalBox;
+    private final BallKind targetKind;
 
     public Transformer(final BallKind targetKind) {
         this.targetKind = targetKind;
@@ -65,6 +45,38 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
 
     public Transformer(final String targetKind) {
         this(BallKind.valueOf(targetKind));
+    }
+
+    @Override
+    public void destroy() {
+        if (environmentNode.isPresent()) {
+            environmentNode.get().destroy();
+        }
+    }
+
+    @Override
+    public RigidBodyControl getBody() {
+        return physicalBox;
+    }
+
+    @Override
+    public Map<String, Connector> getConnectors() {
+        return ImmutableMap.of();
+    }
+
+    @Override
+    public void handleCollisionWith(final Physical other,
+            final PhysicsCollisionEvent event) {
+
+        if (other instanceof Ball) {
+            final Ball ball = (Ball) other;
+            try {
+                ball.setBallKind(targetKind, true, false);
+            } catch (final Exception e) {
+                game.handleError(e);
+            }
+            log.info("Transformed " + ball + " into material " + targetKind);
+        }
     }
 
     @Override
@@ -89,40 +101,29 @@ public class Transformer extends AbstractEntity implements Physical, Graphical,
     }
 
     @Override
-    public RigidBodyControl getBody() {
-        return physicalBox;
-    }
-
-    @Override
-    public Map<String, Connector> getConnectors() {
-        return ImmutableMap.of();
-    }
-
-    @Override
     public String toString() {
         return Objects.toStringHelper(this).add("name", getName())
                 .add("targetKind", targetKind).toString();
     }
 
-    @Override
-    public void destroy() {
-        if (environmentNode.isPresent()) {
-            environmentNode.get().destroy();
+    private final class CreateEnvironmentNode implements
+            Callable<EnvironmentNode> {
+        private final Game game;
+
+        private CreateEnvironmentNode(final Game game) {
+            this.game = game;
         }
-    }
 
-    @Override
-    public void handleCollisionWith(final Physical other,
-            final PhysicsCollisionEvent event) {
-
-        if (other instanceof Ball) {
-            final Ball ball = (Ball) other;
-            try {
-                ball.setBallKind(targetKind, true, false);
-            } catch (final Exception e) {
-                game.handleError(e);
-            }
-            log.info("Transformed " + ball + " into material " + targetKind);
+        @Override
+        public EnvironmentNode call() throws Exception {
+            final EnvironmentNode node =
+                    new EnvironmentNode(game.getGraphicsEngine().getRootNode(),
+                            game.getGraphicsEngine().getRenderManager(),
+                            FRPUtils.map(game.getSettings().environmentQuality,
+                                    new QualityToInteger()));
+            getSpatial().attachChild(node);
+            environmentNode = Optional.of(node);
+            return node;
         }
     }
 }

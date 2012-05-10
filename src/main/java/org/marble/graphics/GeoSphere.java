@@ -32,14 +32,11 @@ import com.jme3.util.BufferUtils;
  * Ported to jMonkeyEngine by David Flemström 2012-04-19
  */
 public class GeoSphere extends Mesh {
-    public enum TextureMode {
-        Original, Projected;
-    }
-
     private final int maxlevels;
-    private boolean usingIcosahedron = true;
-    private TextureMode textureMode = TextureMode.Original;
+
     private float radius;
+    private TextureMode textureMode = TextureMode.Original;
+    private boolean usingIcosahedron = true;
 
     /**
      * @param useIcosahedron
@@ -65,13 +62,17 @@ public class GeoSphere extends Mesh {
         return radius;
     }
 
-    public void setRadius(final float radius) {
-        this.radius = radius;
-        updateGeometry();
+    public TextureMode getTextureMode() {
+        return textureMode;
     }
 
     public boolean isUsingIcosahedron() {
         return usingIcosahedron;
+    }
+
+    public void setRadius(final float radius) {
+        this.radius = radius;
+        updateGeometry();
     }
 
     public void setTextureMode(final TextureMode textureMode) {
@@ -81,15 +82,80 @@ public class GeoSphere extends Mesh {
         }
     }
 
-    public TextureMode getTextureMode() {
-        return textureMode;
+    private int calculateBorderTriangles(int levels) {
+        int current = 108;
+        // Pattern starts at 4
+        levels -= 4;
+        while (levels-- > 0) {
+            current = 2 * current + 12;
+        }
+        return current;
+    }
+
+    /**
+     * Compute the average of two vectors.
+     * 
+     * @param a
+     *            first vector
+     * @param b
+     *            second vector
+     * @return the average of two points
+     */
+    private Vector3f createMidpoint(final Vector3f a, final Vector3f b) {
+        return new Vector3f((a.getX() + b.getX()) * 0.5f,
+                (a.getY() + b.getY()) * 0.5f, (a.getZ() + b.getZ()) * 0.5f);
+    }
+
+    private void put(final Vector3f vec) {
+        put(vec, false);
+    }
+
+    private void put(final Vector3f vec, final boolean begining) {
+        final FloatBuffer vertBuf =
+                (FloatBuffer) getBuffer(Type.Position).getData();
+        vertBuf.put(vec.getX());
+        vertBuf.put(vec.getY());
+        vertBuf.put(vec.getZ());
+
+        final float length = vec.length();
+        final FloatBuffer normBuf =
+                (FloatBuffer) getBuffer(Type.Normal).getData();
+        final float xNorm = vec.getX() / length;
+        normBuf.put(xNorm);
+        final float yNorm = vec.getY() / length;
+        normBuf.put(yNorm);
+        final float zNorm = vec.getZ() / length;
+        normBuf.put(zNorm);
+
+        final FloatBuffer texBuf =
+                (FloatBuffer) getBuffer(Type.TexCoord).getData();
+        if (vec.getX() > 0.0 && vec.getY() == 0.0) {
+            if (begining) {
+                texBuf.put(0);
+            } else {
+                texBuf.put(1);
+            }
+        } else {
+            texBuf.put((float) ((Math.atan2(yNorm, xNorm) / (2 * Math.PI) + 1) % 1));
+        }
+
+        float vPos = 0;
+        switch (textureMode) {
+        case Original:
+            vPos = .5f * (zNorm + 1);
+            break;
+        case Projected:
+            vPos = FastMath.INV_PI * (FastMath.HALF_PI + FastMath.asin(zNorm));
+            break;
+        }
+        texBuf.put(vPos);
     }
 
     private void updateGeometry() {
         final int initialTriangleCount = usingIcosahedron ? 20 : 8;
         final int initialVertexCount = usingIcosahedron ? 12 : 6;
         // number of triangles = initialTriangleCount * 4^(maxlevels-1)
-        final int tris = initialTriangleCount << ((maxlevels - 1) * 2);
+        final int tris = initialTriangleCount << (maxlevels - 1) * 2;
 
         // number of vertBuf = (initialVertexCount + initialTriangleCount*4 +
         // initialTriangleCount*4*4 + ...)
@@ -97,7 +163,7 @@ public class GeoSphere extends Mesh {
         // initialVertexCount
         final int verts =
                 initialTriangleCount
-                        * (((1 << (maxlevels * 2)) - 1) / (4 - 1) - 1)
+                        * (((1 << maxlevels * 2) - 1) / (4 - 1) - 1)
                         + initialVertexCount
                         + calculateBorderTriangles(maxlevels);
 
@@ -309,73 +375,8 @@ public class GeoSphere extends Mesh {
         updateBound();
     }
 
-    private void put(final Vector3f vec) {
-        put(vec, false);
-    }
-
-    private void put(final Vector3f vec, final boolean begining) {
-        final FloatBuffer vertBuf =
-                (FloatBuffer) getBuffer(Type.Position).getData();
-        vertBuf.put(vec.getX());
-        vertBuf.put(vec.getY());
-        vertBuf.put(vec.getZ());
-
-        final float length = vec.length();
-        final FloatBuffer normBuf =
-                (FloatBuffer) getBuffer(Type.Normal).getData();
-        final float xNorm = vec.getX() / length;
-        normBuf.put(xNorm);
-        final float yNorm = vec.getY() / length;
-        normBuf.put(yNorm);
-        final float zNorm = vec.getZ() / length;
-        normBuf.put(zNorm);
-
-        final FloatBuffer texBuf =
-                (FloatBuffer) getBuffer(Type.TexCoord).getData();
-        if (vec.getX() > 0.0 && vec.getY() == 0.0) {
-            if (begining) {
-                texBuf.put(0);
-            } else {
-                texBuf.put(1);
-            }
-        } else {
-            texBuf.put((float) ((Math.atan2(yNorm, xNorm) / (2 * Math.PI) + 1) % 1));
-        }
-
-        float vPos = 0;
-        switch (textureMode) {
-        case Original:
-            vPos = .5f * (zNorm + 1);
-            break;
-        case Projected:
-            vPos = FastMath.INV_PI * (FastMath.HALF_PI + FastMath.asin(zNorm));
-            break;
-        }
-        texBuf.put(vPos);
-    }
-
-    private int calculateBorderTriangles(int levels) {
-        int current = 108;
-        // Pattern starts at 4
-        levels -= 4;
-        while (levels-- > 0) {
-            current = 2 * current + 12;
-        }
-        return current;
-    }
-
-    /**
-     * Compute the average of two vectors.
-     * 
-     * @param a
-     *            first vector
-     * @param b
-     *            second vector
-     * @return the average of two points
-     */
-    private Vector3f createMidpoint(final Vector3f a, final Vector3f b) {
-        return new Vector3f((a.getX() + b.getX()) * 0.5f,
-                (a.getY() + b.getY()) * 0.5f, (a.getZ() + b.getZ()) * 0.5f);
+    public enum TextureMode {
+        Original, Projected;
     }
 
     static class Triangle {

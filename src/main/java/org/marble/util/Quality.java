@@ -1,8 +1,8 @@
 package org.marble.util;
 
 public enum Quality {
-    Lowest("Lowest", 0), Lower("Lower", 1), Low("Low", 2), Medium("Medium", 3),
-    High("High", 4), Higher("Higher", 5), Highest("Highest", 6);
+    High("High", 4), Higher("Higher", 5), Highest("Highest", 6), Low("Low", 2),
+    Lower("Lower", 1), Lowest("Lowest", 0), Medium("Medium", 3);
     private final String humanReadable;
     private final int index;
 
@@ -11,11 +11,11 @@ public enum Quality {
         this.index = index;
     }
 
-    public int getIndex() {
-        return index;
-    }
-
     public String getHumanReadable() {
         return humanReadable;
+    }
+
+    public int getIndex() {
+        return index;
     }
 }

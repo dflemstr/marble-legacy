@@ -1,8 +1,8 @@
 package org.marble.input;
 
 public enum PlayerInput {
-    MoveForward("move-forward"), MoveBackward("move-backward"), MoveRight(
-            "move-right"), MoveLeft("move-left"), Pause("pause");
+    MoveBackward("move-backward"), MoveForward("move-forward"), MoveLeft(
+            "move-left"), MoveRight("move-right"), Pause("pause");
     private final String name;
 
     private PlayerInput(final String name) {

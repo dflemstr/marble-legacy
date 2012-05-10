@@ -17,11 +17,11 @@ import org.marble.level.LevelStatement.Position;
 
 public class LevelParserTest {
 
-    private LevelParser parser;
     // Indicates that the constructor that takes this as a parameter doesn't use
     // that parameter for equality, so it could be anything for testing
     // purposes.
     private final int IGNORED = 0;
+    private LevelParser parser;
 
     @Test
     public void className() {

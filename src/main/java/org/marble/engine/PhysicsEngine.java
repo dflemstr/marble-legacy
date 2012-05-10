@@ -28,26 +28,26 @@ import org.marble.util.Physics;
  * The JBullet-based physics engine.
  */
 public class PhysicsEngine extends Engine<Physical> {
-    private PhysicsSpace physicsSpace;
-    private ImmutableSet<Physical> physicals = ImmutableSet.of();
+    private final Set<Actor> actors = Sets.newIdentityHashSet();
     private ImmutableMap<PhysicsCollisionObject, Physical> associations =
             ImmutableMap.of();
-    private final Set<Actor> actors = Sets.newIdentityHashSet();
     private GameSession.PauseState pauseState = GameSession.PauseState.Running;
+    private ImmutableSet<Physical> physicals = ImmutableSet.of();
+    private PhysicsSpace physicsSpace;
+
+    float bound = 0;
 
     public PhysicsEngine(final JmeContext context) {
         super(Physical.class);
-    }
-
-    public void enableDebug(final AssetManager assetManager) {
-        physicsSpace.enableDebug(assetManager);
     }
 
     public void disableDebug() {
         physicsSpace.disableDebug();
     }
 
-    float bound = 0;
+    public void enableDebug(final AssetManager assetManager) {
+        physicsSpace.enableDebug(assetManager);
+    }
 
     @Override
     public void initialize() {
@@ -80,10 +80,15 @@ public class PhysicsEngine extends Engine<Physical> {
     }
 
     @Override
+    public void setPause(final GameSession.PauseState state) {
+        pauseState = state;
+    }
+
+    @Override
     public void update(final float timePerFrame) {
         if (pauseState == GameSession.PauseState.Running) {
             for (final Physical entity : physicals) {
-                if (entity.getBody().getPhysicsLocation().getZ() < (bound - 64)) {
+                if (entity.getBody().getPhysicsLocation().getZ() < bound - 64) {
                     entity.die();
                 }
 
@@ -121,11 +126,6 @@ public class PhysicsEngine extends Engine<Physical> {
                 }
             }
         }
-    }
-
-    @Override
-    public void setPause(final GameSession.PauseState state) {
-        pauseState = state;
     }
 
     @Override

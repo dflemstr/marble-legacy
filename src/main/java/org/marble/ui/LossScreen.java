@@ -8,14 +8,14 @@ public class LossScreen extends AbstractScreenController {
         super(game);
     }
 
+    public void gotoMenu() {
+        game.gotoMenu();
+    }
+
     public void retry() {
         if (game.getCurrentLevel().isPresent()) {
             game.playLevel(game.getCurrentLevel().get());
         } else
             throw new RuntimeException("The current level has disappeared");
-    }
-
-    public void gotoMenu() {
-        game.gotoMenu();
     }
 }

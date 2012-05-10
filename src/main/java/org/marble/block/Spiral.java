@@ -26,19 +26,19 @@ import org.marble.util.Connectors;
 public class Spiral extends AbstractEntity implements Connected, Graphical,
         Physical {
 
-    final float radius;
-    final float height;
-    final float angle;
-    final float theta;
-    final float separation;
-    final float tubeRadius;
-    final Vector3f direction;
-    final float a;
-    final float b;
-
-    private RigidBodyControl physicalBox;
-
     private Node graphicalRails;
+    private RigidBodyControl physicalBox;
+    final float a;
+    final float angle;
+    final float b;
+    final Vector3f direction;
+    final float height;
+    final float radius;
+    final float separation;
+
+    final float theta;
+
+    final float tubeRadius;
 
     public Spiral(final float radius, final float height, final float angle) {
         this(radius, height, angle, 0, 0, 1, 90);
@@ -69,9 +69,25 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
     }
 
     @Override
+    public RigidBodyControl getBody() {
+        return physicalBox;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.marble.entity.Connected#getConnectors()
+     */
+    @Override
+    public Map<String, Connector> getConnectors() {
+        return Connectors.fromSpiral(radius, height, tubeRadius, separation,
+                angle, direction, a, b);
+    }
+
+    @Override
     public void initialize(final Game game) {
         final float pi = (float) Math.PI;
-        final int steps = (int) (angle / (pi / 6) * (radius));
+        final int steps = (int) (angle / (pi / 6) * radius);
         final AssetManager assetManager = game.getAssetManager();
 
         final Material material =
@@ -124,7 +140,7 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
 
         for (int i = 0; i < steps; i++) {
 
-            final float fraction = ((float) i) / steps;
+            final float fraction = (float) i / steps;
             radialAxis = rotTot.mult(n);
             radialAxis.mult(radius - a / 2, leftMiddle);
             radialAxis.mult(radius + a / 2, rightMiddle);
@@ -138,7 +154,8 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
                             new Vector3f(
                                     tubeRadius,
                                     tubeRadius,
-                                    (float) Math.sqrt((Math.sin(theta) * (radius - a / 2))
+                                    (float) Math.sqrt(Math.sin(theta)
+                                            * (radius - a / 2)
                                             * (Math.sin(theta) * (radius - a / 2))
                                             + direction.mult(height / steps)
                                                     .getZ()
@@ -149,7 +166,8 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
                             new Vector3f(
                                     tubeRadius,
                                     tubeRadius,
-                                    (float) Math.sqrt((Math.sin(theta) * (radius + a / 2))
+                                    (float) Math.sqrt(Math.sin(theta)
+                                            * (radius + a / 2)
                                             * (Math.sin(theta) * (radius + a / 2))
                                             + direction.mult(height / steps)
                                                     .getZ()
@@ -168,22 +186,6 @@ public class Spiral extends AbstractEntity implements Connected, Graphical,
         physicalBox = new RigidBodyControl(compound, 0);
         getSpatial().addControl(physicalBox);
 
-    }
-
-    @Override
-    public RigidBodyControl getBody() {
-        return physicalBox;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.marble.entity.Connected#getConnectors()
-     */
-    @Override
-    public Map<String, Connector> getConnectors() {
-        return Connectors.fromSpiral(radius, height, tubeRadius, separation,
-                angle, direction, a, b);
     }
 
 }

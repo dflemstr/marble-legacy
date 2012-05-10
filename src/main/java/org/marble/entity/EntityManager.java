@@ -9,10 +9,10 @@ import org.marble.Game;
 import org.marble.engine.Engine;
 
 public class EntityManager {
-    private final Game game;
-
     // Currently loaded entities
     private ImmutableSet<Entity> entities = ImmutableSet.of();
+
+    private final Game game;
 
     public EntityManager(final Game game) {
         this.game = game;
@@ -43,6 +43,17 @@ public class EntityManager {
                         .addAll(entities).build();
     }
 
+    public void addEntity(final Entity entity) {
+        addEntities(ImmutableSet.of(entity));
+    }
+
+    /**
+     * Removes all entities safely.
+     */
+    public void removeAllEntities() {
+        removeEntities(entities);
+    }
+
     /**
      * Stops managing an entity.
      * 
@@ -69,17 +80,6 @@ public class EntityManager {
 
     public void removeEntity(final Entity entity) {
         removeEntities(ImmutableSet.of(entity));
-    }
-
-    public void addEntity(final Entity entity) {
-        addEntities(ImmutableSet.of(entity));
-    }
-
-    /**
-     * Removes all entities safely.
-     */
-    public void removeAllEntities() {
-        removeEntities(entities);
     }
 
     public void update(final float timePerFrame) {

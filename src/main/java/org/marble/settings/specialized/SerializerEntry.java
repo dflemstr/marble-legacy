@@ -6,8 +6,8 @@ import org.marble.settings.AbstractEntry;
 import org.marble.util.StringSerializer;
 
 public class SerializerEntry<A> extends AbstractEntry<A> {
-    private final StringSerializer<A> serializer;
     private final String defaultValueString;
+    private final StringSerializer<A> serializer;
 
     public SerializerEntry(final Preferences prefs, final String node,
             final A defaultValue, final StringSerializer<A> serializer) {

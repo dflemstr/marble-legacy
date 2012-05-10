@@ -11,8 +11,6 @@ public abstract class AbstractMutableReactive<A> extends AbstractReactive<A>
     @Override
     public abstract A getValue();
 
-    protected abstract void putValue(final A value);
-
     @Override
     public void setValue(final A value) {
         final A oldValue = getValue();
@@ -23,4 +21,6 @@ public abstract class AbstractMutableReactive<A> extends AbstractReactive<A>
         }
         putValue(value);
     }
+
+    protected abstract void putValue(final A value);
 }

@@ -20,6 +20,11 @@ public interface Entity {
     public void destroy() throws Exception;
 
     /**
+     * DIE.
+     */
+    public void die();
+
+    /**
      * The debug name of this entity.
      */
     public String getName();
@@ -36,21 +41,6 @@ public interface Entity {
     public void initialize(Game game) throws Exception;
 
     /**
-     * Updates the state of the entity. Will not be called while the game is
-     * paused.
-     * 
-     * @param tpf
-     *            Time that has passed since the last update.
-     */
-    public void update(float tpf) throws Exception;
-
-    /**
-     * DIE.
-     */
-
-    public void die();
-
-    /**
      * Sets the debug name of this entity.
      */
     public void setName(String name);
@@ -59,4 +49,13 @@ public interface Entity {
      * Sets the location and rotation of the entity.
      */
     public void setTransform(Transform transform);
+
+    /**
+     * Updates the state of the entity. Will not be called while the game is
+     * paused.
+     * 
+     * @param tpf
+     *            Time that has passed since the last update.
+     */
+    public void update(float tpf) throws Exception;
 }

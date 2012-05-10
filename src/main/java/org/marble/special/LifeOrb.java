@@ -19,8 +19,8 @@ import org.marble.graphics.GeoSphere;
 
 public class LifeOrb extends AbstractEntity implements Graphical, Physical,
         Collidable {
-    private RigidBodyControl physicalBall;
     private Spatial graphicalBall;
+    private RigidBodyControl physicalBall;
     private final float radius;
 
     public LifeOrb() {
@@ -34,6 +34,19 @@ public class LifeOrb extends AbstractEntity implements Graphical, Physical,
     @Override
     public RigidBodyControl getBody() {
         return physicalBall;
+    }
+
+    @Override
+    public void handleCollisionWith(final Physical other,
+            final PhysicsCollisionEvent event) {
+        if (other instanceof PlayerBall) {
+            final int currentLives = game.getCurrentSession().get().getLives();
+            game.getCurrentSession().get().setLives(currentLives + 1);
+            game.getEntityManager().removeEntity(this);
+            final Explosion explosion = new Explosion(ColorRGBA.Red);
+            explosion.setTransform(getTransform());
+            game.getEntityManager().addEntity(explosion);
+        }
     }
 
     @Override
@@ -59,18 +72,5 @@ public class LifeOrb extends AbstractEntity implements Graphical, Physical,
         physicalBall.activate();
         physicalBall.setSleepingThresholds(0, 0);
         getSpatial().addControl(physicalBall);
-    }
-
-    @Override
-    public void handleCollisionWith(final Physical other,
-            final PhysicsCollisionEvent event) {
-        if (other instanceof PlayerBall) {
-            final int currentLives = game.getCurrentSession().get().getLives();
-            game.getCurrentSession().get().setLives(currentLives + 1);
-            game.getEntityManager().removeEntity(this);
-            final Explosion explosion = new Explosion(ColorRGBA.Red);
-            explosion.setTransform(getTransform());
-            game.getEntityManager().addEntity(explosion);
-        }
     }
 }

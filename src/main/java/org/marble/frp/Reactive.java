@@ -10,15 +10,15 @@ package org.marble.frp;
  */
 public interface Reactive<A> {
     /**
-     * Sample the current value of the reactive signal.
-     */
-    public A getValue();
-
-    /**
      * Add a listener to this reactive signal. When the value of this signal is
      * updated, the listener will be notified.
      */
     public void addReactiveListener(ReactiveListener<A> listener);
+
+    /**
+     * Sample the current value of the reactive signal.
+     */
+    public A getValue();
 
     /**
      * Remove a listener from this signal. The listener will no longer be

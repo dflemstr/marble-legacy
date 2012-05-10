@@ -9,6 +9,8 @@ import org.json.JSONObject;
 
 public class StatisticalMetaLevel {
 
+    private final ImmutableMap<String, Integer> highscores;
+
     public StatisticalMetaLevel(final ImmutableMap<String, Integer> highscores) {
         this.highscores = highscores;
     }
@@ -26,6 +28,4 @@ public class StatisticalMetaLevel {
         result.put("highscores", highscoresObject);
         return result;
     }
-
-    private final ImmutableMap<String, Integer> highscores;
 }

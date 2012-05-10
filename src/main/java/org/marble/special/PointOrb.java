@@ -19,8 +19,8 @@ import org.marble.graphics.GeoSphere;
 
 public class PointOrb extends AbstractEntity implements Graphical, Physical,
         Collidable {
-    private RigidBodyControl physicalBall;
     private Spatial graphicalBall;
+    private RigidBodyControl physicalBall;
     private final float radius;
 
     public PointOrb() {
@@ -34,6 +34,20 @@ public class PointOrb extends AbstractEntity implements Graphical, Physical,
     @Override
     public RigidBodyControl getBody() {
         return physicalBall;
+    }
+
+    @Override
+    public void handleCollisionWith(final Physical other,
+            final PhysicsCollisionEvent event) {
+        if (other instanceof PlayerBall) {
+            final float currentPoints =
+                    game.getCurrentSession().get().getPoints();
+            game.getCurrentSession().get().setPoints(currentPoints + 100);
+            game.getEntityManager().removeEntity(this);
+            final Explosion explosion = new Explosion(ColorRGBA.Blue);
+            explosion.setTransform(getTransform());
+            game.getEntityManager().addEntity(explosion);
+        }
     }
 
     @Override
@@ -59,19 +73,5 @@ public class PointOrb extends AbstractEntity implements Graphical, Physical,
         physicalBall.activate();
         physicalBall.setSleepingThresholds(0, 0);
         getSpatial().addControl(physicalBall);
-    }
-
-    @Override
-    public void handleCollisionWith(final Physical other,
-            final PhysicsCollisionEvent event) {
-        if (other instanceof PlayerBall) {
-            final float currentPoints =
-                    game.getCurrentSession().get().getPoints();
-            game.getCurrentSession().get().setPoints(currentPoints + 100);
-            game.getEntityManager().removeEntity(this);
-            final Explosion explosion = new Explosion(ColorRGBA.Blue);
-            explosion.setTransform(getTransform());
-            game.getEntityManager().addEntity(explosion);
-        }
     }
 }

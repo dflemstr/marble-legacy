@@ -12,28 +12,42 @@ public class GameSession {
     public final int STARTING_LIVES = 3;
     public final int STARTING_POINTS = 1000;
 
-    private float points = STARTING_POINTS;
-    private int lives = STARTING_LIVES;
-    private final Vector3f respawnPoint = new Vector3f(0, 0, 2);
-    private BallKind respawnKind = BallKind.Wood;
-    private PauseState pauseState = PauseState.Running;
     private final Set<GameSessionListener> listeners = Sets.newHashSet();
+    private int lives = STARTING_LIVES;
+    private PauseState pauseState = PauseState.Running;
+    private float points = STARTING_POINTS;
+    private BallKind respawnKind = BallKind.Wood;
+    private final Vector3f respawnPoint = new Vector3f(0, 0, 2);
+
+    public void addGameSessionListener(final GameSessionListener listener) {
+        listeners.add(listener);
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public PauseState getPauseState() {
+        return pauseState;
+    }
 
     public float getPoints() {
         return points;
     }
 
-    public void setPoints(final float f) {
-        if (points != f) {
-            points = f;
-            for (final GameSessionListener listener : listeners) {
-                listener.changedPoints((int) f);
-            }
-        }
+    /**
+     * @return the respawnKind
+     */
+    public BallKind getRespawnKind() {
+        return respawnKind;
     }
 
-    public int getLives() {
-        return lives;
+    public Vector3f getRespawnPoint() {
+        return respawnPoint;
+    }
+
+    public void removeGameSessionListener(final GameSessionListener listener) {
+        listeners.remove(listener);
     }
 
     public void setLives(final int lives) {
@@ -43,19 +57,6 @@ public class GameSession {
                 listener.changedLives(lives);
             }
         }
-    }
-
-    public void setRespawnPoint(final Vector3f respawnPoint) {
-        if (!this.respawnPoint.equals(respawnPoint)) {
-            this.respawnPoint.set(respawnPoint);
-            for (final GameSessionListener listener : listeners) {
-                listener.changedRespawnPoint(respawnPoint);
-            }
-        }
-    }
-
-    public Vector3f getRespawnPoint() {
-        return respawnPoint;
     }
 
     public void setPauseState(final PauseState pauseState) {
@@ -68,23 +69,13 @@ public class GameSession {
         }
     }
 
-    public void addGameSessionListener(final GameSessionListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removeGameSessionListener(final GameSessionListener listener) {
-        listeners.remove(listener);
-    }
-
-    public PauseState getPauseState() {
-        return pauseState;
-    }
-
-    /**
-     * @return the respawnKind
-     */
-    public BallKind getRespawnKind() {
-        return respawnKind;
+    public void setPoints(final float f) {
+        if (points != f) {
+            points = f;
+            for (final GameSessionListener listener : listeners) {
+                listener.changedPoints((int) f);
+            }
+        }
     }
 
     /**
@@ -95,7 +86,16 @@ public class GameSession {
         this.respawnKind = respawnKind;
     }
 
+    public void setRespawnPoint(final Vector3f respawnPoint) {
+        if (!this.respawnPoint.equals(respawnPoint)) {
+            this.respawnPoint.set(respawnPoint);
+            for (final GameSessionListener listener : listeners) {
+                listener.changedRespawnPoint(respawnPoint);
+            }
+        }
+    }
+
     public enum PauseState {
-        Running, PlayerPaused, EnforcedPause;
+        EnforcedPause, PlayerPaused, Running;
     }
 }

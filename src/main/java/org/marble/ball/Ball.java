@@ -33,56 +33,42 @@ import org.marble.util.QualityToInteger;
  */
 public class Ball extends AbstractEntity implements Graphical, Physical,
         Collidable {
-    /**
-     * A closure that generates an environment node when called.
-     */
-    private final class GetEnvironment implements Callable<EnvironmentNode> {
-        public boolean wasCalled = false;
-
-        @Override
-        public EnvironmentNode call() throws Exception {
-            enableEnvironment();
-            wasCalled = true;
-            return environmentNode.get();
-        }
-    }
-
     // How fast does mercury lose its radius?
     private static final float MERCURY_REDUCTION_RPS = 1f / 40f;
-
-    // The kind of ball
-    private BallKind kind;
-    // The default ball radius
-    private final float radius;
-    // If the radius has been changed, this is its value
-    private float currentRadius;
-
-    // The shape of the ball
-    private GeoSphere geometricalBall;
-
-    // The body for the ball
-    private RigidBodyControl physicalBall;
-
-    // The visual ball
-    private Spatial graphicalBall;
-
-    // If an environment is being used, this is it
-    private Optional<EnvironmentNode> environmentNode = Optional.absent();
-
-    // Our scene's root node
-    private Spatial rootNode;
-
-    // Handles rendering of the scene
-    private RenderManager renderManager;
 
     // Handles assets
     private AssetManager assetManager;
 
-    // How large (2^n) we will let our generated textures be
-    private Reactive<Integer> textureSizeMagnitude;
+    // If the radius has been changed, this is its value
+    private float currentRadius;
+    // If an environment is being used, this is it
+    private Optional<EnvironmentNode> environmentNode = Optional.absent();
+    // The shape of the ball
+    private GeoSphere geometricalBall;
 
     // The default closure for retrieving the environment
     private final GetEnvironment getEnvironment = new GetEnvironment();
+
+    // The visual ball
+    private Spatial graphicalBall;
+
+    // The kind of ball
+    private BallKind kind;
+
+    // The body for the ball
+    private RigidBodyControl physicalBall;
+
+    // The default ball radius
+    private final float radius;
+
+    // Handles rendering of the scene
+    private RenderManager renderManager;
+
+    // Our scene's root node
+    private Spatial rootNode;
+
+    // How large (2^n) we will let our generated textures be
+    private Reactive<Integer> textureSizeMagnitude;
 
     /**
      * Creates a new ball.
@@ -120,6 +106,16 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         this(BallKind.valueOf(kind), radius);
     }
 
+    @Override
+    public void destroy() {
+        disableEnvironment();
+    }
+
+    @Override
+    public void die() {
+        game.getEntityManager().removeEntity(this);
+    }
+
     /**
      * The kind of ball.
      */
@@ -130,6 +126,12 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
     @Override
     public RigidBodyControl getBody() {
         return physicalBall;
+    }
+
+    @Override
+    public void handleCollisionWith(final Physical other,
+            final PhysicsCollisionEvent event) {
+        // TODO die if glass and too strong impulse
     }
 
     @Override
@@ -159,24 +161,6 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         getSpatial().addControl(physicalBall);
 
         setBallKind(kind, true, true);
-    }
-
-    private void enableEnvironment() {
-        if (!environmentNode.isPresent()) {
-            final EnvironmentNode node =
-                    new EnvironmentNode(rootNode, renderManager,
-                            textureSizeMagnitude);
-            environmentNode = Optional.of(node);
-            getSpatial().attachChild(node);
-        }
-    }
-
-    private void disableEnvironment() {
-        if (environmentNode.isPresent()) {
-            getSpatial().detachChild(environmentNode.get());
-            environmentNode.get().destroy();
-            environmentNode = Optional.absent();
-        }
     }
 
     /**
@@ -214,17 +198,10 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         }
     }
 
-    private void resetMaterialParams() {
-        currentRadius = radius;
-        setBallScale(1);
-    }
-
-    private void setBallScale(final float scale) {
-        final TempVars vars = TempVars.get();
-        vars.vect1.set(scale, scale, scale);
-        physicalBall.getCollisionShape().setScale(vars.vect1);
-        vars.release();
-        getSpatial().setLocalScale(scale);
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("name", getName())
+                .add("kind", kind).add("radius", radius).toString();
     }
 
     @Override
@@ -239,26 +216,35 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         }
     }
 
-    @Override
-    public void destroy() {
-        disableEnvironment();
+    private void disableEnvironment() {
+        if (environmentNode.isPresent()) {
+            getSpatial().detachChild(environmentNode.get());
+            environmentNode.get().destroy();
+            environmentNode = Optional.absent();
+        }
     }
 
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).add("name", getName())
-                .add("kind", kind).add("radius", radius).toString();
+    private void enableEnvironment() {
+        if (!environmentNode.isPresent()) {
+            final EnvironmentNode node =
+                    new EnvironmentNode(rootNode, renderManager,
+                            textureSizeMagnitude);
+            environmentNode = Optional.of(node);
+            getSpatial().attachChild(node);
+        }
     }
 
-    @Override
-    public void handleCollisionWith(final Physical other,
-            final PhysicsCollisionEvent event) {
-        // TODO die if glass and too strong impulse
+    private void resetMaterialParams() {
+        currentRadius = radius;
+        setBallScale(1);
     }
 
-    @Override
-    public void die() {
-        game.getEntityManager().removeEntity(this);
+    private void setBallScale(final float scale) {
+        final TempVars vars = TempVars.get();
+        vars.vect1.set(scale, scale, scale);
+        physicalBall.getCollisionShape().setScale(vars.vect1);
+        vars.release();
+        getSpatial().setLocalScale(scale);
     }
 
     /**
@@ -274,5 +260,19 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         getSpatial().setLocalScale(1);
 
         resetMaterialParams();
+    }
+
+    /**
+     * A closure that generates an environment node when called.
+     */
+    private final class GetEnvironment implements Callable<EnvironmentNode> {
+        public boolean wasCalled = false;
+
+        @Override
+        public EnvironmentNode call() throws Exception {
+            enableEnvironment();
+            wasCalled = true;
+            return environmentNode.get();
+        }
     }
 }

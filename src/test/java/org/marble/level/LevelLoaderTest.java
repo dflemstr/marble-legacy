@@ -124,12 +124,6 @@ public class LevelLoaderTest {
         assertEquals(new Vector3f(3, 1, 3), pos);
     }
 
-    private void roundVectorToInts(final Vector3f vector) {
-        vector.x = Math.round(vector.x);
-        vector.y = Math.round(vector.y);
-        vector.z = Math.round(vector.z);
-    }
-
     @Test
     public void runStatementsPositioning() throws LevelLoadException {
         final String mockEntityClass = MockEntity.class.getCanonicalName();
@@ -163,6 +157,12 @@ public class LevelLoaderTest {
     @Before
     public void setUp() {
         loader = new LevelLoader();
+    }
+
+    private void roundVectorToInts(final Vector3f vector) {
+        vector.x = Math.round(vector.x);
+        vector.y = Math.round(vector.y);
+        vector.z = Math.round(vector.z);
     }
 }
 

@@ -15,10 +15,10 @@ import org.marble.entity.AbstractEntity;
 import org.marble.entity.graphical.Graphical;
 
 public class Image extends AbstractEntity implements Graphical {
-    private final String imageFile;
-    private final float width, height;
     private final float angleX, angleY, angleZ;
     private Geometry graphicalQuad;
+    private final String imageFile;
+    private final float width, height;
 
     public Image(final String imageFile, final float width, final float height) {
         this(imageFile, width, height, 0);

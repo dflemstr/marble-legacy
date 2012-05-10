@@ -7,22 +7,10 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class CompositeReactive<A, B> implements Reactive<Pair<A, B>> {
-    private final class EntryListenerB implements ReactiveListener<B> {
-        @Override
-        public void valueChanged(final B value) {
-            emitChange(entryA.getValue(), value);
-        }
-    }
-
-    private final class EntryListenerA implements ReactiveListener<A> {
-        @Override
-        public void valueChanged(final A value) {
-            emitChange(value, entryB.getValue());
-        }
-    }
-
     private final Reactive<A> entryA;
+
     private final Reactive<B> entryB;
+
     private final Set<ReactiveListener<Pair<A, B>>> listeners = Sets
             .newHashSet();
 
@@ -33,11 +21,10 @@ public class CompositeReactive<A, B> implements Reactive<Pair<A, B>> {
         entryB.addReactiveListener(new EntryListenerB());
     }
 
-    private void emitChange(final A a, final B b) {
-        final Pair<A, B> pair = Pair.of(a, b);
-        for (final ReactiveListener<Pair<A, B>> listener : listeners) {
-            listener.valueChanged(pair);
-        }
+    @Override
+    public void
+            addReactiveListener(final ReactiveListener<Pair<A, B>> listener) {
+        listeners.add(listener);
     }
 
     @Override
@@ -46,14 +33,29 @@ public class CompositeReactive<A, B> implements Reactive<Pair<A, B>> {
     }
 
     @Override
-    public void
-            addReactiveListener(final ReactiveListener<Pair<A, B>> listener) {
-        listeners.add(listener);
-    }
-
-    @Override
     public void removeReactiveListener(
             final ReactiveListener<Pair<A, B>> listener) {
         listeners.remove(listeners);
+    }
+
+    private void emitChange(final A a, final B b) {
+        final Pair<A, B> pair = Pair.of(a, b);
+        for (final ReactiveListener<Pair<A, B>> listener : listeners) {
+            listener.valueChanged(pair);
+        }
+    }
+
+    private final class EntryListenerA implements ReactiveListener<A> {
+        @Override
+        public void valueChanged(final A value) {
+            emitChange(value, entryB.getValue());
+        }
+    }
+
+    private final class EntryListenerB implements ReactiveListener<B> {
+        @Override
+        public void valueChanged(final B value) {
+            emitChange(entryA.getValue(), value);
+        }
     }
 }

@@ -22,19 +22,19 @@ import com.jme3.util.BufferUtils;
 
 public class Curve extends Mesh {
 
-    protected int _circleSamples;
-
-    protected int _radialSamples;
-
     protected final float _angle;
 
-    protected final float _tubeRadius;
+    protected int _circleSamples;
 
-    protected final float _radius;
+    protected final Vector3f _direction;
 
     protected final float _height;
 
-    protected final Vector3f _direction;
+    protected int _radialSamples;
+
+    protected final float _radius;
+
+    protected final float _tubeRadius;
 
     /**
      * Constructs a new Torus. Center is the origin, but the Torus may be
@@ -68,7 +68,7 @@ public class Curve extends Mesh {
 
     private void setGeometryData() {
         // allocate vertices
-        final int verts = ((_circleSamples + 2) * (_radialSamples + 1));
+        final int verts = (_circleSamples + 2) * (_radialSamples + 1);
         final FloatBuffer vertexBuffer = BufferUtils.createVector3Buffer(verts);
 
         // allocate normals if requested
@@ -95,7 +95,7 @@ public class Curve extends Mesh {
         final Matrix4f transTot = new Matrix4f();
         transTot.loadIdentity();
         final Matrix4f transDir = new Matrix4f();
-        transDir.setTranslation(_direction.mult(_height / (_circleSamples)));
+        transDir.setTranslation(_direction.mult(_height / _circleSamples));
 
         for (int circleCount = 0; circleCount <= _circleSamples; circleCount++) {
 
@@ -149,7 +149,7 @@ public class Curve extends Mesh {
     }
 
     private void setIndexData() {
-        final int tris = (2 * _circleSamples * _radialSamples);
+        final int tris = 2 * _circleSamples * _radialSamples;
         final IntBuffer indexBuffer = BufferUtils.createIntBuffer(3 * tris);
         int i;
         // generate connectivity

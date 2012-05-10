@@ -8,11 +8,11 @@ public class PauseScreen extends AbstractScreenController {
         super(game);
     }
 
-    public void resume() {
-        game.setPause(GameSession.PauseState.Running);
-    }
-
     public void gotoMenu() {
         game.gotoMenu();
+    }
+
+    public void resume() {
+        game.setPause(GameSession.PauseState.Running);
     }
 }

@@ -19,6 +19,14 @@ public final class StringRepresentation {
                 .toString();
     }
 
+    public static String ofStringMap(final Map<String, String> map) {
+        final Objects.ToStringHelper helper = Objects.toStringHelper(map);
+        for (final Map.Entry<String, String> entry : map.entrySet()) {
+            helper.add(entry.getKey(), entry.getValue());
+        }
+        return helper.toString();
+    }
+
     public static String ofTransform(final Transform transform) {
         return Objects.toStringHelper(transform)
                 .add("translation", ofVector3f(transform.getTranslation()))
@@ -26,22 +34,14 @@ public final class StringRepresentation {
                 .add("scale", ofVector3f(transform.getScale())).toString();
     }
 
-    private static String ofQuaternion(final Quaternion quaternion) {
-        return Objects.toStringHelper(quaternion).add("x", quaternion.getX())
-                .add("y", quaternion.getY()).add("z", quaternion.getZ())
-                .add("w", quaternion.getW()).toString();
-    }
-
     public static String ofVector3f(final Vector3f vector3f) {
         return Objects.toStringHelper(vector3f).add("x", vector3f.x)
                 .add("y", vector3f.y).add("z", vector3f.z).toString();
     }
 
-    public static String ofStringMap(final Map<String, String> map) {
-        final Objects.ToStringHelper helper = Objects.toStringHelper(map);
-        for (final Map.Entry<String, String> entry : map.entrySet()) {
-            helper.add(entry.getKey(), entry.getValue());
-        }
-        return helper.toString();
+    private static String ofQuaternion(final Quaternion quaternion) {
+        return Objects.toStringHelper(quaternion).add("x", quaternion.getX())
+                .add("y", quaternion.getY()).add("z", quaternion.getZ())
+                .add("w", quaternion.getW()).toString();
     }
 }

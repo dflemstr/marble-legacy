@@ -24,17 +24,17 @@ public class Application implements Runnable, SystemListener {
     // The jME application settings
     private final AppSettings appSettings;
 
-    // Our own reactive settings system
-    private final Settings settings;
-
     // The asset manager for loading data
     private final AssetManager assetManager;
+
+    // The jME context
+    private JmeContext context;
 
     // The abstract game instance
     private Game game;
 
-    // The jME context
-    private JmeContext context;
+    // Our own reactive settings system
+    private final Settings settings;
 
     /**
      * Creates a new application that can be ran in different contexts.
@@ -71,6 +71,70 @@ public class Application implements Runnable, SystemListener {
                 JmeSystem.newAssetManager(Thread.currentThread()
                         .getContextClassLoader()
                         .getResource("com/jme3/asset/Desktop.cfg"));
+    }
+
+    @Override
+    public void destroy() {
+        game.destroy();
+        context.getTimer().reset();
+    }
+
+    @Override
+    public void gainFocus() {
+        game.resume();
+    }
+
+    @Override
+    public void handleError(final String errorMsg, final Throwable t) {
+        game.handleError(Optional.fromNullable(errorMsg), t);
+        context.destroy(false);
+    }
+
+    @Override
+    public void initialize() {
+        game.initialize();
+        context.getTimer().reset();
+    }
+
+    @Override
+    public void loseFocus() {
+        game.suspend();
+    }
+
+    @Override
+    public void requestClose(final boolean esc) {
+        context.destroy(false);
+    }
+
+    @Override
+    public void reshape(final int width, final int height) {
+        game.reshape(width, height);
+    }
+
+    @Override
+    public void run() {
+        run(JmeContext.Type.Display);
+    }
+
+    /**
+     * Run this application in the given platform context.
+     * 
+     * @param contextType
+     *            The type of context that the application is running in.
+     */
+    public void run(final JmeContext.Type contextType) {
+        context = JmeSystem.newContext(appSettings, contextType);
+        game = new Game(context, assetManager, settings);
+        context.setSystemListener(this);
+        context.create(false);
+        setupSynchronization(settings, context.getSettings());
+    }
+
+    @Override
+    public void update() {
+        final Timer timer = context.getTimer();
+        timer.update();
+        game.update(timer);
     }
 
     /**
@@ -187,70 +251,6 @@ public class Application implements Runnable, SystemListener {
      */
     public static void main(final String[] args) {
         new Application().run();
-    }
-
-    /**
-     * Run this application in the given platform context.
-     * 
-     * @param contextType
-     *            The type of context that the application is running in.
-     */
-    public void run(final JmeContext.Type contextType) {
-        context = JmeSystem.newContext(appSettings, contextType);
-        game = new Game(context, assetManager, settings);
-        context.setSystemListener(this);
-        context.create(false);
-        setupSynchronization(settings, context.getSettings());
-    }
-
-    @Override
-    public void run() {
-        run(JmeContext.Type.Display);
-    }
-
-    @Override
-    public void initialize() {
-        game.initialize();
-        context.getTimer().reset();
-    }
-
-    @Override
-    public void reshape(final int width, final int height) {
-        game.reshape(width, height);
-    }
-
-    @Override
-    public void update() {
-        final Timer timer = context.getTimer();
-        timer.update();
-        game.update(timer);
-    }
-
-    @Override
-    public void requestClose(final boolean esc) {
-        context.destroy(false);
-    }
-
-    @Override
-    public void gainFocus() {
-        game.resume();
-    }
-
-    @Override
-    public void loseFocus() {
-        game.suspend();
-    }
-
-    @Override
-    public void handleError(final String errorMsg, final Throwable t) {
-        game.handleError(Optional.fromNullable(errorMsg), t);
-        context.destroy(false);
-    }
-
-    @Override
-    public void destroy() {
-        game.destroy();
-        context.getTimer().reset();
     }
 
 }

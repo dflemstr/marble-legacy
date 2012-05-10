@@ -45,19 +45,19 @@ public class LevelLoadException extends Exception {
      * The kind of failure that occurred (for machine-readability)
      */
     public enum Kind {
-        /** Could not find level */
-        INVALID_URI,
-        /** The specified class is not an usable class */
-        INVALID_CLASS,
         /** The specified class is a class, but of the wrong kind. */
         INCOMPATIBLE_CLASS,
+        /** The specified entity is an entity, but of the wrong kind */
+        INCOMPATIBLE_ENTITY,
         /** The specified class has an incompatible initializer. */
         INCOMPATIBLE_INITIALIZER,
         /** An error occurred while initializing the class */
         INITIALIZATION_ERROR,
+        /** The specified class is not an usable class */
+        INVALID_CLASS,
         /** The specified entity is not an entity */
         INVALID_ENTITY,
-        /** The specified entity is an entity, but of the wrong kind */
-        INCOMPATIBLE_ENTITY
+        /** Could not find level */
+        INVALID_URI
     }
 }

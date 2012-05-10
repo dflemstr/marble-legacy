@@ -15,17 +15,13 @@ import org.marble.util.Direction;
  * A player-controlled ball.
  */
 public class PlayerBall extends Ball implements Interactive, Actor {
-    private final Vector3f appliedForce = new Vector3f();
-    private final Vector3f internalForce = new Vector3f();
     private final Vector3f addedForce = new Vector3f();
+    private final Vector3f appliedForce = new Vector3f();
     private boolean goingWest, goingEast, goingNorth, goingSouth;
+    private final Vector3f internalForce = new Vector3f();
 
     public PlayerBall(final BallKind kind) {
         this(kind, 0.5f);
-    }
-
-    public PlayerBall(final String kind) {
-        this(BallKind.valueOf(kind), 0.5f);
     }
 
     /**
@@ -40,6 +36,10 @@ public class PlayerBall extends Ball implements Interactive, Actor {
         super(kind, radius);
     }
 
+    public PlayerBall(final String kind) {
+        this(BallKind.valueOf(kind), 0.5f);
+    }
+
     /**
      * Creates a new player-controlled ball.
      * 
@@ -48,6 +48,11 @@ public class PlayerBall extends Ball implements Interactive, Actor {
      */
     public PlayerBall(final String kind, final float radius) {
         this(BallKind.valueOf(kind), radius);
+    }
+
+    @Override
+    public void die() {
+        game.killBall();
     }
 
     @Override
@@ -92,11 +97,6 @@ public class PlayerBall extends Ball implements Interactive, Actor {
         } else if (alreadyActive) {
             internalForce.subtractLocal(addedForce);
         }
-    }
-
-    @Override
-    public void die() {
-        game.killBall();
     }
 
     @Override

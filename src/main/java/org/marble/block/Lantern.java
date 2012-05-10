@@ -30,11 +30,11 @@ import org.marble.entity.physical.Physical;
 public class Lantern extends AbstractEntity implements Connected, Graphical,
         Emitter, Physical {
     private final ColorRGBA color;
-    private final float radius;
     private Spatial graphicalLantern;
-    private RigidBodyControl physicalLantern;
-    private ParticleEmitter particles;
     private PointLight light;
+    private ParticleEmitter particles;
+    private RigidBodyControl physicalLantern;
+    private final float radius;
 
     public Lantern() {
         this(new Vector3f(0.5f, 0.5f, 0.5f));
@@ -58,6 +58,11 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
     public Map<String, Connector> getConnectors() {
         // TODO Add connectors
         return ImmutableMap.of();
+    }
+
+    @Override
+    public Set<Light> getLights() {
+        return ImmutableSet.<Light> of(light);
     }
 
     @Override
@@ -110,10 +115,5 @@ public class Lantern extends AbstractEntity implements Connected, Graphical,
                 new RigidBodyControl(new BoxCollisionShape(new Vector3f(0.5f,
                         0.5f, 1)), 0);
         getSpatial().addControl(physicalLantern);
-    }
-
-    @Override
-    public Set<Light> getLights() {
-        return ImmutableSet.<Light> of(light);
     }
 }

@@ -12,6 +12,26 @@ import org.marble.session.GameSessionListener;
 public class GameScreen extends AbstractScreenController {
     private GameSession currentSession;
 
+    public GameScreen(final Game game) {
+        super(game);
+    }
+
+    @Override
+    public void onGoto() {
+        if (game.getCurrentSession().isPresent()) {
+            currentSession = game.getCurrentSession().get();
+            currentSession.addGameSessionListener(new GameScreenUpdater());
+            updateStats(currentSession.getLives(),
+                    (int) currentSession.getPoints());
+        }
+    }
+
+    private void updateStats(final int lives, final int points) {
+        screen.findElementByName("stats-counter")
+                .getRenderer(TextRenderer.class)
+                .setText("Lives: " + lives + "\nPoints: " + points);
+    }
+
     private final class GameScreenUpdater implements GameSessionListener {
         @Override
         public void changedLives(final int lives) {
@@ -19,8 +39,23 @@ public class GameScreen extends AbstractScreenController {
         }
 
         @Override
+        public void changedPauseState(final GameSession.PauseState pauseState) {
+            // Do nothing
+        }
+
+        @Override
         public void changedPoints(final int points) {
             updateStats(currentSession.getLives(), points);
+        }
+
+        @Override
+        public void changedRespawnKind(final BallKind respawnKind) {
+            // Do nothing
+        }
+
+        @Override
+        public void changedRespawnPoint(final Vector3f respawnPoint) {
+            // Do nothing
         }
 
         @Override
@@ -31,41 +66,6 @@ public class GameScreen extends AbstractScreenController {
         @Override
         public int hashCode() {
             return 37063;
-        }
-
-        @Override
-        public void changedPauseState(final GameSession.PauseState pauseState) {
-            // Do nothing
-        }
-
-        @Override
-        public void changedRespawnPoint(final Vector3f respawnPoint) {
-            // Do nothing
-        }
-
-        @Override
-        public void changedRespawnKind(final BallKind respawnKind) {
-            // Do nothing
-        }
-    }
-
-    public GameScreen(final Game game) {
-        super(game);
-    }
-
-    private void updateStats(final int lives, final int points) {
-        screen.findElementByName("stats-counter")
-                .getRenderer(TextRenderer.class)
-                .setText("Lives: " + lives + "\nPoints: " + points);
-    }
-
-    @Override
-    public void onGoto() {
-        if (game.getCurrentSession().isPresent()) {
-            currentSession = game.getCurrentSession().get();
-            currentSession.addGameSessionListener(new GameScreenUpdater());
-            updateStats(currentSession.getLives(),
-                    (int) currentSession.getPoints());
         }
     }
 }

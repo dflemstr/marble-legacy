@@ -10,16 +10,20 @@ public class WinScreen extends AbstractScreenController {
         super(game);
     }
 
-    @Override
-    public void onGoto() {
-        final Element button = screen.findElementByName("next-level-button");
-        button.setVisible(game.hasNextLevel());
-        button.getParent().layoutElements();
+    public void gotoMenu() {
+        game.gotoMenu();
     }
 
     public void gotoNextLevel() {
         game.loadNextLevel();
         game.gotoScreen(UIScreen.Game);
+    }
+
+    @Override
+    public void onGoto() {
+        final Element button = screen.findElementByName("next-level-button");
+        button.setVisible(game.hasNextLevel());
+        button.getParent().layoutElements();
     }
 
     public void retry() {
@@ -34,9 +38,5 @@ public class WinScreen extends AbstractScreenController {
             game.showHighscores(game.getCurrentLevel().get());
         } else
             throw new RuntimeException("The current level has disappeared");
-    }
-
-    public void gotoMenu() {
-        game.gotoMenu();
     }
 }

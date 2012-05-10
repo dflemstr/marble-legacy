@@ -75,8 +75,8 @@ public abstract class LevelStatement {
      * line up with the specified connection to the second entity.
      */
     static class Connection extends LevelStatement {
-        private final String nameLeft, nameRight;
         private final String connectorLeft, connectorRight;
+        private final String nameLeft, nameRight;
 
         public Connection(final Integer location, final String nameLeft,
                 final String connectorLeft, final String nameRight,
@@ -147,9 +147,9 @@ public abstract class LevelStatement {
      * An entity definition for creating new entities.
      */
     static class Declaration extends LevelStatement {
-        private final String name;
         private final String className;
         private final ImmutableList<Object> initArgs;
+        private final String name;
 
         public Declaration(final Integer location, final String name,
                 final String className, final ImmutableList<Object> initArgs) {
@@ -209,10 +209,10 @@ public abstract class LevelStatement {
      * A positioning statement that moves an entity to some location.
      */
     static class Position extends LevelStatement {
+        private final Optional<String> connector;
         private final String name;
         private final Vector3f position;
         private final Optional<String> relativeTo;
-        private final Optional<String> connector;
 
         public Position(final Integer location, final String name,
                 final Vector3f position, final Optional<String> relativeTo,
@@ -235,6 +235,10 @@ public abstract class LevelStatement {
                 return false;
         }
 
+        public Optional<String> getConnector() {
+            return connector;
+        }
+
         /**
          * The name of the entity to position.
          */
@@ -255,10 +259,6 @@ public abstract class LevelStatement {
          */
         public Optional<String> getRelativeTo() {
             return relativeTo;
-        }
-
-        public Optional<String> getConnector() {
-            return connector;
         }
 
         @Override

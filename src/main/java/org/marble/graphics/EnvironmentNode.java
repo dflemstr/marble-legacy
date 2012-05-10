@@ -22,29 +22,7 @@ import org.marble.frp.ReactiveReference;
  * texture.
  */
 public class EnvironmentNode extends Node {
-    private final class TextureSizeListener implements
-            ReactiveListener<Integer> {
-        @Override
-        public void valueChanged(final Integer value) {
-            updateRenderer(value);
-        }
-    }
-
-    private final Spatial root;
-    private final RenderManager renderManager;
-    private final TextureSizeListener listener = new TextureSizeListener();
-
-    private final ReactiveReference<TextureCubeMap> environment;
-
-    public Reactive<TextureCubeMap> getEnvironment() {
-        return environment;
-    }
-
-    private final FrameBuffer[] environmentBuffers;
-    private final ViewPort[] environmentViews;
-    private final Camera[] environmentCameras;
-
-    private final Vector3f[][] cameraAngles = {
+    private static final Vector3f[][] cameraAngles = {
             { Vector3f.UNIT_Z, Vector3f.UNIT_Y.negate(), Vector3f.UNIT_X },
             { Vector3f.UNIT_Z.negate(), Vector3f.UNIT_Y.negate(),
                     Vector3f.UNIT_X.negate() },
@@ -55,6 +33,17 @@ public class EnvironmentNode extends Node {
                     Vector3f.UNIT_Z },
             { Vector3f.UNIT_X, Vector3f.UNIT_Y.negate(),
                     Vector3f.UNIT_Z.negate() } };
+
+    private final ReactiveReference<TextureCubeMap> environment;
+    private final FrameBuffer[] environmentBuffers;
+    private final Camera[] environmentCameras;
+
+    private final ViewPort[] environmentViews;
+
+    private final TextureSizeListener listener = new TextureSizeListener();
+
+    private final RenderManager renderManager;
+    private final Spatial root;
     private final Reactive<Integer> textureSizeMagnitude;
 
     /**
@@ -74,6 +63,19 @@ public class EnvironmentNode extends Node {
         environment = new ReactiveReference<TextureCubeMap>(null);
 
         FRPUtils.addAndCallReactiveListener(textureSizeMagnitude, listener);
+    }
+
+    public void destroy() {
+        if (renderManager != null) {
+            for (final ViewPort view : environmentViews) {
+                renderManager.removePreView(view);
+            }
+        }
+        textureSizeMagnitude.removeReactiveListener(listener);
+    }
+
+    public Reactive<TextureCubeMap> getEnvironment() {
+        return environment;
     }
 
     @Override
@@ -121,17 +123,16 @@ public class EnvironmentNode extends Node {
         }
     }
 
-    public void destroy() {
-        if (renderManager != null) {
-            for (final ViewPort view : environmentViews) {
-                renderManager.removePreView(view);
-            }
-        }
-        textureSizeMagnitude.removeReactiveListener(listener);
-    }
-
     @Override
     protected void finalize() {
         destroy();
+    }
+
+    private final class TextureSizeListener implements
+            ReactiveListener<Integer> {
+        @Override
+        public void valueChanged(final Integer value) {
+            updateRenderer(value);
+        }
     }
 }

@@ -10,12 +10,12 @@ public abstract class AbstractReactive<A> implements Reactive<A> {
             .newIdentityHashSet();
 
     @Override
-    public abstract A getValue();
-
-    @Override
     public void addReactiveListener(final ReactiveListener<A> listener) {
         listeners.add(listener);
     }
+
+    @Override
+    public abstract A getValue();
 
     @Override
     public void removeReactiveListener(final ReactiveListener<A> listener) {

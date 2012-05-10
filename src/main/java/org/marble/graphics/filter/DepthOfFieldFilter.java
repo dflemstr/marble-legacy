@@ -9,93 +9,35 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 
 public class DepthOfFieldFilter extends Filter {
-    private float focalDepth = 0.0f;
-    private float focalLength = 40.0f;
-    private float fstop = 1.4f;
-    private boolean showFocus = false;
-    private int samples = 3;
-    private int rings = 3;
-    private boolean manualDOF = false;
-    private float nearDOFStart = 1.0f;
-    private float nearDOFDistance = 2.0f;
-    private float farDOFStart = 1.0f;
-    private float farDOFDistance = 3.0f;
-    private float coc = 0.03f;
-    private boolean vignetting = false;
-    private float vignettingOuterBorder = 1.3f;
-    private float vignettingInnerBorder = 0.0f;
-    private float vignettingFade = 22.0f;
     private boolean autoFocus = true;
-    private final Vector2f focus = new Vector2f(0.5f, 0.5f);
-    private float maxBlur = 1.0f;
-    private float threshold = 0.5f;
-    private float gain = 25.0f;
     private float bias = 0.2f;
-    private float fringe = 0.7f;
-    private boolean noise = true;
-    private float noiseDitherAmount = 0.0001f;
+    private float coc = 0.03f;
     private boolean depthBlur = true;
     private float depthBlurSize = 1.25f;
+    private float farDOFDistance = 3.0f;
+    private float farDOFStart = 1.0f;
+    private float focalDepth = 0.0f;
+    private float focalLength = 40.0f;
+    private final Vector2f focus = new Vector2f(0.5f, 0.5f);
+    private float fringe = 0.7f;
+    private float fstop = 1.4f;
+    private float gain = 25.0f;
+    private boolean manualDOF = false;
+    private float maxBlur = 1.0f;
+    private float nearDOFDistance = 2.0f;
+    private float nearDOFStart = 1.0f;
+    private boolean noise = true;
+    private float noiseDitherAmount = 0.0001f;
     private boolean pentagonBokeh = false;
     private float pentagonFeather = 0.4f;
-
-    @Override
-    protected boolean isRequiresDepthTexture() {
-        return true;
-    }
-
-    @Override
-    protected void initFilter(final AssetManager manager,
-            final RenderManager renderManager, final ViewPort vp, final int w,
-            final int h) {
-        defaultPass = new Pass();
-        defaultPass.init(renderManager.getRenderer(), w, h,
-                getDefaultPassTextureFormat(), getDefaultPassDepthFormat());
-
-        material =
-                new Material(manager, "MatDefs/DepthOfField/DepthOfField.j3md");
-        final Camera cam = vp.getCamera();
-        material.setFloat("ZNear", cam.getFrustumNear());
-        material.setFloat("ZFar", cam.getFrustumFar());
-        writeParams();
-    }
-
-    private void writeParams() {
-        material.setFloat("FocalDepth", focalDepth);
-        material.setFloat("FocalLength", focalLength);
-        material.setFloat("FStop", fstop);
-        material.setBoolean("ShowFocus", showFocus);
-        material.setInt("Samples", samples);
-        material.setInt("Rings", rings);
-        material.setBoolean("ManualDOF", manualDOF);
-        material.setFloat("NearDOFStart", nearDOFStart);
-        material.setFloat("NearDOFDistance", nearDOFDistance);
-        material.setFloat("FarDOFStart", farDOFStart);
-        material.setFloat("FarDOFDistance", farDOFDistance);
-        material.setFloat("CoC", coc);
-        material.setBoolean("Vignetting", vignetting);
-        material.setFloat("VignettingOuterBorder", vignettingOuterBorder);
-        material.setFloat("VignettingInnerBorder", vignettingInnerBorder);
-        material.setFloat("VignettingFade", vignettingFade);
-        material.setBoolean("AutoFocus", autoFocus);
-        material.setVector2("Focus", focus);
-        material.setFloat("MaxBlur", maxBlur);
-        material.setFloat("Threshold", threshold);
-        material.setFloat("Gain", gain);
-        material.setFloat("Bias", bias);
-        material.setFloat("Fringe", fringe);
-        material.setBoolean("Noise", noise);
-        material.setFloat("NoiseDitherAmount", noiseDitherAmount);
-        material.setBoolean("DepthBlur", depthBlur);
-        material.setFloat("DepthBlurSize", depthBlurSize);
-        material.setBoolean("PentagonBokeh", pentagonBokeh);
-        material.setFloat("PentagonFeather", pentagonFeather);
-    }
-
-    @Override
-    protected Material getMaterial() {
-        return material;
-    }
+    private int rings = 3;
+    private int samples = 3;
+    private boolean showFocus = false;
+    private float threshold = 0.5f;
+    private boolean vignetting = false;
+    private float vignettingFade = 22.0f;
+    private float vignettingInnerBorder = 0.0f;
+    private float vignettingOuterBorder = 1.3f;
 
     /**
      * @return whether to show debug focus point and focal range (red = focal
@@ -625,5 +567,63 @@ public class DepthOfFieldFilter extends Filter {
      */
     public boolean usingVignetting() {
         return vignetting;
+    }
+
+    private void writeParams() {
+        material.setFloat("FocalDepth", focalDepth);
+        material.setFloat("FocalLength", focalLength);
+        material.setFloat("FStop", fstop);
+        material.setBoolean("ShowFocus", showFocus);
+        material.setInt("Samples", samples);
+        material.setInt("Rings", rings);
+        material.setBoolean("ManualDOF", manualDOF);
+        material.setFloat("NearDOFStart", nearDOFStart);
+        material.setFloat("NearDOFDistance", nearDOFDistance);
+        material.setFloat("FarDOFStart", farDOFStart);
+        material.setFloat("FarDOFDistance", farDOFDistance);
+        material.setFloat("CoC", coc);
+        material.setBoolean("Vignetting", vignetting);
+        material.setFloat("VignettingOuterBorder", vignettingOuterBorder);
+        material.setFloat("VignettingInnerBorder", vignettingInnerBorder);
+        material.setFloat("VignettingFade", vignettingFade);
+        material.setBoolean("AutoFocus", autoFocus);
+        material.setVector2("Focus", focus);
+        material.setFloat("MaxBlur", maxBlur);
+        material.setFloat("Threshold", threshold);
+        material.setFloat("Gain", gain);
+        material.setFloat("Bias", bias);
+        material.setFloat("Fringe", fringe);
+        material.setBoolean("Noise", noise);
+        material.setFloat("NoiseDitherAmount", noiseDitherAmount);
+        material.setBoolean("DepthBlur", depthBlur);
+        material.setFloat("DepthBlurSize", depthBlurSize);
+        material.setBoolean("PentagonBokeh", pentagonBokeh);
+        material.setFloat("PentagonFeather", pentagonFeather);
+    }
+
+    @Override
+    protected Material getMaterial() {
+        return material;
+    }
+
+    @Override
+    protected void initFilter(final AssetManager manager,
+            final RenderManager renderManager, final ViewPort vp, final int w,
+            final int h) {
+        defaultPass = new Pass();
+        defaultPass.init(renderManager.getRenderer(), w, h,
+                getDefaultPassTextureFormat(), getDefaultPassDepthFormat());
+
+        material =
+                new Material(manager, "MatDefs/DepthOfField/DepthOfField.j3md");
+        final Camera cam = vp.getCamera();
+        material.setFloat("ZNear", cam.getFrustumNear());
+        material.setFloat("ZFar", cam.getFrustumFar());
+        writeParams();
+    }
+
+    @Override
+    protected boolean isRequiresDepthTexture() {
+        return true;
     }
 }

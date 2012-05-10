@@ -28,10 +28,10 @@ public class AlignedChaseCamera extends ChaseCamera {
     @Override
     protected void computePosition() {
         final float hDistance =
-                (distance) * FastMath.sin((FastMath.PI / 2) - vRotation);
+                distance * FastMath.sin(FastMath.PI / 2 - vRotation);
         pos.set(hDistance * FastMath.cos(rotation),
                 -hDistance * FastMath.sin(rotation),
-                (distance) * FastMath.sin(vRotation));
+                distance * FastMath.sin(vRotation));
         pos.addLocal(target.getWorldTranslation());
     }
 }

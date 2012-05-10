@@ -18,8 +18,9 @@ public abstract class AbstractEntity implements Entity {
         centerNode = new Node();
     }
 
-    public Node getSpatial() {
-        return centerNode;
+    @Override
+    public void destroy() throws Exception {
+        // Do nothing
     }
 
     @Override
@@ -28,18 +29,17 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
-    public void destroy() throws Exception {
-        // Do nothing
-    }
-
-    @Override
-    public void update(final float tpf) throws Exception {
-        // Do nothing
-    }
-
-    @Override
     public String getName() {
         return centerNode.getName();
+    }
+
+    public Node getSpatial() {
+        return centerNode;
+    }
+
+    @Override
+    public Transform getTransform() {
+        return getSpatial().getLocalTransform();
     }
 
     @Override
@@ -53,17 +53,17 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
+    public void setTransform(final Transform transform) {
+        getSpatial().setLocalTransform(transform);
+    }
+
+    @Override
     public String toString() {
         return Objects.toStringHelper(this).add("name", getName()).toString();
     }
 
     @Override
-    public Transform getTransform() {
-        return getSpatial().getLocalTransform();
-    }
-
-    @Override
-    public void setTransform(final Transform transform) {
-        getSpatial().setLocalTransform(transform);
+    public void update(final float tpf) throws Exception {
+        // Do nothing
     }
 }

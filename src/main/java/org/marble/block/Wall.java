@@ -23,12 +23,22 @@ import org.marble.util.Connectors;
 public class Wall extends AbstractEntity implements Connected, Graphical,
         Physical {
 
+    private Geometry graphicalBox;
     private final float length;
     private RigidBodyControl physicalBox;
-    private Geometry graphicalBox;
 
     public Wall(final float length) {
         this.length = length;
+    }
+
+    @Override
+    public RigidBodyControl getBody() {
+        return physicalBox;
+    }
+
+    @Override
+    public Map<String, Connector> getConnectors() {
+        return Connectors.fromWall(length);
     }
 
     @Override
@@ -51,15 +61,5 @@ public class Wall extends AbstractEntity implements Connected, Graphical,
 
         physicalBox = new RigidBodyControl(compound, 0);
         getSpatial().addControl(physicalBox);
-    }
-
-    @Override
-    public RigidBodyControl getBody() {
-        return physicalBox;
-    }
-
-    @Override
-    public Map<String, Connector> getConnectors() {
-        return Connectors.fromWall(length);
     }
 }

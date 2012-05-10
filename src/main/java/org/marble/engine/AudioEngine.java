@@ -11,15 +11,8 @@ import org.marble.entity.audible.Audible;
 
 public class AudioEngine extends Engine<Audible> {
 
-    private AudioRenderer audioRenderer;
     private final AppSettings appSettings;
-
-    /**
-     * @return the audioRenderer
-     */
-    public AudioRenderer getAudioRenderer() {
-        return audioRenderer;
-    }
+    private AudioRenderer audioRenderer;
 
     private Listener listener;
 
@@ -31,6 +24,13 @@ public class AudioEngine extends Engine<Audible> {
     @Override
     public void destroy() {
         audioRenderer.cleanup();
+    }
+
+    /**
+     * @return the audioRenderer
+     */
+    public AudioRenderer getAudioRenderer() {
+        return audioRenderer;
     }
 
     @Override

@@ -13,9 +13,9 @@ import org.marble.frp.mutable.AbstractMutableReactive;
  *            The type of the setting being stored in this entry.
  */
 public abstract class AbstractEntry<A> extends AbstractMutableReactive<A> {
-    protected final Preferences prefs;
-    protected final String key;
     protected final A defaultValue;
+    protected final String key;
+    protected final Preferences prefs;
 
     /**
      * Constructs a new settings entry.
