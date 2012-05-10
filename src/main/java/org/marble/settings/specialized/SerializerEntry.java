@@ -18,11 +18,11 @@ public class SerializerEntry<A> extends AbstractEntry<A> {
 
     @Override
     public A getValue() {
-        return serializer.fromString(prefs.get(node, defaultValueString));
+        return serializer.fromString(prefs.get(key, defaultValueString));
     }
 
     @Override
     protected void putValue(final A value) {
-        prefs.put(node, serializer.toString(value));
+        prefs.put(key, serializer.toString(value));
     }
 }

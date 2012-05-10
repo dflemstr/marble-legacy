@@ -27,7 +27,7 @@ public class Explosion extends AbstractEntity implements Graphical {
             hasEmitted = true;
         }
         if (particles.getNumVisibleParticles() < 2) {
-            game.removeEntity(this);
+            game.getEntityManager().removeEntity(this);
         }
     }
 

@@ -24,7 +24,7 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void die() {
-        game.removeEntity(this);
+        game.getEntityManager().removeEntity(this);
     }
 
     @Override

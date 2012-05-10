@@ -33,6 +33,9 @@ import org.marble.util.QualityToInteger;
  */
 public class Ball extends AbstractEntity implements Graphical, Physical,
         Collidable {
+    /**
+     * A closure that generates an environment node when called.
+     */
     private final class GetEnvironment implements Callable<EnvironmentNode> {
         public boolean wasCalled = false;
 
@@ -44,28 +47,41 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         }
     }
 
+    // How fast does mercury lose its radius?
     private static final float MERCURY_REDUCTION_RPS = 1f / 40f;
 
+    // The kind of ball
     private BallKind kind;
+    // The default ball radius
     private final float radius;
+    // If the radius has been changed, this is its value
     private float currentRadius;
 
+    // The shape of the ball
     private GeoSphere geometricalBall;
 
+    // The body for the ball
     private RigidBodyControl physicalBall;
+
+    // The visual ball
     private Spatial graphicalBall;
 
+    // If an environment is being used, this is it
     private Optional<EnvironmentNode> environmentNode = Optional.absent();
 
     // Our scene's root node
     private Spatial rootNode;
 
+    // Handles rendering of the scene
     private RenderManager renderManager;
+
+    // Handles assets
     private AssetManager assetManager;
 
-    // How large (2^n) we will let our generated textures be.
+    // How large (2^n) we will let our generated textures be
     private Reactive<Integer> textureSizeMagnitude;
 
+    // The default closure for retrieving the environment
     private final GetEnvironment getEnvironment = new GetEnvironment();
 
     /**
@@ -104,6 +120,9 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
         this(BallKind.valueOf(kind), radius);
     }
 
+    /**
+     * The kind of ball.
+     */
     public BallKind getBallKind() {
         return kind;
     }
@@ -239,9 +258,13 @@ public class Ball extends AbstractEntity implements Graphical, Physical,
 
     @Override
     public void die() {
-        game.removeEntity(this);
+        game.getEntityManager().removeEntity(this);
     }
 
+    /**
+     * Restores the ball's state to how it was the last time it changed
+     * material.
+     */
     protected void reset() {
         getBody().setPhysicsRotation(Quaternion.IDENTITY);
         getBody().setAngularVelocity(Vector3f.ZERO);

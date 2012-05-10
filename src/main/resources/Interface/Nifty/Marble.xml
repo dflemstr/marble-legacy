@@ -204,6 +204,13 @@
       <panel style="menu-layout">
         <panel style="menu-element" childLayout="horizontal"
           height="64px">
+          <text style="menu-style" text="Player name: " valign="center" />
+          <panel width="8px" />
+          <control name="textfield" id="playerName" style="dark-textfield"
+            valign="center" text="" />
+        </panel>
+        <panel style="menu-element" childLayout="horizontal"
+          height="64px">
           <text style="menu-style" text="Resolution: " valign="center" />
           <panel width="8px" />
           <control id="resolutions" name="dropDown" valign="center" />

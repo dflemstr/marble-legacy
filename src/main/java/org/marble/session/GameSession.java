@@ -6,11 +6,17 @@ import com.jme3.math.Vector3f;
 
 import com.google.common.collect.Sets;
 
+import org.marble.ball.BallKind;
+
 public class GameSession {
-    private float points;
-    private int lives = 3;
+    public final int STARTING_LIVES = 3;
+    public final int STARTING_POINTS = 1000;
+
+    private float points = STARTING_POINTS;
+    private int lives = STARTING_LIVES;
     private final Vector3f respawnPoint = new Vector3f(0, 0, 2);
-    private PauseState paused = PauseState.Running;
+    private BallKind respawnKind = BallKind.Wood;
+    private PauseState pauseState = PauseState.Running;
     private final Set<GameSessionListener> listeners = Sets.newHashSet();
 
     public float getPoints() {
@@ -52,12 +58,12 @@ public class GameSession {
         return respawnPoint;
     }
 
-    public void setPaused(final PauseState paused) {
-        if (this.paused != paused) {
-            this.paused = paused;
+    public void setPauseState(final PauseState pauseState) {
+        if (this.pauseState != pauseState) {
+            this.pauseState = pauseState;
 
             for (final GameSessionListener listener : listeners) {
-                listener.changedPaused(paused);
+                listener.changedPauseState(pauseState);
             }
         }
     }
@@ -70,8 +76,23 @@ public class GameSession {
         listeners.remove(listener);
     }
 
-    public PauseState isPaused() {
-        return paused;
+    public PauseState getPauseState() {
+        return pauseState;
+    }
+
+    /**
+     * @return the respawnKind
+     */
+    public BallKind getRespawnKind() {
+        return respawnKind;
+    }
+
+    /**
+     * @param respawnKind
+     *            the respawnKind to set
+     */
+    public void setRespawnKind(final BallKind respawnKind) {
+        this.respawnKind = respawnKind;
     }
 
     public enum PauseState {

@@ -67,10 +67,10 @@ public class LifeOrb extends AbstractEntity implements Graphical, Physical,
         if (other instanceof PlayerBall) {
             final int currentLives = game.getCurrentSession().get().getLives();
             game.getCurrentSession().get().setLives(currentLives + 1);
-            game.removeEntity(this);
+            game.getEntityManager().removeEntity(this);
             final Explosion explosion = new Explosion(ColorRGBA.Red);
             explosion.setTransform(getTransform());
-            game.addEntity(explosion);
+            game.getEntityManager().addEntity(explosion);
         }
     }
 }

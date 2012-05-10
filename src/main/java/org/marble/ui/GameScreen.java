@@ -5,6 +5,7 @@ import com.jme3.math.Vector3f;
 import de.lessvoid.nifty.elements.render.TextRenderer;
 
 import org.marble.Game;
+import org.marble.ball.BallKind;
 import org.marble.session.GameSession;
 import org.marble.session.GameSessionListener;
 
@@ -33,12 +34,17 @@ public class GameScreen extends AbstractScreenController {
         }
 
         @Override
-        public void changedPaused(final GameSession.PauseState paused) {
+        public void changedPauseState(final GameSession.PauseState pauseState) {
             // Do nothing
         }
 
         @Override
         public void changedRespawnPoint(final Vector3f respawnPoint) {
+            // Do nothing
+        }
+
+        @Override
+        public void changedRespawnKind(final BallKind respawnKind) {
             // Do nothing
         }
     }

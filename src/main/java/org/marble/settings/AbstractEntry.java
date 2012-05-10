@@ -1,5 +1,7 @@
 package org.marble.settings;
 
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
 
 import org.marble.frp.mutable.AbstractMutableReactive;
@@ -12,25 +14,31 @@ import org.marble.frp.mutable.AbstractMutableReactive;
  */
 public abstract class AbstractEntry<A> extends AbstractMutableReactive<A> {
     protected final Preferences prefs;
-    protected final String node;
+    protected final String key;
     protected final A defaultValue;
 
     /**
      * Constructs a new settings entry.
-     * 
-     * @param node
-     *            The settings node to store this setting in. Can be a
-     *            slash-separated path in the preferences registry.
-     * @param defaultValue
-     *            The default value for this settings entry, if a value hasn't
-     *            already been saved.
-     * @param settings
-     *            TODO
      */
     protected AbstractEntry(final Preferences prefs, final String node,
             final A defaultValue) {
-        this.prefs = prefs;
-        this.node = node;
+        final int lastSeparator = node.lastIndexOf('/');
+        if (lastSeparator < 0) {
+            key = node;
+            this.prefs = prefs;
+        } else {
+            key = node.substring(lastSeparator + 1);
+            this.prefs = prefs.node(node.substring(0, lastSeparator));
+        }
         this.defaultValue = defaultValue;
+
+        prefs.addPreferenceChangeListener(new PreferenceChangeListener() {
+            @Override
+            public void preferenceChange(final PreferenceChangeEvent evt) {
+                if (evt.getNode().equals(prefs)) {
+                    setValue(getValue());
+                }
+            }
+        });
     }
 }

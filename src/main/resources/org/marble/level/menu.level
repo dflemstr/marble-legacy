@@ -43,7 +43,7 @@ let glassTrans  be Transformer([Glass]),
     woodTrans   be Transformer([Wood])
 
 // Create a lantern
-let lantern     be Lantern((0.9, 0.6, 0.3))
+let lantern     be Lantern((1.0, 1.0, 0.8))
 
 position slab1 at (0, 0, 0)
 connect slab2.south_middle to slab1.north_1_0,
@@ -62,9 +62,9 @@ connect rail1.start_middle to slab3.north_middle,
         spiral1.start_middle to rail1.end_middle,
         rail2.start_middle to spiral1.end_middle
                 
-position woodenBall  at (-2, 0, 4) from slab1
-position stoneBall   at (-4, 0, 6) from slab1
-position fabricBall  at (-6, 0, 8) from slab1
+position woodenBall  at ( 0, 0, 2) from slab1
+position stoneBall   at (-2, 0, 4) from slab1
+position fabricBall  at (-4, 0, 6) from slab1
 position glassBall   at ( 2, 0, 4) from slab1
 position mercuryBall at ( 4, 0, 6) from slab1
 

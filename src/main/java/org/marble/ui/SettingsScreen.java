@@ -14,6 +14,8 @@ import de.lessvoid.nifty.controls.CheckBox;
 import de.lessvoid.nifty.controls.CheckBoxStateChangedEvent;
 import de.lessvoid.nifty.controls.DropDown;
 import de.lessvoid.nifty.controls.DropDownSelectionChangedEvent;
+import de.lessvoid.nifty.controls.TextField;
+import de.lessvoid.nifty.controls.TextFieldChangedEvent;
 
 import org.marble.Game;
 import org.marble.settings.Settings;
@@ -118,6 +120,14 @@ public class SettingsScreen extends AbstractScreenController {
         }
     }
 
+    @NiftyEventSubscriber(id = "playerName")
+    public void onPlayerNameChanged(final String name,
+            final TextFieldChangedEvent e) {
+        if (name.equals("playerName")) {
+            settings.playerName.setValue(e.getText());
+        }
+    }
+
     @NiftyEventSubscriber(id = "fullscreen")
     public void onFullscreenChanged(final String name,
             final CheckBoxStateChangedEvent e) {
@@ -166,6 +176,9 @@ public class SettingsScreen extends AbstractScreenController {
     @Override
     public void onGoto() {
         updateResolutions();
+
+        screen.findNiftyControl("playerName", TextField.class).setText(
+                settings.playerName.getValue());
 
         settingFullscreen = true;
         screen.findNiftyControl("fullscreen", CheckBox.class).setChecked(

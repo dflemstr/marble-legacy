@@ -26,17 +26,17 @@ public class EnumEntry<E extends Enum<E>> extends AbstractEntry<E> {
 
     @Override
     public E getValue() {
-        final String name = prefs.get(node, defaultValue.name());
+        final String name = prefs.get(key, defaultValue.name());
         if (alternatives.containsKey(name))
             return alternatives.get(name);
         else
-            throw new IllegalStateException("Invalid value for setting " + node
-                    + ": " + name);
+            throw new IllegalStateException("Invalid value for setting "
+                    + prefs + ": " + name);
     }
 
     @Override
     public void putValue(final E value) {
-        prefs.put(node, value.name());
+        prefs.put(key, value.name());
     }
 
 }

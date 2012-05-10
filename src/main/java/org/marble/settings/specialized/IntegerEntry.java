@@ -15,11 +15,11 @@ public class IntegerEntry extends AbstractEntry<Integer> {
 
     @Override
     public Integer getValue() {
-        return prefs.getInt(node, defaultValue);
+        return prefs.getInt(key, defaultValue);
     }
 
     @Override
     public void putValue(final Integer value) {
-        prefs.putInt(node, value);
+        prefs.putInt(key, value);
     }
 }

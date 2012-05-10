@@ -46,7 +46,8 @@ let slope2 be Slab(3, 7, 1, 0, 0.2),
     platform3 be Slab(3, 3, 1),
     slope4 be Slab(3, 7, 1, 0, -0.2),
     transformPlatform4 be Slab(5, 5, 1),
-    transformer4 be Transformer([Mercury])
+    transformer4 be Transformer([Mercury]),
+    checkpoint4 be CheckpointBlock()
 
 connect slope2.north_middle to transformPlatform1.south_middle,
         platform2.north_middle to slope2.south_middle,
@@ -55,7 +56,8 @@ connect slope2.north_middle to transformPlatform1.south_middle,
         slope4.south_middle to platform3.north_middle
 
 connect transformPlatform4.south_middle to slope4.north_middle
-position transformer4 at (0, 0, 1) from transformPlatform4
+position transformer4 at (0, 0, 1) from transformPlatform4,
+         checkpoint4 at (-2, 2, 1) from transformPlatform4
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +67,8 @@ let slope5 be Slab(7, 3, 1, 0.1, 0),
     platform6 be Slab(3, 3, 1),
     slope7 be Slab(7, 3, 1, -0.1, 0),
     transformPlatform7 be Slab(5, 5, 1),
-    transformer7 be Transformer([Mercury])
+    transformer7 be Transformer([Mercury]),
+    checkpoint7 be CheckpointBlock()
 
 connect slope5.west_middle to transformPlatform4.east_middle,
         platform5.west_middle to slope5.east_middle,
@@ -74,7 +77,8 @@ connect slope5.west_middle to transformPlatform4.east_middle,
         slope7.east_middle to platform6.west_middle
 
 connect transformPlatform7.east_middle to slope7.west_middle
-position transformer7 at (0, 0, 1) from transformPlatform7
+position transformer7 at (0, 0, 1) from transformPlatform7,
+         checkpoint7 at (-2, -2, 1) from transformPlatform7
 
 //////////////////////////////////////////////////////////////////////////////
 

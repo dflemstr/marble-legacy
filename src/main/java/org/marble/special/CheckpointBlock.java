@@ -170,12 +170,13 @@ public class CheckpointBlock extends AbstractEntity implements Graphical,
             final Vector3f respawnPoint =
                     getSpatial().getWorldTranslation().add(0, 0, 2);
             final GameSession session = game.getCurrentSession().get();
+            session.setRespawnKind(((PlayerBall) other).getBallKind());
             if (!respawnPoint.equals(session.getRespawnPoint())) {
                 session.setRespawnPoint(getSpatial().getWorldTranslation().add(
                         0, 0, 2));
                 final Explosion explosion = new Explosion(ColorRGBA.Pink);
                 explosion.setTransform(getTransform());
-                game.addEntity(explosion);
+                game.getEntityManager().addEntity(explosion);
             }
         }
     }

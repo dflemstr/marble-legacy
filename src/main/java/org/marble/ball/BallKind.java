@@ -41,15 +41,6 @@ public enum BallKind {
 
             final Vector3f vec = new Vector3f();
 
-            // The trunkCenter vectors define a line that is the center of the
-            // trunk that our wood was cut from - all the "rings" will be around
-            // this axis.
-            randomize(vec);
-            // material.setVector3("TrunkCenter1", vec);
-
-            randomize(vec);
-            // material.setVector3("TrunkCenter2", vec);
-
             // The noiseSeed vector seeds the random noise generator. The
             // generator has a period of 289.
             randomize(vec);
@@ -124,9 +115,7 @@ public enum BallKind {
     };
 
     private final float mass;
-
     private final float force;
-
     private final float linearDamping;
 
     /**

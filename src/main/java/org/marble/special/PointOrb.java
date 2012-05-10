@@ -68,10 +68,10 @@ public class PointOrb extends AbstractEntity implements Graphical, Physical,
             final float currentPoints =
                     game.getCurrentSession().get().getPoints();
             game.getCurrentSession().get().setPoints(currentPoints + 100);
-            game.removeEntity(this);
+            game.getEntityManager().removeEntity(this);
             final Explosion explosion = new Explosion(ColorRGBA.Blue);
             explosion.setTransform(getTransform());
-            game.addEntity(explosion);
+            game.getEntityManager().addEntity(explosion);
         }
     }
 }

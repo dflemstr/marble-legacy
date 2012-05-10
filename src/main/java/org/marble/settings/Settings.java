@@ -6,6 +6,7 @@ import java.util.prefs.Preferences;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import org.marble.Game;
 import org.marble.frp.mutable.CompositeMutableReactive;
 import org.marble.frp.mutable.MutableReactive;
 import org.marble.level.StatisticalMetaLevel;
@@ -13,6 +14,7 @@ import org.marble.settings.specialized.BooleanEntry;
 import org.marble.settings.specialized.EnumEntry;
 import org.marble.settings.specialized.IntegerEntry;
 import org.marble.settings.specialized.StatisticsEntryMap;
+import org.marble.settings.specialized.StringEntry;
 import org.marble.util.Quality;
 
 /**
@@ -20,7 +22,7 @@ import org.marble.util.Quality;
  */
 public class Settings {
     protected final Preferences prefs = Preferences
-            .userNodeForPackage(Settings.class);
+            .userNodeForPackage(Game.class);
 
     public final MutableReactive<Integer> viewportWidth = new IntegerEntry(
             prefs, "graphics/viewport/width", 800);
@@ -43,7 +45,7 @@ public class Settings {
     public final MutableReactive<Integer> screenSamplesPerPixel =
             new IntegerEntry(prefs, "graphics/samples_per_pixel", 0);
     public final MutableReactive<Integer> framerate = new IntegerEntry(prefs,
-            "graphics/framerate", -1);
+            "graphics/framerate", 60);
     public final MutableReactive<Boolean> stereoscopic = new BooleanEntry(
             prefs, "graphics/stereoscopic", false);
     public final MutableReactive<Quality> environmentQuality =
@@ -69,6 +71,8 @@ public class Settings {
             prefs, "audio/music/enabled", true);
     public final MutableReactive<Boolean> soundEffectsEnabled =
             new BooleanEntry(prefs, "audio/effects/enabled", true);
+    public final MutableReactive<String> playerName = new StringEntry(prefs,
+            "player/name", "Player");
 
     public final EntryMap<UUID, StatisticalMetaLevel> levelStatistics =
             new StatisticsEntryMap(prefs, "statistics");

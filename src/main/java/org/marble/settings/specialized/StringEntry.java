@@ -15,11 +15,11 @@ public class StringEntry extends AbstractEntry<String> {
 
     @Override
     public String getValue() {
-        return prefs.get(node, defaultValue);
+        return prefs.get(key, defaultValue);
     }
 
     @Override
     public void putValue(final String value) {
-        prefs.put(node, value);
+        prefs.put(key, value);
     }
 }

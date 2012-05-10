@@ -26,7 +26,6 @@ import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.LightNode;
 import com.jme3.scene.Spatial;
-import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.Timer;
 import com.jme3.texture.Texture;
@@ -37,7 +36,6 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.screen.ScreenController;
@@ -56,6 +54,7 @@ import org.marble.engine.GraphicsEngine;
 import org.marble.engine.InputEngine;
 import org.marble.engine.PhysicsEngine;
 import org.marble.entity.Entity;
+import org.marble.entity.EntityManager;
 import org.marble.frp.FRPUtils;
 import org.marble.frp.ReactiveListener;
 import org.marble.frp.mutable.MutableReactive;
@@ -92,6 +91,8 @@ public class Game {
     // The kind of ball that the player should start with on each level
     public static final BallKind DEFAULT_BALL_KIND = BallKind.Wood;
 
+    public static final float LOST_POINTS_PER_SEC = 5;
+
     // Handles rendering.
     private final GraphicsEngine graphicsEngine;
     // Handles keyboard input.
@@ -119,11 +120,15 @@ public class Game {
     // The current game session
     private Optional<GameSession> currentSession = Optional.absent();
 
-    // Currently loaded entities
-    private ImmutableSet<Entity> entities = ImmutableSet.of();
-
     // Engines to handle.
     private final ImmutableSet<Engine<?>> engines;
+
+    /**
+     * The set of running engines.
+     */
+    public ImmutableSet<Engine<?>> getEngines() {
+        return engines;
+    }
 
     // The jME display context
     private final JmeContext context;
@@ -143,6 +148,17 @@ public class Game {
     // The HUD GUI controller
     private Nifty nifty;
 
+    // The manager of game entities
+    private final EntityManager entityManager;
+
+    /**
+     * The current entity manager, containing loaded entities.
+     */
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
+
+    // The player controlled ball, if any
     private Optional<PlayerBall> playerBall = Optional.absent();
 
     /**
@@ -151,6 +167,9 @@ public class Game {
     public Game(final JmeContext context, final AssetManager assetManager,
             final Settings settings) {
         this.settings = settings;
+        this.context = context;
+        this.assetManager = assetManager;
+
         graphicsEngine = new GraphicsEngine(context);
         inputEngine = new InputEngine(context);
         physicsEngine = new PhysicsEngine(context);
@@ -159,41 +178,14 @@ public class Game {
         engines =
                 ImmutableSet.<Engine<?>> of(graphicsEngine, inputEngine,
                         physicsEngine, audioEngine);
-
-        this.context = context;
-        this.assetManager = assetManager;
-    }
-
-    /**
-     * Starts managing a set of entities.
-     * 
-     * @param entities
-     *            The set of entities to manage.
-     */
-    public void addEntities(final Set<Entity> entities) {
-        try {
-            for (final Entity entity : entities) {
-                entity.initialize(this);
-                for (final Engine<?> engine : engines) {
-                    if (engine.shouldHandle(entity)) {
-                        engine.addEntity(entity);
-                    }
-                }
-            }
-        } catch (final Exception e) {
-            handleError(e);
-        }
-
-        this.entities =
-                ImmutableSet.<Entity> builder().addAll(this.entities)
-                        .addAll(entities).build();
+        entityManager = new EntityManager(this);
     }
 
     /**
      * Performs deferred destruction of all subsystems.
      */
     public void destroy() {
-        removeAllEntities();
+        entityManager.removeAllEntities();
 
         for (final Engine<?> engine : engines) {
             engine.destroy();
@@ -286,9 +278,9 @@ public class Game {
     public void togglePause() {
         if (currentSession.isPresent()) {
             final GameSession session = currentSession.get();
-            if (session.isPaused() == GameSession.PauseState.Running) {
+            if (session.getPauseState() == GameSession.PauseState.Running) {
                 setPause(GameSession.PauseState.PlayerPaused);
-            } else if (session.isPaused() == GameSession.PauseState.PlayerPaused) {
+            } else if (session.getPauseState() == GameSession.PauseState.PlayerPaused) {
                 setPause(GameSession.PauseState.Running);
             }
         }
@@ -302,7 +294,7 @@ public class Game {
             engine.setPause(state);
         }
         if (currentSession.isPresent()) {
-            currentSession.get().setPaused(state);
+            currentSession.get().setPauseState(state);
             if (state == GameSession.PauseState.PlayerPaused) {
                 gotoScreen(UIScreen.Pause);
             } else if (state == GameSession.PauseState.Running) {
@@ -326,7 +318,6 @@ public class Game {
      * Initialize GUI subsystem
      */
     private void setupGUI() {
-        // TODO maybe make engine
         final NiftyJmeDisplay niftyDisplay =
                 new NiftyJmeDisplay(assetManager,
                         inputEngine.getInputManager(),
@@ -401,6 +392,7 @@ public class Game {
      */
     public void playLevel(final MetaLevel level) {
         load(level);
+        start();
         gotoScreen(UIScreen.Game);
     }
 
@@ -496,33 +488,8 @@ public class Game {
      *            The entities to start the simulation of.
      */
     private void load(final ImmutableSet<Entity> level) {
-        removeAllEntities();
-        addEntities(level);
-        start();
-    }
-
-    /**
-     * Stops managing an entity.
-     * 
-     * @param entity
-     *            The entity to stop managing.
-     */
-    public void removeEntities(final Set<Entity> entities) {
-        for (final Entity entity : entities) {
-            for (final Engine<?> engine : engines) {
-                if (engine.shouldHandle(entity)) {
-                    engine.removeEntity(entity);
-                }
-            }
-            try {
-                entity.destroy();
-            } catch (final Exception e) {
-                handleError(e);
-            }
-        }
-
-        this.entities =
-                ImmutableSet.copyOf(Sets.difference(this.entities, entities));
+        entityManager.removeAllEntities();
+        entityManager.addEntities(level);
     }
 
     /**
@@ -537,19 +504,6 @@ public class Game {
      * cycle.
      */
     public void restartContext() {
-        final AppSettings appSettings = context.getSettings();
-        appSettings.setWidth(settings.viewportWidth.getValue());
-        appSettings.setHeight(settings.viewportHeight.getValue());
-        appSettings.setBitsPerPixel(settings.viewportDepth.getValue());
-        appSettings.setFrequency(settings.screenFrequency.getValue());
-        appSettings.setDepthBits(settings.viewportDepthBufferBits.getValue());
-        appSettings.setStencilBits(settings.viewportStencilBufferBits
-                .getValue());
-        appSettings.setSamples(settings.screenSamplesPerPixel.getValue());
-        appSettings.setFullscreen(settings.screenFullscreen.getValue());
-        appSettings.setVSync(settings.screenVerticalSync.getValue());
-        appSettings.setFrameRate(settings.framerate.getValue());
-
         context.restart();
     }
 
@@ -582,29 +536,16 @@ public class Game {
             engine.update(timer.getTimePerFrame());
         }
         if (!currentSession.isPresent()
-                || currentSession.get().isPaused() == GameSession.PauseState.Running) {
-            if (currentSession.isPresent()) {
-                if (currentSession.get().getPoints() > 0) {
-                    currentSession.get().setPoints(
-                            currentSession.get().getPoints() - 15
-                                    * timer.getTimePerFrame());
-                }
+                || currentSession.get().getPauseState() == GameSession.PauseState.Running) {
+            if (currentSession.isPresent()
+                    && currentSession.get().getPoints() > 0) {
+                final GameSession session = currentSession.get();
+                session.setPoints(session.getPoints() - LOST_POINTS_PER_SEC
+                        * timer.getTimePerFrame());
             }
-            for (final Entity entity : entities) {
-                try {
-                    entity.update(timer.getTimePerFrame());
-                } catch (final Exception e) {
-                    handleError(e);
-                }
-            }
-        }
-    }
 
-    /**
-     * Removes all entities safely.
-     */
-    private void removeAllEntities() {
-        removeEntities(entities);
+            entityManager.update(timer.getTimePerFrame());
+        }
     }
 
     /**
@@ -729,12 +670,11 @@ public class Game {
         final PlayerBall ball = new PlayerBall(DEFAULT_BALL_KIND);
         ball.setTransform(ballTransform);
 
-        addEntities(ImmutableSet.<Entity> of(ball));
+        entityManager.addEntities(ImmutableSet.<Entity> of(ball));
         trackSpatial(ball.getSpatial());
 
         playerBall = Optional.of(ball);
         currentSession = Optional.of(new GameSession());
-        currentSession.get().setPoints(1000);
 
         setPause(GameSession.PauseState.Running);
     }
@@ -763,7 +703,8 @@ public class Game {
         if (playerBall.isPresent() && currentSession.isPresent()) {
             final PlayerBall ball = playerBall.get();
             try {
-                ball.setBallKind(DEFAULT_BALL_KIND, true, true);
+                ball.setBallKind(currentSession.get().getRespawnKind(), true,
+                        true);
             } catch (final Exception e) {
                 handleError(e);
             }
@@ -789,30 +730,46 @@ public class Game {
                 settings.levelStatistics.getEntry(currentLevel.get().getUUID());
         final StatisticalMetaLevel stats = entry.getValue();
 
-        final String playerName = "Player"; // TODO allow to be specified
+        final String playerName = settings.playerName.getValue();
         final Integer score = (int) currentSession.get().getPoints();
 
-        final ImmutableMap.Builder<String, Integer> highscoreBuilder =
-                ImmutableMap.builder();
         if (!stats.getHighscores().containsKey(playerName)
                 || stats.getHighscores().get(playerName) < score) {
-            highscoreBuilder.put("Player", (int) currentSession.get()
+            final ImmutableMap.Builder<String, Integer> highscoreBuilder =
+                    ImmutableMap.builder();
+            highscoreBuilder.put(playerName, (int) currentSession.get()
                     .getPoints());
-        }
-        highscoreBuilder.putAll(Maps.filterKeys(stats.getHighscores(),
-                Predicates.not(Predicates.equalTo(playerName))));
+            highscoreBuilder.putAll(Maps.filterKeys(stats.getHighscores(),
+                    Predicates.not(Predicates.equalTo(playerName))));
 
-        final StatisticalMetaLevel newStats =
-                new StatisticalMetaLevel(highscoreBuilder.build());
-        entry.setValue(newStats);
+            final StatisticalMetaLevel newStats =
+                    new StatisticalMetaLevel(highscoreBuilder.build());
+
+            entry.setValue(newStats);
+            System.out.println("Saved: " + newStats.getHighscores());
+        }
 
         gotoScreen(UIScreen.Win);
     }
 
+    /**
+     * Handles an exception in the program.
+     * 
+     * @param t
+     *            The machine representation of the exception.
+     */
     public void handleError(final Throwable t) {
         handleError(Optional.<String> absent(), t);
     }
 
+    /**
+     * Handles an exception in the program.
+     * 
+     * @param errorMessage
+     *            A description of the error.
+     * @param t
+     *            The machine representation of the exception.
+     */
     public void handleError(final String errorMessage, final Throwable t) {
         handleError(Optional.of(errorMessage), t);
     }
@@ -958,27 +915,35 @@ public class Game {
         gotoScreen(UIScreen.Highscores);
     }
 
+    /**
+     * Go to the specified UI screen.
+     * 
+     * @param screen
+     *            The screen to go to.
+     */
     public void gotoScreen(final UIScreen screen) {
         nifty.gotoScreen(screen.getName());
     }
 
+    /**
+     * Go to the menu screen.
+     */
     public void gotoMenu() {
-        gotoScreen(UIScreen.Start);
         load(new MetaLevel("Menu level",
                 Game.class.getResource("level/menu.level"),
                 Optional.<URL> absent(),
                 UUID.fromString("a6f6b07a-5a95-4328-a73f-c848f4c52788")));
+        trackSpatial(getGraphicsEngine().getRootNode());
+        playerBall = Optional.absent();
+        currentSession = Optional.absent();
+        setPause(GameSession.PauseState.Running);
+        gotoScreen(UIScreen.Start);
     }
 
+    /**
+     * The URL for the currently loaded level.
+     */
     public URL getCurrentLevelPackURL() {
         return currentLevelPackURL;
-    }
-
-    public void removeEntity(final Entity entity) {
-        removeEntities(ImmutableSet.of(entity));
-    }
-
-    public void addEntity(final Entity entity) {
-        addEntities(ImmutableSet.of(entity));
     }
 }

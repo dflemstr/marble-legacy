@@ -15,11 +15,11 @@ public class BooleanEntry extends AbstractEntry<Boolean> {
 
     @Override
     public Boolean getValue() {
-        return prefs.getBoolean(node, defaultValue);
+        return prefs.getBoolean(key, defaultValue);
     }
 
     @Override
     public void putValue(final Boolean value) {
-        prefs.putBoolean(node, value);
+        prefs.putBoolean(key, value);
     }
 }
